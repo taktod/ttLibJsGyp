@@ -1,0 +1,10 @@
+/.vscode/
+/build/
+/node_modules/
+.project
+jpeg/
+binding.*.gyp
+mario.*
+mario_out.*
+mario_*
+**/.DS_Store

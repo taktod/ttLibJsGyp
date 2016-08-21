@@ -1,0 +1,115 @@
+// mpegtsの読み込みまわりの処理
+#include <nan.h>
+#include "../frame/frame.hpp"
+
+#include <ttLibC/allocator.h>
+#include <ttLibC/container/mpegts.h>
+#include <ttLibC/frame/frame.h>
+#include <stdlib.h>
+
+using namespace v8;
+
+class MpegtsReader : public Nan::ObjectWrap {
+public:
+    static NAN_MODULE_INIT(Init) {
+        ttLibC_Allocator_init();
+//        FramePassingWorker::Init();
+        Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
+        tpl->SetClassName(Nan::New("MpegtsReader").ToLocalChecked());
+        tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+        SetPrototypeMethod(tpl, "read", Read);
+        SetPrototypeMethod(tpl, "dump", Dump);
+
+        constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
+        Nan::Set(
+            target,
+            Nan::New("MpegtsReader").ToLocalChecked(),
+            Nan::GetFunction(tpl).ToLocalChecked());
+    }
+private:
+    explicit MpegtsReader() {
+        reader_ = ttLibC_MpegtsReader_make();
+    }
+    ~MpegtsReader() {
+        ttLibC_MpegtsReader_close(&reader_);
+        ttLibC_Allocator_close();
+    }
+    static NAN_METHOD(New) {
+        if(info.IsConstructCall()) {
+            MpegtsReader *reader = new MpegtsReader();
+            reader->Wrap(info.This());
+            info.GetReturnValue().Set(info.This());
+        }
+        else {
+            Local<Value> *argv = new Local<Value>[info.Length()];
+            for(int i = 0;i < info.Length();++ i) {
+                argv[i] = info[i];
+            }
+            Local<Function> cons = Nan::New(constructor());
+            info.GetReturnValue().Set(Nan::NewInstance(cons, (const int)info.Length(), argv).ToLocalChecked());
+            delete[] argv;
+        }
+    }
+    static bool frameCallback(void *ptr, ttLibC_Frame *frame) {
+        MpegtsReader *reader = (MpegtsReader *)ptr;
+        auto callback = new Nan::Callback(reader->callback_.As<Function>());
+//        Nan::AsyncQueueWorker(new FramePassingWorker(frame, callback));
+        Local<Object> jsFrame = Nan::New<Object>();
+        if(!setupJsFrameObject(
+                jsFrame,
+                frame)) {
+            Local<Value> args[] = {
+                Nan::New("Jsオブジェクト作成失敗").ToLocalChecked(),
+                Nan::Null()};
+            callback->Call(2, args);
+        }
+        else {
+            Local<Value> args[] = {
+                Nan::Null(),
+                jsFrame};
+            callback->Call(2, args);
+        }
+        return true;
+    }
+    static bool mpegtsCallback(void *ptr, ttLibC_Mpegts *mpegts) {
+        return ttLibC_Mpegts_getFrame(
+                mpegts,
+                frameCallback,
+                ptr);
+    }
+    static NAN_METHOD(Read) {
+        // 入力はbinaryデータとcallback
+        if(info.Length() == 2) {
+            Local<Value> binary = info[0];
+            if(binary->IsUint8Array()
+            || binary->IsArrayBuffer()) {
+                uint8_t *data = (uint8_t *)node::Buffer::Data(binary->ToObject());
+                size_t data_size = node::Buffer::Length(binary->ToObject());
+                MpegtsReader* reader = Nan::ObjectWrap::Unwrap<MpegtsReader>(info.Holder());
+                reader->callback_ = info[1];
+                if(ttLibC_MpegtsReader_read(
+                        reader->reader_,
+                        data,
+                        data_size,
+                        mpegtsCallback,
+                        reader)) {
+                    info.GetReturnValue().Set(true);
+                    return;
+                }
+            }
+        }
+        info.GetReturnValue().Set(false);
+    }
+    static NAN_METHOD(Dump) {
+        ttLibC_Allocator_dump();
+    }
+    static inline Nan::Persistent<Function> & constructor() {
+        static Nan::Persistent<Function> my_constructor;
+        return my_constructor;
+    }
+    ttLibC_MpegtsReader *reader_;
+    Local<Value> callback_;
+};
+
+NODE_MODULE(mpegtsReader, MpegtsReader::Init);
