@@ -3,6 +3,7 @@
 #include <ttLibC/allocator.h>
 #include <ttLibC/frame/video/flv1.h>
 #include <ttLibC/frame/video/h264.h>
+#include <ttLibC/frame/video/theora.h>
 #include <ttLibC/frame/video/vp8.h>
 #include <ttLibC/frame/video/vp9.h>
 #include <ttLibC/frame/video/yuv420.h>
@@ -330,6 +331,21 @@ ttLibC_Frame *JsFrameManager::getFrame(
             return (ttLibC_Frame *)h264;
         }
     }
+    else if(checkElementStrCmp(jsFrame, "type", "theora")) {
+        // theora
+        ttLibC_Theora *theora = ttLibC_Theora_getFrame(
+            (ttLibC_Theora *)prev_frame,
+            data,
+            data_size,
+            true,
+            pts,
+            timebase);
+        if(theora != NULL) {
+            theora->inherit_super.inherit_super.id = id;
+            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)theora));
+            return (ttLibC_Frame *)theora;
+        }
+    }
     else if(checkElementStrCmp(jsFrame, "type", "vp8")) {
         // vp8
         ttLibC_Vp8 *vp8 = ttLibC_Vp8_getFrame(
@@ -452,7 +468,10 @@ bool setupJsFrameObject_common(
     Nan::Set(jsFrame, Nan::New("type").ToLocalChecked(), Nan::New(type).ToLocalChecked());
     Nan::Set(jsFrame, Nan::New("pts").ToLocalChecked(), Nan::New((float)(frame->pts)));
     Nan::Set(jsFrame, Nan::New("timebase").ToLocalChecked(), Nan::New(frame->timebase));
-    Nan::Set(jsFrame, Nan::New("data").ToLocalChecked(), Nan::CopyBuffer((char *)frame->data, frame->buffer_size).ToLocalChecked());
+    if(frame->data != NULL) {
+        // ここがNULLの場合はぬるぽがでて、動作しないのか・・・
+        Nan::Set(jsFrame, Nan::New("data").ToLocalChecked(), Nan::CopyBuffer((char *)frame->data, frame->buffer_size).ToLocalChecked());
+    }
     Nan::Set(jsFrame, Nan::New("is_non_copy").ToLocalChecked(), Nan::New(frame->is_non_copy));
     Nan::Set(jsFrame, Nan::New("id").ToLocalChecked(), Nan::New((uint32_t)frame->id));
     return true;
@@ -562,8 +581,13 @@ bool setupJsFrameObject(
             setupJsFrameObject_commonVideo(jsFrame, (ttLibC_Video *)frame);
         }
         break;
-/*    case frameType_theora:
-    case frameType_vp6:*/
+    case frameType_theora:
+        {
+            setupJsFrameObject_common(jsFrame, frame, "theora");
+            setupJsFrameObject_commonVideo(jsFrame, (ttLibC_Video *)frame);
+        }
+        break;
+//    case frameType_vp6:
     case frameType_vp8:
         {
             setupJsFrameObject_common(jsFrame, frame, "vp8");

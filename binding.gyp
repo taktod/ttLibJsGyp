@@ -201,6 +201,24 @@
         },
         {
             "conditions": [[
+                'theoraDecoder=="yes"', {
+                    "defines": ["__ENABLE__"]
+                }
+            ]],
+            "target_name": 'theoraDecoder',
+            "sources": [
+                "src/c/decoder/theoraDecoder.cpp",
+                "src/c/frame/frame.cpp"],
+            "include_dirs": [
+                "<!(node -e \"require('nan')\")",
+                "<!(pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g')",
+                "<!(pkg-config theora --cflags-only-I | sed -e 's/\-I//g')"],
+            'libraries': [
+                '<!@(pkg-config --libs ttLibC)',
+                '<!@(pkg-config --libs theora)']
+        },
+        {
+            "conditions": [[
                 'vtDecompressSessionDecoder=="yes"', {
                     "defines": ["__ENABLE__"],
                     'libraries': [
@@ -304,6 +322,24 @@
             'libraries': [
                 '<!@(pkg-config --libs ttLibC)',
                 '<!@(pkg-config --libs opus)']
+        },
+        {
+            "conditions": [[
+                'theoraEncoder=="yes"', {
+                    "defines": ["__ENABLE__"]
+                }
+            ]],
+            "target_name": 'theoraEncoder',
+            "sources": [
+                "src/c/encoder/theoraEncoder.cpp",
+                "src/c/frame/frame.cpp"],
+            "include_dirs": [
+                "<!(node -e \"require('nan')\")",
+                "<!(pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g')",
+                "<!(pkg-config theora --cflags-only-I | sed -e 's/\-I//g')"],
+            'libraries': [
+                '<!@(pkg-config --libs ttLibC)',
+                '<!@(pkg-config --libs theora)']
         },
         {
             "conditions": [[

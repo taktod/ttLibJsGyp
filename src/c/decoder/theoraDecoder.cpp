@@ -1,11 +1,11 @@
-// yuvをtheoraに変換する動作(libtheora利用)
+// theoraをyuvにする動作
 #include <nan.h>
 #include "../frame/frame.hpp"
 
 #include <ttLibC/allocator.h>
 
 #ifdef __ENABLE__
-#   include <ttLibC/encoder/theoraEncoder.h>
+#   include <ttLibC/decoder/theoraDecoder.h>
 #endif
 
 #include <ttLibC/frame/frame.h>
@@ -13,69 +13,57 @@
 
 using namespace v8;
 
-class TheoraEncoder : public Nan::ObjectWrap {
+class TheoraDecoder : public Nan::ObjectWrap {
 public:
     static NAN_MODULE_INIT(Init) {
 #ifdef __ENABLE__
         ttLibC_Allocator_init();
+//        FramePassingWorker::Init();
         Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
-        tpl->SetClassName(Nan::New("TheoraEncoder").ToLocalChecked());
+        tpl->SetClassName(Nan::New("TheoraDecoder").ToLocalChecked());
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-        SetPrototypeMethod(tpl, "encode", Encode);
+        SetPrototypeMethod(tpl, "decode", Decode);
         SetPrototypeMethod(tpl, "dump", Dump);
 
         constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
         Nan::Set(
             target,
-            Nan::New("TheoraEncoder").ToLocalChecked(),
+            Nan::New("TheoraDecoder").ToLocalChecked(),
             Nan::GetFunction(tpl).ToLocalChecked());
 #endif
     }
 #ifdef __ENABLE__
 private:
-    explicit TheoraEncoder(
-            uint32_t width,
-            uint32_t height) {
-        encoder_ = ttLibC_TheoraEncoder_make(
-                width,
-                height);
+    explicit TheoraDecoder() {
+        decoder_ = ttLibC_TheoraDecoder_make();
         frameManager_ = new JsFrameManager();
     }
-    ~TheoraEncoder() {
-        ttLibC_TheoraEncoder_close(&encoder_);
+    ~TheoraDecoder() {
+        ttLibC_TheoraDecoder_close(&decoder_);
         delete frameManager_;
     }
     static NAN_METHOD(New) {
         if(info.IsConstructCall()) {
-            if(info.Length() != 2) {
-                puts("コンストラクタの引数は2であるべき");
-            }
-            else {
-                TheoraEncoder *encoder = new TheoraEncoder(
-                        info[0]->Uint32Value(),
-                        info[1]->Uint32Value());
-                encoder->Wrap(info.This());
-            }
+            TheoraDecoder *decoder = new TheoraDecoder();
+            decoder->Wrap(info.This());
             info.GetReturnValue().Set(info.This());
         }
         else {
-            Local<Value> *argv = new Local<Value>[info.Length()];
-            for(int i = 0;i < info.Length();++ i) {
-                argv[i] = info[i];
-            }
+            const int argc = 0;
+            Local<Value> argv[argc] = {};
             Local<Function> cons = Nan::New(constructor());
-            info.GetReturnValue().Set(Nan::NewInstance(cons, (const int)info.Length(), argv).ToLocalChecked());
-            delete[] argv;
+            info.GetReturnValue().Set(Nan::NewInstance(cons, argc, argv).ToLocalChecked());
         }
     }
-    static bool encodeCallback(void *ptr, ttLibC_Theora *theora) {
-        TheoraEncoder *encoder = (TheoraEncoder *)ptr;
-        auto callback = new Nan::Callback(encoder->callback_.As<Function>());
+    static bool decodeCallback(void *ptr, ttLibC_Yuv420 *yuv) {
+        TheoraDecoder *decoder = (TheoraDecoder *)ptr;
+        auto callback = new Nan::Callback(decoder->callback_.As<Function>());
+//        Nan::AsyncQueueWorker(new FramePassingWorker((ttLibC_Frame *)yuv, callback));
         Local<Object> jsFrame = Nan::New<Object>();
         if(!setupJsFrameObject(
                 jsFrame,
-                (ttLibC_Frame *)theora)) {
+                (ttLibC_Frame *)yuv)) {
             Local<Value> args[] = {
                 Nan::New("Jsオブジェクト作成失敗").ToLocalChecked(),
                 Nan::Null()};
@@ -89,8 +77,7 @@ private:
         }
         return true;
     }
-    static NAN_METHOD(Encode) {
-        // ここでエンコードを実施する。
+    static NAN_METHOD(Decode) {
         if(info.Length() != 2) {
             puts("パラメーターはフレームとcallbackの２つであるべき");
             info.GetReturnValue().Set(Nan::New(false));
@@ -106,26 +93,26 @@ private:
             info.GetReturnValue().Set(Nan::New(false));
             return;
         }
-        TheoraEncoder *encoder = Nan::ObjectWrap::Unwrap<TheoraEncoder>(info.Holder());
-        encoder->callback_ = info[1];
-        ttLibC_Frame *frame = encoder->frameManager_->getFrame(info[0]->ToObject());
+        TheoraDecoder* decoder = Nan::ObjectWrap::Unwrap<TheoraDecoder>(info.Holder());
+        decoder->callback_ = info[1];
+        // フレーム取得
+        ttLibC_Frame *frame = decoder->frameManager_->getFrame(info[0]->ToObject());
         if(frame == NULL) {
             puts("frameを復元できなかった。");
             info.GetReturnValue().Set(Nan::New(false));
             return;
         }
-        if(frame->type == frameType_yuv420) {
-            if(!ttLibC_TheoraEncoder_encode(
-                    encoder->encoder_,
-                    (ttLibC_Yuv420 *)frame,
-                    encodeCallback,
-                    encoder)) {
-                info.GetReturnValue().Set(Nan::New(false));
-                return;
-            }
+        if(frame->type != frameType_theora) {
+            info.GetReturnValue().Set(Nan::New(true));
+            return;
         }
-        else {
-            puts("それ以外だ");
+        if(!ttLibC_TheoraDecoder_decode(
+                decoder->decoder_,
+                (ttLibC_Theora *)frame,
+                decodeCallback,
+                decoder)) {
+            info.GetReturnValue().Set(Nan::New(false));
+            return;
         }
         info.GetReturnValue().Set(Nan::New(true));
     }
@@ -136,10 +123,10 @@ private:
         static Nan::Persistent<Function> my_constructor;
         return my_constructor;
     }
-    ttLibC_TheoraEncoder *encoder_;
+    ttLibC_TheoraDecoder *decoder_;
     JsFrameManager *frameManager_;
     Local<Value> callback_;
 #endif
 };
 
-NODE_MODULE(theoraEncoder, TheoraEncoder::Init);
+NODE_MODULE(theoraDecoder, TheoraDecoder::Init);

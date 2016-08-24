@@ -19,6 +19,7 @@ module.exports = {
         AvcodecVideo:        require("bindings")("avcodecVideoDecoder").AvcodecVideoDecoder,
         Openh264:            require("bindings")("openh264Decoder").Openh264Decoder,
         Opus:                require("bindings")("opusDecoder").OpusDecoder,
+        Theora:              require("bindings")("theoraDecoder").TheoraDecoder,
         VtDecompressSession: require("bindings")("vtDecompressSessionDecoder").VtDecompressSessionDecoder
     },
     encoder: {
@@ -27,6 +28,7 @@ module.exports = {
         Mp3lame:  require("bindings")("mp3lameEncoder").Mp3lameEncoder,
         Openh264: require("bindings")("openh264Encoder").Openh264Encoder,
         Opus:     require("bindings")("opusEncoder").OpusEncoder,
+        Theora:   require("bindings")("theoraEncoder").TheoraEncoder,
         X264:     require("bindings")("x264Encoder").X264Encoder
     },
     resampler: {

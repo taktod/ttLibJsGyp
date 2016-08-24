@@ -18,6 +18,7 @@ readableStream.on('data', function(data) {
                 if(frame == null) {
                     return;
                 }
+                console.log(frame);
                 counter ++;
                 fs.writeFile("jpeg/mario_" + counter + ".jpeg", frame["data"]);
             });
