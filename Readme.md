@@ -54,8 +54,7 @@ $ node-gyp rebuild
 
 # 問題点
 
-- timestampがおかしくなる動作がある。
-- theoraのencodeやっておきたいし、vorbisのdecodeとかもやっておきたい。
+- vorbisのdecodeとかもやっておきたい。
 - x265の出力とかもやりたい。
 - rtmpクライアント動作つくっておきたい。
 
@@ -71,8 +70,8 @@ $ node-gyp rebuild
  mpegts読み書き(ただしマルチトラックは自信なし)
 デコーダー
  audioConverter(aacのデコード)
- avcodecAudioDecoder(aacのデコード)
- avcodecVideoDecoder(vp8のデコード)
+ avcodecAudioDecoder(aacのデコード, mp3のデコード)
+ avcodecVideoDecoder(vp8のデコード, flv1のデコード)
  openh264Decoder
  opusDecoder
  vtDecompressSessionDecoder(h264のデコード)
