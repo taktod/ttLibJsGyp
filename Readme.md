@@ -68,17 +68,17 @@ $ node-gyp rebuild
  mkvの読み込み
  mp4の読み込み(普通のやつのみ、fmp4やMP4Box通したmp4はやってない。)
  mpegts読み書き(ただしマルチトラックは自信なし)
-デコーダー
- audioConverter(aacのデコード)
- avcodecAudioDecoder(aacのデコード, mp3のデコード)
- avcodecVideoDecoder(vp8のデコード, flv1のデコード)
- openh264Decoder
- opusDecoder
- vtDecompressSessionDecoder(h264のデコード)
+デコーダー()はすでに動作テスト済みのcodec
+ audioConverter(aac)
+ avcodecAudioDecoder(aac, mp3)
+ avcodecVideoDecoder(vp8, flv1, vp6)
+ openh264Decoder(h264)
+ opusDecoder(opus)
+ vtDecompressSessionDecoder(h264)
 エンコーダー
- faacEncoder(aacのエンコード)
- jpegEncoder(jpegファイル作成)
- mp3lameEncoder(mp3のエンコード)
+ faacEncoder(aac)
+ jpegEncoder(jpeg)
+ mp3lameEncoder(mp3)
 リサンプラ
  audioResampler(float -> shortのpcm変換)
  speexdspResampler(shortのpcmのサンプルレート変換)
