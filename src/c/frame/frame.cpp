@@ -10,9 +10,11 @@
 #include <ttLibC/frame/video/yuv420.h>
 #include <ttLibC/frame/audio/aac.h>
 #include <ttLibC/frame/audio/mp3.h>
+#include <ttLibC/frame/audio/nellymoser.h>
 #include <ttLibC/frame/audio/opus.h>
 #include <ttLibC/frame/audio/pcmf32.h>
 #include <ttLibC/frame/audio/pcms16.h>
+#include <ttLibC/frame/audio/speex.h>
 #include <ttLibC/util/hexUtil.h>
 #include <pthread.h>
 #include <list>
@@ -180,6 +182,23 @@ ttLibC_Frame *JsFrameManager::getFrame(
             mp3->inherit_super.inherit_super.id = id;
             frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)mp3));
             return (ttLibC_Frame *)mp3;
+        }
+    }
+    else if(checkElementStrCmp(jsFrame, "type", "nellymoser")) {
+        ttLibC_Nellymoser *nellymoser = ttLibC_Nellymoser_make(
+                (ttLibC_Nellymoser *)prev_frame,
+                sample_rate,
+                sample_num,
+                channel_num,
+                data,
+                data_size,
+                true,
+                pts,
+                timebase);
+        if(nellymoser != NULL) {
+            nellymoser->inherit_super.inherit_super.id = id;
+            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)nellymoser));
+            return (ttLibC_Frame *)nellymoser;
         }
     }
     else if(checkElementStrCmp(jsFrame, "type", "opus")) {
@@ -714,7 +733,12 @@ bool setupJsFrameObject(
             }
         }
         break;
-//    case frameType_nellymoser:
+    case frameType_nellymoser:
+        {
+            setupJsFrameObject_common(jsFrame, frame, "nellymoser");
+            setupJsFrameObject_commonAudio(jsFrame, (ttLibC_Audio *)frame);
+        }
+        break;
     case frameType_opus:
         {
             setupJsFrameObject_common(jsFrame, frame, "opus");
@@ -806,7 +830,7 @@ bool setupJsFrameObject(
         }
         break;
 /*    case frameType_speex:
-    case frameType_vorbis:*/
+    case frameType_vorbis:*/ // vorbisのframe扱えないのまずくね？
     default:
         break;
     }

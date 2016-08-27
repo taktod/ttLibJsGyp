@@ -1,5 +1,4 @@
-// openh264Decodeの動作テスト
-console.log("openh264Decodeの動作テスト jpegにしてみよう。");
+console.log("avcodecの動作テスト mp3をデコード");
 var fs = require('fs');
 var flv = require('../../').flv;
 var flvReader = new flv.Reader();

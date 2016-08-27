@@ -1,23 +1,24 @@
-console.log("avcodecの動作テスト mp3をデコードして、再度mp3にする");
+console.log("avcodecの動作テスト speex");
 var fs = require('fs');
 var flv = require('../../').flv;
 var flvReader = new flv.Reader();
 var decoder = require("../../").decoder;
-var avMp3Decoder = new decoder.AvcodecAudio(44100, 2, "mp3");
+var avMp3Decoder = new decoder.AvcodecAudio(16000, 1, "speex");
 var encoder = require("../../").encoder;
-var mp3Encoder = new encoder.Mp3lame(44100, 2, 8);
+var mp3Encoder = new encoder.Mp3lame(16000, 1, 8); // mp3って16kHzできたっけ？
 var resampler = require("../../").resampler;
 var audioResampler = new resampler.Audio("pcmS16", "littleEndian");
 
-var readableStream = fs.createReadStream("mario.flv1.mp3.flv");
-var writableStream = fs.createWriteStream("mario_avmp3.mp3");
+var readableStream = fs.createReadStream("smile.vp6.speex.flv");
+var writableStream = fs.createWriteStream("smile.speex.mp3");
 readableStream.on('data', function(data) {
     flvReader.read(data, function(err, frame) {
         if(err != null) {
             console.log(err);
         }
         else {
-            avMp3Decoder.decode(frame, function(err, frame) {
+            console.log(frame);
+/*            avMp3Decoder.decode(frame, function(err, frame) {
                 if(err != null) {
                     console.log(err);
                 }
@@ -31,7 +32,7 @@ readableStream.on('data', function(data) {
                         });
                     });
                 }
-            });
+            });*/
         }
     });
 });

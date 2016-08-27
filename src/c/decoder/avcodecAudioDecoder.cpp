@@ -60,6 +60,12 @@ private:
                 else if(strcmp((const char *)*codec, "mp3") == 0) {
                     type = frameType_mp3;
                 }
+                else if(strcmp((const char *)*codec, "speex") == 0) {
+                    type = frameType_speex;
+                }
+                else if(strcmp((const char *)*codec, "nellymoser") == 0) {
+                    type = frameType_nellymoser;
+                }
                 AvcodecAudioDecoder *decoder = new AvcodecAudioDecoder(
                         info[0]->Uint32Value(),
                         info[1]->Uint32Value(),
