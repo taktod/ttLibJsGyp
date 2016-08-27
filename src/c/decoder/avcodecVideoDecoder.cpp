@@ -60,6 +60,9 @@ private:
                 else if(strcmp((const char *)*codec, "flv1") == 0) {
                     type = frameType_flv1;
                 }
+                else if(strcmp((const char *)*codec, "vp6") == 0) {
+                    type = frameType_vp6;
+                }
                 else if(strcmp((const char *)*codec, "vp8") == 0) {
                     type = frameType_vp8;
                 }

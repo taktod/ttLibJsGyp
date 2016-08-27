@@ -4,6 +4,7 @@
 #include <ttLibC/frame/video/flv1.h>
 #include <ttLibC/frame/video/h264.h>
 #include <ttLibC/frame/video/theora.h>
+#include <ttLibC/frame/video/vp6.h>
 #include <ttLibC/frame/video/vp8.h>
 #include <ttLibC/frame/video/vp9.h>
 #include <ttLibC/frame/video/yuv420.h>
@@ -346,6 +347,21 @@ ttLibC_Frame *JsFrameManager::getFrame(
             return (ttLibC_Frame *)theora;
         }
     }
+    else if(checkElementStrCmp(jsFrame, "type", "vp6")) {
+        // vp6
+        ttLibC_Vp6 *vp6 = ttLibC_Vp6_getFrame(
+            (ttLibC_Vp6 *)prev_frame,
+            data,
+            data_size,
+            true,
+            pts,
+            timebase);
+        if(vp6 != NULL) {
+            vp6->inherit_super.inherit_super.id = id;
+            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)vp6));
+            return (ttLibC_Frame *)vp6;
+        }
+    }
     else if(checkElementStrCmp(jsFrame, "type", "vp8")) {
         // vp8
         ttLibC_Vp8 *vp8 = ttLibC_Vp8_getFrame(
@@ -587,7 +603,12 @@ bool setupJsFrameObject(
             setupJsFrameObject_commonVideo(jsFrame, (ttLibC_Video *)frame);
         }
         break;
-//    case frameType_vp6:
+    case frameType_vp6:
+        {
+            setupJsFrameObject_common(jsFrame, frame, "vp6");
+            setupJsFrameObject_commonVideo(jsFrame, (ttLibC_Video *)frame);
+        }
+        break;
     case frameType_vp8:
         {
             setupJsFrameObject_common(jsFrame, frame, "vp8");
