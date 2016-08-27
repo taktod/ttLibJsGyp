@@ -3,7 +3,7 @@ var fs = require('fs');
 var flv = require('../../').flv;
 var flvReader = new flv.Reader();
 var decoder = require("../../").decoder;
-var avMp3Decoder = new decoder.AvcodecAudio(16000, 1, "speex");
+var speexDecoder = new decoder.AvcodecAudio(16000, 1, "speex");
 var encoder = require("../../").encoder;
 var mp3Encoder = new encoder.Mp3lame(16000, 1, 8); // mp3って16kHzできたっけ？
 var resampler = require("../../").resampler;
@@ -18,7 +18,7 @@ readableStream.on('data', function(data) {
         }
         else {
             console.log(frame);
-/*            avMp3Decoder.decode(frame, function(err, frame) {
+            speexDecoder.decode(frame, function(err, frame) {
                 if(err != null) {
                     console.log(err);
                 }
@@ -32,7 +32,7 @@ readableStream.on('data', function(data) {
                         });
                     });
                 }
-            });*/
+            });
         }
     });
 });

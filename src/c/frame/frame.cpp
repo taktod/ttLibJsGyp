@@ -321,6 +321,20 @@ ttLibC_Frame *JsFrameManager::getFrame(
             return (ttLibC_Frame *)pcm;
         }
     }
+    else if(checkElementStrCmp(jsFrame, "type", "speex")) {
+        ttLibC_Speex *speex = ttLibC_Speex_getFrame(
+            (ttLibC_Speex *)prev_frame,
+            data,
+            data_size,
+            true,
+            pts,
+            timebase);
+        if(speex != NULL) {
+            speex->inherit_super.inherit_super.id = id;
+            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)speex));
+            return (ttLibC_Frame *)speex;
+        }
+    }
     else if(checkElementStrCmp(jsFrame, "type", "flv1")) {
         // flv1
         ttLibC_Flv1 *flv1 = ttLibC_Flv1_getFrame(
@@ -829,8 +843,27 @@ bool setupJsFrameObject(
             }
         }
         break;
-/*    case frameType_speex:
-    case frameType_vorbis:*/ // vorbisのframe扱えないのまずくね？
+    case frameType_speex:
+        {
+            setupJsFrameObject_common(jsFrame, frame, "speex");
+            setupJsFrameObject_commonAudio(jsFrame, (ttLibC_Audio *)frame);
+            ttLibC_Speex *speex = (ttLibC_Speex *)frame;
+            switch(speex->type) {
+            case SpeexType_header:
+                Nan::Set(jsFrame, Nan::New("speexType").ToLocalChecked(), Nan::New("header").ToLocalChecked());
+                break;
+            case SpeexType_comment:
+                Nan::Set(jsFrame, Nan::New("speexType").ToLocalChecked(), Nan::New("comment").ToLocalChecked());
+                break;
+            case SpeexType_frame:
+                Nan::Set(jsFrame, Nan::New("speexType").ToLocalChecked(), Nan::New("frame").ToLocalChecked());
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+//    case frameType_vorbis: // vorbisのframe扱えないのまずくね？
     default:
         break;
     }
