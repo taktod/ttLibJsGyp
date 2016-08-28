@@ -20,6 +20,7 @@ module.exports = {
         Openh264:            require("bindings")("openh264Decoder").Openh264Decoder,
         Opus:                require("bindings")("opusDecoder").OpusDecoder,
         Theora:              require("bindings")("theoraDecoder").TheoraDecoder,
+        Vorbis:              require("bindings")("vorbisDecoder").VorbisDecoder,
         VtDecompressSession: require("bindings")("vtDecompressSessionDecoder").VtDecompressSessionDecoder
     },
     encoder: {

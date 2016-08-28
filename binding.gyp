@@ -219,6 +219,24 @@
         },
         {
             "conditions": [[
+                'vorbisDecoder=="yes"', {
+                    "defines": ["__ENABLE__"]
+                }
+            ]],
+            "target_name": 'vorbisDecoder',
+            "sources": [
+                "src/c/decoder/vorbisDecoder.cpp",
+                "src/c/frame/frame.cpp"],
+            "include_dirs": [
+                "<!(node -e \"require('nan')\")",
+                "<!(pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g')",
+                "<!(pkg-config vorbis --cflags-only-I | sed -e 's/\-I//g')"],
+            'libraries': [
+                '<!@(pkg-config --libs ttLibC)',
+                '<!@(pkg-config --libs vorbis)']
+        },
+        {
+            "conditions": [[
                 'vtDecompressSessionDecoder=="yes"', {
                     "defines": ["__ENABLE__"],
                     'libraries': [

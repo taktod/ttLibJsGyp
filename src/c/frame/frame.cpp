@@ -15,6 +15,7 @@
 #include <ttLibC/frame/audio/pcmf32.h>
 #include <ttLibC/frame/audio/pcms16.h>
 #include <ttLibC/frame/audio/speex.h>
+#include <ttLibC/frame/audio/vorbis.h>
 #include <ttLibC/util/hexUtil.h>
 #include <pthread.h>
 #include <list>
@@ -333,6 +334,20 @@ ttLibC_Frame *JsFrameManager::getFrame(
             speex->inherit_super.inherit_super.id = id;
             frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)speex));
             return (ttLibC_Frame *)speex;
+        }
+    }
+    else if(checkElementStrCmp(jsFrame, "type", "vorbis")) {
+        ttLibC_Vorbis *vorbis = ttLibC_Vorbis_getFrame(
+            (ttLibC_Vorbis *)prev_frame,
+            data,
+            data_size,
+            true,
+            pts,
+            timebase);
+        if(vorbis != NULL) {
+            vorbis->inherit_super.inherit_super.id = id;
+            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)vorbis));
+            return (ttLibC_Frame *)vorbis;
         }
     }
     else if(checkElementStrCmp(jsFrame, "type", "flv1")) {
@@ -863,7 +878,29 @@ bool setupJsFrameObject(
             }
         }
         break;
-//    case frameType_vorbis: // vorbisのframe扱えないのまずくね？
+    case frameType_vorbis:
+        {
+            setupJsFrameObject_common(jsFrame, frame, "vorbis");
+            setupJsFrameObject_commonAudio(jsFrame, (ttLibC_Audio *)frame);
+            ttLibC_Vorbis *vorbis = (ttLibC_Vorbis *)frame;
+            switch(vorbis->type) {
+            case VorbisType_identification:
+                Nan::Set(jsFrame, Nan::New("vorbisType").ToLocalChecked(), Nan::New("identification").ToLocalChecked());
+                break;
+            case VorbisType_comment:
+                Nan::Set(jsFrame, Nan::New("vorbisType").ToLocalChecked(), Nan::New("comment").ToLocalChecked());
+                break;
+            case VorbisType_setup:
+                Nan::Set(jsFrame, Nan::New("vorbisType").ToLocalChecked(), Nan::New("setup").ToLocalChecked());
+                break;
+            case VorbisType_frame:
+                Nan::Set(jsFrame, Nan::New("vorbisType").ToLocalChecked(), Nan::New("frame").ToLocalChecked());
+                break;
+            default:
+                break;
+            }
+        }
+        break;
     default:
         break;
     }
