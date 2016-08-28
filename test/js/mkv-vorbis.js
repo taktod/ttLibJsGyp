@@ -1,4 +1,4 @@
-// mkvのデータを取得後、opusの部分のみ取り出し、pcmに変換する動作 さらにaac(adts)にしよう。
+// mkvのデータを取得後、vorbisの部分のみ取り出し、pcmに変換する動作 さらにmp3にしよう。
 console.log("mkvからvorbisを取り出してdecodeしてみる。");
 var fs = require("fs");
 var mkv = require("../../").mkv;
