@@ -77,7 +77,7 @@ declare module 'ttlibjsgyp'{
       /**
        * コンストラクタ
        * @param types "h264" "aac" "mp3"といったフレームタイプ指定。
-       * 前から順にIDガ0x100 0x101..と増えていきます。
+       * 前から順にIDが0x100 0x101..と増えていきます。
        */
       constructor(...types: string[]);
       /**
@@ -120,6 +120,21 @@ declare module 'ttlibjsgyp'{
        * @return true:成功時 false:失敗時
        */
       read(data:Buffer, func:{(err:string, frame:JsFrame):void}):boolean;
+    }
+    /**
+     * mp4データ書き出しクラス
+     */
+    export class Writer {
+      /**
+       * コンストラクタ
+       * @param types "h264" "aac"といったフレームタイプ指定。
+       * 前から順にIDが1,2,3...と増えていきます。
+       */
+      constructor(...types: string[]);
+      /**
+       * データを書き出す(実際はb inaryデータをcallbackで受け取る)
+       */
+      write(frame:JsFrame, func:{(err:string, buffer:Buffer):void}):boolean;
     }
   }
   export namespace decoder {
@@ -229,6 +244,22 @@ declare module 'ttlibjsgyp'{
        * @return true:成功 false:失敗
        */
       decode(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
+    }
+    /**
+     * libvorbisによるvorbisのデコード動作
+     */
+    export class Vorbis {
+      /**
+       * コンストラクタ
+       */
+      constructor();
+      /**
+       * デコードを実施します。
+       * @param frame 変換元のフレーム
+       * @param func  生成データを受け取るcallback
+       * @return true:成功 false:失敗
+       */
+      decode(frame:JsAudioFrame, func:{(err:string, frame:JsAudioFrame):void}):boolean;
     }
     /**
      * OSXのVideoToolDecompressSessionによるデコード動作

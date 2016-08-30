@@ -82,6 +82,19 @@
             ]
         },
         {
+            "target_name": 'mp4Writer',
+            "sources": [
+                "src/c/container/mp4Writer.cpp",
+                "src/c/frame/frame.cpp"],
+            "include_dirs": [
+                "<!(node -e \"require('nan')\")",
+                "<!(pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g')"
+            ],
+            'libraries': [
+                '<!@(pkg-config --libs ttLibC)',
+            ]
+        },
+        {
             "target_name": 'mpegtsReader',
             "sources": [
                 "src/c/container/mpegtsReader.cpp",

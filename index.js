@@ -7,7 +7,8 @@ module.exports = {
         Reader: require("bindings")("mkvReader").MkvReader
     },
     mp4: {
-        Reader: require("bindings")("mp4Reader").Mp4Reader
+        Reader: require("bindings")("mp4Reader").Mp4Reader,
+        Writer: require("bindings")("mp4Writer").Mp4Writer
     },
     mpegts: {
         Reader: require("bindings")("mpegtsReader").MpegtsReader,
