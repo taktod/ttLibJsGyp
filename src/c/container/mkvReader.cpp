@@ -32,8 +32,10 @@ private:
         reader_ = ttLibC_MkvReader_make();
     }
     ~MkvReader() {
+        puts("mkvReader解放する。");
         ttLibC_MkvReader_close(&reader_);
         ttLibC_Allocator_close();
+        puts("mkvReader終わった");
     }
     static NAN_METHOD(New) {
         if(info.IsConstructCall()) {

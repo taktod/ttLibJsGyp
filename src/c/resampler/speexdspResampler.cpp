@@ -97,6 +97,7 @@ private:
             info.GetReturnValue().Set(Nan::New(false));
             return;
         }
+        // ここで確認して、すでにresampleする必要がなければ、そのまま応答を返すみたいな動作にしておけばいいと思う。
         SpeexdspResampler* resampler = Nan::ObjectWrap::Unwrap<SpeexdspResampler>(info.Holder());
         ttLibC_Frame *frame = resampler->frameManager_->getFrame(info[0]->ToObject());
         if(frame == NULL) {

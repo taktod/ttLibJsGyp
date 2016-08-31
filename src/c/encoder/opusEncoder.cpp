@@ -43,8 +43,10 @@ private:
         frameManager_ = new JsFrameManager();
     }
     ~OpusEncoder() {
+        puts("opusEncoder解放する。");
         ttLibC_OpusEncoder_close(&encoder_);
         delete frameManager_;
+        puts("opusEncoder終わり");
     }
     static NAN_METHOD(New) {
         if(info.IsConstructCall()) {
