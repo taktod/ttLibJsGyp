@@ -45,6 +45,7 @@ private:
     ~AvcodecVideoDecoder() {
         puts("avcodecVideoDecoder解放する");
         ttLibC_AvcodecDecoder_close(&decoder_);
+        puts("問題はここか？");
         delete frameManager_;
         puts("avcodecVideoDecoderおわり");
     }
