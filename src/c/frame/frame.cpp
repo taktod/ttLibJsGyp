@@ -99,15 +99,21 @@ JsFrameManager::JsFrameManager() {
 
 JsFrameManager::~JsFrameManager() {
     // 保持しているframeを解放してまわる。
+    puts("frameManagerの解放をします。");
     std::map<uint32_t, ttLibC_Frame *>::iterator iter = frameMap_->begin();
     while(iter != frameMap_->end()) {
-//        uint32_t id = iter->first;
+        uint32_t id = iter->first;
+        printf("id:%d の解放\n", id);
         ++ iter;
         ttLibC_Frame *frame = iter->second;
+        printf("frame:%d\n", frame);
         ttLibC_Frame_close(&frame);
+        puts("解放できた");
     }
+    puts("解放完了");
     // 解放させずにメモリーリークさせてみる。
     delete frameMap_;
+    puts("map破棄");
 }
 
 static bool checkElementStrCmp(Local<Object> object, const char *key, const char *value) {
