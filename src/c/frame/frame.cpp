@@ -102,6 +102,7 @@ JsFrameManager::~JsFrameManager() {
     std::map<uint32_t, ttLibC_Frame *>::iterator iter = frameMap_->begin();
     while(iter != frameMap_->end()) {
 //        uint32_t id = iter->first;
+        ++ iter;
         ttLibC_Frame *frame = iter->second;
         ttLibC_Frame_close(&frame);
     }
@@ -156,7 +157,7 @@ ttLibC_Frame *JsFrameManager::getFrame(
     ttLibC_Frame *prev_frame = NULL;
     if(iter != frameMap_->end()) {
         prev_frame = (ttLibC_Frame *)iter->second;
-        frameMap_->erase(id);
+//        frameMap_->erase(id);
     }
     if(checkElementStrCmp(jsFrame, "type", "aac")) {
         // aac
