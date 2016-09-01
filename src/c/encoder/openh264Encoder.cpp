@@ -50,10 +50,8 @@ private:
         frameManager_ = new JsFrameManager();
     }
     ~Openh264Encoder() {
-        puts("openh264Encoder解放する");
         ttLibC_Openh264Encoder_close(&encoder_);
         delete frameManager_;
-        puts("opush264Encoder終わり");
     }
     static NAN_METHOD(New) {
         if(info.IsConstructCall()) {

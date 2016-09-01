@@ -43,11 +43,8 @@ private:
         frameManager_ = new JsFrameManager();
     }
     ~AvcodecVideoDecoder() {
-        puts("avcodecVideoDecoder解放する");
         ttLibC_AvcodecDecoder_close(&decoder_);
-        puts("問題はここか？");
         delete frameManager_;
-        puts("avcodecVideoDecoderおわり");
     }
     static NAN_METHOD(New) {
         if(info.IsConstructCall()) {

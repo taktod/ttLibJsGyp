@@ -35,10 +35,8 @@ private:
         frameManager_ = new JsFrameManager();
     }
     ~Mp4Writer() {
-        puts("mp4Reader解放する");
         ttLibC_Mp4Writer_close(&writer_);
         delete frameManager_;
-        puts("mp4Reader解放できた。");
     }
     static NAN_METHOD(New) {
         if(info.IsConstructCall()) {
