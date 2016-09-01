@@ -48,7 +48,8 @@ public:
     ~JsFrameManager();
 private:
     // id -> frame(reuse)を保持する
-    std::map<uint32_t, ttLibC_Frame *> *frameMap_;
+//    std::map<uint32_t, ttLibC_Frame *> *frameMap_;
+    ttLibC_StlMap *frameStlMap_;
 };
 
 /**

@@ -94,13 +94,20 @@ void FramePassingWorker::HandleOKCallback() {
 // JsFrameManager絡み
 JsFrameManager::JsFrameManager() {
     // mapをつくっておく
-    frameMap_ = new std::map<uint32_t, ttLibC_Frame *>();
+//    frameMap_ = new std::map<uint32_t, ttLibC_Frame *>();
+    frameStlMap_ = ttLibC_StlMap_make();
+}
+
+static bool JsManager_closeMap(void *ptr, void *key, void *item) {
+    ttLibC_Frame *frame = (ttLibC_Frame *)item;
+    ttLibC_Frame_close(&frame);
+    return true;
 }
 
 JsFrameManager::~JsFrameManager() {
     // 保持しているframeを解放してまわる。
     puts("frameManagerの解放をします。");
-    std::map<uint32_t, ttLibC_Frame *>::iterator iter = frameMap_->begin();
+/*    std::map<uint32_t, ttLibC_Frame *>::iterator iter = frameMap_->begin();
     while(iter != frameMap_->end()) {
         uint32_t id = iter->first;
         printf("id:%d の解放\n", id);
@@ -112,7 +119,9 @@ JsFrameManager::~JsFrameManager() {
     }
     puts("解放完了");
     // 解放させずにメモリーリークさせてみる。
-    delete frameMap_;
+    delete frameMap_;*/
+    ttLibC_StlMap_forEach(frameStlMap_, JsManager_closeMap, NULL);
+    ttLibC_StlMap_close(&frameStlMap_);
     puts("map破棄");
 }
 
@@ -147,6 +156,7 @@ ttLibC_Frame *JsFrameManager::getFrame(
     uint64_t pts = getElementNumber(jsFrame, "pts");
     uint32_t timebase = (uint32_t)getElementNumber(jsFrame, "timebase");
     uint32_t id = (uint32_t)getElementNumber(jsFrame, "id");
+    uint64_t lid = (uint64_t)id;
     // 以下はいまのところ、復元に利用していない。
     // まぁframeによっては必須になるわけだが・・・
     uint32_t width = (uint32_t)getElementNumber(jsFrame, "width");
@@ -159,12 +169,13 @@ ttLibC_Frame *JsFrameManager::getFrame(
     uint8_t *data = (uint8_t *)node::Buffer::Data(v8Data->ToObject());
     size_t data_size = node::Buffer::Length(v8Data->ToObject());
     // bufferデータをなんとかする。
-    std::map<uint32_t, ttLibC_Frame *>::iterator iter = frameMap_->find(id);
+/*    std::map<uint32_t, ttLibC_Frame *>::iterator iter = frameMap_->find(id);
     ttLibC_Frame *prev_frame = NULL;
     if(iter != frameMap_->end()) {
         prev_frame = (ttLibC_Frame *)iter->second;
 //        frameMap_->erase(id);
-    }
+    }*/
+    ttLibC_Frame *prev_frame = (ttLibC_Frame *)ttLibC_StlMap_get(frameStlMap_, (void *)lid);
     if(checkElementStrCmp(jsFrame, "type", "aac")) {
         // aac
         ttLibC_Aac *aac = ttLibC_Aac_getFrame(
@@ -176,7 +187,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
             timebase);
         if(aac != NULL) {
             aac->inherit_super.inherit_super.id = id;
-            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)aac));
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, aac);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)aac));
             return (ttLibC_Frame *)aac;
         }
     }
@@ -190,7 +202,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
             timebase);
         if(mp3 != NULL) {
             mp3->inherit_super.inherit_super.id = id;
-            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)mp3));
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, mp3);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)mp3));
             return (ttLibC_Frame *)mp3;
         }
     }
@@ -207,7 +220,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
                 timebase);
         if(nellymoser != NULL) {
             nellymoser->inherit_super.inherit_super.id = id;
-            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)nellymoser));
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, nellymoser);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)nellymoser));
             return (ttLibC_Frame *)nellymoser;
         }
     }
@@ -221,7 +235,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
             timebase);
         if(opus != NULL) {
             opus->inherit_super.inherit_super.id = id;
-            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)opus));
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, opus);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)opus));
             return (ttLibC_Frame *)opus;
         }
     }
@@ -272,7 +287,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
         }
         if(pcm != NULL) {
             pcm->inherit_super.inherit_super.id = id;
-            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)pcm));
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, pcm);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)pcm));
             return (ttLibC_Frame *)pcm;
         }
     }
@@ -327,7 +343,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
         }
         if(pcm != NULL) {
             pcm->inherit_super.inherit_super.id = id;
-            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)pcm));
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, pcm);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)pcm));
             return (ttLibC_Frame *)pcm;
         }
     }
@@ -341,7 +358,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
             timebase);
         if(speex != NULL) {
             speex->inherit_super.inherit_super.id = id;
-            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)speex));
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, speex);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)speex));
             return (ttLibC_Frame *)speex;
         }
     }
@@ -355,7 +373,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
             timebase);
         if(vorbis != NULL) {
             vorbis->inherit_super.inherit_super.id = id;
-            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)vorbis));
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, vorbis);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)vorbis));
             return (ttLibC_Frame *)vorbis;
         }
     }
@@ -370,7 +389,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
             timebase);
         if(flv1 != NULL) {
             flv1->inherit_super.inherit_super.id = id;
-            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)flv1));
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, flv1);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)flv1));
             return (ttLibC_Frame *)flv1;
         }
     }
@@ -385,7 +405,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
             timebase);
         if(h264 != NULL) {
             h264->inherit_super.inherit_super.id = id;
-            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)h264));
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, h264);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)h264));
             return (ttLibC_Frame *)h264;
         }
     }
@@ -400,7 +421,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
             timebase);
         if(theora != NULL) {
             theora->inherit_super.inherit_super.id = id;
-            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)theora));
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, theora);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)theora));
             return (ttLibC_Frame *)theora;
         }
     }
@@ -415,7 +437,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
             timebase);
         if(vp6 != NULL) {
             vp6->inherit_super.inherit_super.id = id;
-            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)vp6));
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, vp6);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)vp6));
             return (ttLibC_Frame *)vp6;
         }
     }
@@ -430,7 +453,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
             timebase);
         if(vp8 != NULL) {
             vp8->inherit_super.inherit_super.id = id;
-            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)vp8));
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, vp8);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)vp8));
             return (ttLibC_Frame *)vp8;
         }
     }
@@ -445,7 +469,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
             timebase);
         if(vp9 != NULL) {
             vp9->inherit_super.inherit_super.id = id;
-            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)vp9));
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, vp9);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)vp9));
             return (ttLibC_Frame *)vp9;
         }
     }
@@ -488,7 +513,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
         }
         if(yuv != NULL) {
             yuv->inherit_super.inherit_super.id = id;
-            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)yuv));
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, yuv);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)yuv));
             return (ttLibC_Frame *)yuv;
         }
     }
