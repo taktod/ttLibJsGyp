@@ -98,7 +98,6 @@ JsFrameManager::JsFrameManager() {
 }
 
 JsFrameManager::~JsFrameManager() {
-    /*
     // 保持しているframeを解放してまわる。
     std::map<uint32_t, ttLibC_Frame *>::iterator iter = frameMap_->begin();
     while(iter != frameMap_->end()) {
@@ -106,7 +105,6 @@ JsFrameManager::~JsFrameManager() {
         ttLibC_Frame *frame = iter->second;
         ttLibC_Frame_close(&frame);
     }
-    */
     // 解放させずにメモリーリークさせてみる。
     delete frameMap_;
 }
@@ -158,6 +156,7 @@ ttLibC_Frame *JsFrameManager::getFrame(
     ttLibC_Frame *prev_frame = NULL;
     if(iter != frameMap_->end()) {
         prev_frame = (ttLibC_Frame *)iter->second;
+        frameMap_->erase(id);
     }
     if(checkElementStrCmp(jsFrame, "type", "aac")) {
         // aac
