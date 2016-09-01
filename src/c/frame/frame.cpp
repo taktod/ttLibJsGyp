@@ -98,6 +98,7 @@ JsFrameManager::JsFrameManager() {
 }
 
 JsFrameManager::~JsFrameManager() {
+    /*
     // 保持しているframeを解放してまわる。
     std::map<uint32_t, ttLibC_Frame *>::iterator iter = frameMap_->begin();
     while(iter != frameMap_->end()) {
@@ -105,6 +106,8 @@ JsFrameManager::~JsFrameManager() {
         ttLibC_Frame *frame = iter->second;
         ttLibC_Frame_close(&frame);
     }
+    */
+    // 解放させずにメモリーリークさせてみる。
     delete frameMap_;
 }
 
