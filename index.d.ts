@@ -423,6 +423,62 @@ declare module 'ttlibjsgyp'{
       encode(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
     }
   }
+  export namespace net {
+    export namespace RtmpClient {
+      /**
+       * rtmpのNetConnection
+       */
+      export class NetConnection {
+        /**
+         * コンストラクタ
+         */
+        constructor();
+        /**
+         * イベントをリスナを追加する。
+         * @param target
+         * @param listener
+         */
+        addEventListener(target:string, listener:{(e):void}):boolean;
+        /**
+         * 接続する
+         */
+        connect(address:string):boolean;
+      }
+      /**
+       * rtmpに接続したら、つくるnetStream
+       * このstreamを通して、映像データや音声データにアクセスする。
+       */
+      export class NetStream {
+        /**
+         * コンストラクタ
+         * @param nc NetConnection.Connect.Successしたコネクションオブジェクト
+         */
+        constructor(nc:NetConnection);
+        /**
+         * playを開始する。
+         * @param name     対象ストリーム名
+         * @param hasVideo 映像トラックを取得するかどうか
+         * @param hasAudio 音声トラックを取得するかどうか
+         */
+        play(name:string, hasVideo?:boolean, hasAudio?:boolean);
+        /**
+         * bufferLengthを設定する。
+         * @param value 
+         */
+        setBufferLength(value:number);
+        /**
+         * イベントをリスナを追加する。
+         * @param target
+         * @param listener
+         */
+        addEventListener(target:string, listener:{(e):void}):boolean;
+        /**
+         * フレーム受け取り時に呼ばれるcallback
+         */
+        setFrameListener(listener:{(err:string, frame:JsFrame):void}):boolean;
+      }
+    }
+  }
   export namespace resampler {
     /**
      * Audioのresampler動作

@@ -33,6 +33,9 @@ module.exports = {
         Theora:   require("bindings")("theoraEncoder").TheoraEncoder,
         X264:     require("bindings")("x264Encoder").X264Encoder
     },
+    net: {
+        RtmpClient: require("bindings")("rtmpClient")
+    },
     resampler: {
         Audio: require("bindings")("audioResampler").AudioResampler,
         Speexdsp: require("bindings")("speexdspResampler").SpeexdspResampler

@@ -25,6 +25,8 @@
         'x264Encoder':              "<!(ls `pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g'`/ttLibC/encoder/x264Encoder.h 1>/dev/null 2>&1 && echo yes || echo no)",
         'x265Encoder':              "<!(ls `pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g'`/ttLibC/encoder/x265Encoder.h 1>/dev/null 2>&1 && echo yes || echo no)",
 
+        'rtmpClient': "<!(ls `pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g'`/ttLibC/net/client/rtmp.h 1>/dev/null 2>&1 && echo yes || echo no)",
+
         'speexdspResampler': "<!(ls `pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g'`/ttLibC/resampler/speexdspResampler.h 1>/dev/null 2>&1 && echo yes || echo no)"
     },
     "targets": [
@@ -389,6 +391,22 @@
             'libraries': [
                 '<!@(pkg-config --libs ttLibC)',
                 '<!@(pkg-config --libs x264)']
+        },
+        {
+            "conditions": [[
+                'rtmpClient=="yes"', {
+                    "defines": ["__ENABLE__"]
+                }
+            ]],
+            "target_name": 'rtmpClient',
+            "sources": [
+                "src/c/net/rtmpClient.cpp",
+                "src/c/frame/frame.cpp"],
+            "include_dirs": [
+                "<!(node -e \"require('nan')\")",
+                "<!(pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g')"],
+            'libraries': [
+                '<!@(pkg-config --libs ttLibC)']
         },
         {
             "target_name": 'audioResampler',
