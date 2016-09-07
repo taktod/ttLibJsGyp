@@ -1,7 +1,6 @@
-declare interface Buffer {}
-
 // ttLibJsGyp.d.ts
 declare module 'ttlibjsgyp'{
+  interface Buffer {}
   export class JsFrame {
     public type:string;
     public pts:number;
