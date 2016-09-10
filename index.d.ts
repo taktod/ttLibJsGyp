@@ -387,10 +387,14 @@ declare module 'ttlibjsgyp'{
     export class Theora {
       /**
        * コンストラクタ
-       * @param width  横幅
-       * @param height 縦幅
+       * @param width   横幅
+       * @param height  縦幅
+       * @param quality 変換クオリティ値 0 - 63 数値が大きいほど綺麗になる。
+       * @param bitrate ビットレート値 bps
+       * @param keyFrameInterval キーフレーム間隔、ただし、oggのpacketセットの数なので、これがそのままフレーム数になるわけではないっぽい。
+       * あと激しくうごいたりしたら、キーフレームが数個連続することもある。
        */
-      constructor(width:number, height:number);
+      constructor(width:number, height:number, quality:number, bitrate:number, keyFrameInterval:number);
       /**
        * エンコードを実施します。
        * @param frame 生成元のフレームデータyuv420のplanar
