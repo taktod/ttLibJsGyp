@@ -38,6 +38,7 @@ module.exports = {
     },
     resampler: {
         Audio: require("bindings")("audioResampler").AudioResampler,
-        Speexdsp: require("bindings")("speexdspResampler").SpeexdspResampler
+        Speexdsp: require("bindings")("speexdspResampler").SpeexdspResampler,
+        YuvImageResizer: require("bindings")("yuvImageResizer").YuvImageResizer
     }
 };

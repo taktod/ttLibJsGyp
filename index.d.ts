@@ -518,6 +518,26 @@ declare module 'ttlibjsgyp'{
        */
       resample(frame:JsAudioFrame, func:{(err:string, frame:JsAudioFrame):void}):boolean;
     }
+    /**
+     * yuvの画像サイズ変換
+     */
+    export class YuvImageResizer {
+      /**
+       * コンストラクタ
+       * @param type
+       * @param width
+       * @param height
+       * @param isQuick
+       */
+      constructor(type:string, width:number, height:number, isQuick:boolean);
+      /**
+       * リサイズ実施
+       * @param frame 変換元のyuvフレームデータ
+       * @param func  生成データを受け取るcallback
+       * @return true:成功 false:失敗
+       */
+      resample(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
+    }
   }
 }
 
