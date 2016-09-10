@@ -476,9 +476,9 @@ ttLibC_Frame *JsFrameManager::getFrame(
         ttLibC_Yuv420 *yuv = NULL;
         if(checkElementStrCmp(jsFrame, "yuv420Type", "planar")) {
             // あとはここに処理を書いていけばよい。
-            uint32_t y_size = height * y_stride;
-            uint32_t u_size = height / 2 * u_stride;
-//            uint32_t v_size = height / 2 * v_stride;
+            uint32_t y_data_pos = (uint32_t)getElementNumber(jsFrame, "yDataPos");
+            uint32_t u_data_pos = (uint32_t)getElementNumber(jsFrame, "uDataPos");
+            uint32_t v_data_pos = (uint32_t)getElementNumber(jsFrame, "vDataPos");
             yuv = ttLibC_Yuv420_make(
                 (ttLibC_Yuv420 *)prev_frame,
                 Yuv420Type_planar,
@@ -486,11 +486,11 @@ ttLibC_Frame *JsFrameManager::getFrame(
                 height,
                 data,
                 data_size,
-                data,
+                data + y_data_pos,
                 y_stride,
-                data + y_size,
+                data + u_data_pos,
                 u_stride,
-                data + y_size + u_size,
+                data + v_data_pos,
                 v_stride,
                 true,
                 pts,
@@ -725,22 +725,46 @@ bool setupJsFrameObject(
             default:
                 break;
             }
+            // これ・・・planarの場合のみになってる。
             Nan::Set(jsFrame, Nan::New("yStride").ToLocalChecked(), Nan::New(yuv->y_stride));
             Nan::Set(jsFrame, Nan::New("uStride").ToLocalChecked(), Nan::New(yuv->u_stride));
             Nan::Set(jsFrame, Nan::New("vStride").ToLocalChecked(), Nan::New(yuv->v_stride));
             if(frame->data == NULL) {
-                uint32_t y_size = yuv->inherit_super.height * yuv->y_stride;
-                uint32_t u_size = yuv->inherit_super.height / 2 * yuv->u_stride;
-                uint32_t v_size = yuv->inherit_super.height / 2 * yuv->v_stride;
-                uint32_t buffer_size = y_size + u_size + v_size;
-                uint8_t *buffer = (uint8_t *)ttLibC_malloc(buffer_size);
-                if(buffer != NULL) {
-                    memcpy(buffer, yuv->y_data, y_size);
-                    memcpy(buffer + y_size, yuv->u_data, u_size);
-                    memcpy(buffer + y_size + u_size, yuv->v_data, v_size);
-                    Nan::Set(jsFrame, Nan::New("data").ToLocalChecked(), Nan::CopyBuffer((char *)buffer, buffer_size).ToLocalChecked());
-                    ttLibC_free(buffer);
+                switch(yuv->type) {
+                case Yuv420Type_planar:
+                    {
+                        uint32_t y_size = yuv->inherit_super.height * yuv->y_stride;
+                        uint32_t u_size = yuv->inherit_super.height / 2 * yuv->u_stride;
+                        uint32_t v_size = yuv->inherit_super.height / 2 * yuv->v_stride;
+                        uint32_t buffer_size = y_size + u_size + v_size;
+                        uint8_t *buffer = (uint8_t *)ttLibC_malloc(buffer_size);
+                        if(buffer != NULL) {
+                            memcpy(buffer, yuv->y_data, y_size);
+                            memcpy(buffer + y_size, yuv->u_data, u_size);
+                            memcpy(buffer + y_size + u_size, yuv->v_data, v_size);
+                            Nan::Set(jsFrame, Nan::New("data").ToLocalChecked(), Nan::CopyBuffer((char *)buffer, buffer_size).ToLocalChecked());
+                            Nan::Set(jsFrame, Nan::New("yDataPos").ToLocalChecked(), Nan::New(0));
+                            Nan::Set(jsFrame, Nan::New("uDataPos").ToLocalChecked(), Nan::New(y_size));
+                            Nan::Set(jsFrame, Nan::New("vDataPos").ToLocalChecked(), Nan::New(y_size + u_size));
+                            ttLibC_free(buffer);
+                        }
+                        else {
+                            // ここにきたらエラー
+                        }
+                    }
+                    break;
+                case Yuv420Type_semiPlanar:
+                case Yvu420Type_planar:
+                case Yvu420Type_semiPlanar:
+                default:
+                    break;
                 }
+            }
+            else {
+                uint8_t *data = (uint8_t *)frame->data;
+                Nan::Set(jsFrame, Nan::New("yDataPos").ToLocalChecked(), Nan::New((int)(yuv->y_data - data)));
+                Nan::Set(jsFrame, Nan::New("uDataPos").ToLocalChecked(), Nan::New((int)(yuv->u_data - data)));
+                Nan::Set(jsFrame, Nan::New("vDataPos").ToLocalChecked(), Nan::New((int)(yuv->v_data - data)));
             }
         }
         break;
