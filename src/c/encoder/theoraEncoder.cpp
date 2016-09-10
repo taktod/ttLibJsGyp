@@ -36,10 +36,21 @@ public:
 private:
     explicit TheoraEncoder(
             uint32_t width,
-            uint32_t height) {
-        encoder_ = ttLibC_TheoraEncoder_make(
+            uint32_t height,
+            uint32_t quality,
+            uint32_t bitrate,
+            uint32_t keyFrameInterval) {
+        if(quality == 0 && bitrate == 0 && keyFrameInterval == 0) {
+            quality = 0;
+            bitrate = 320000;
+            keyFrameInterval = 6;
+        }
+        encoder_ = ttLibC_TheoraEncoder_make_ex(
                 width,
-                height);
+                height,
+                quality,
+                bitrate,
+                keyFrameInterval);
         frameManager_ = new JsFrameManager();
     }
     ~TheoraEncoder() {
@@ -48,14 +59,26 @@ private:
     }
     static NAN_METHOD(New) {
         if(info.IsConstructCall()) {
-            if(info.Length() != 2) {
-                puts("コンストラクタの引数は2であるべき");
-            }
-            else {
+            if(info.Length() == 2) {
                 TheoraEncoder *encoder = new TheoraEncoder(
                         info[0]->Uint32Value(),
-                        info[1]->Uint32Value());
+                        info[1]->Uint32Value(),
+                        0,
+                        0,
+                        0);
                 encoder->Wrap(info.This());
+            }
+            else if(info.Length() == 5) {
+                TheoraEncoder *encoder = new TheoraEncoder(
+                        info[0]->Uint32Value(),
+                        info[1]->Uint32Value(),
+                        info[2]->Uint32Value(),
+                        info[3]->Uint32Value(),
+                        info[4]->Uint32Value());
+                encoder->Wrap(info.This());
+            }
+            else {
+                puts("引数は2か5でお願いします。");
             }
             info.GetReturnValue().Set(info.This());
         }
