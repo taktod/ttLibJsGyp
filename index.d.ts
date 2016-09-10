@@ -394,7 +394,7 @@ declare module 'ttlibjsgyp'{
        * @param keyFrameInterval キーフレーム間隔、ただし、oggのpacketセットの数なので、これがそのままフレーム数になるわけではないっぽい。
        * あと激しくうごいたりしたら、キーフレームが数個連続することもある。
        */
-      constructor(width:number, height:number, quality:number, bitrate:number, keyFrameInterval:number);
+      constructor(width:number, height:number, quality?:number, bitrate?:number, keyFrameInterval?:number);
       /**
        * エンコードを実施します。
        * @param frame 生成元のフレームデータyuv420のplanar
