@@ -26,6 +26,8 @@ public:
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
         SetPrototypeMethod(tpl, "queue", Queue);
+        SetPrototypeMethod(tpl, "getPts", GetPts);
+        SetPrototypeMethod(tpl, "getTimebase", GetTimebase);
         SetPrototypeMethod(tpl, "dump", Dump);
 
         constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
@@ -114,6 +116,16 @@ private:
         }
         Nan::AsyncQueueWorker(new AsyncShowWorker(window->window_, (ttLibC_Bgr *)frame, &window->mutex_));*/
         info.GetReturnValue().Set(Nan::New(true));
+    }
+    static NAN_METHOD(GetPts) {
+        // ptsの進行具合を参照する。
+        AudioUnitPlayer *player = Nan::ObjectWrap::Unwrap<AudioUnitPlayer>(info.Holder());
+        info.GetReturnValue().Set(Nan::New((float)ttLibC_AuPlayer_getPts(player->auPlayer_)));
+    }
+    static NAN_METHOD(GetTimebase) {
+        // timebaseを参照する。
+        AudioUnitPlayer *player = Nan::ObjectWrap::Unwrap<AudioUnitPlayer>(info.Holder());
+        info.GetReturnValue().Set(Nan::New(ttLibC_AuPlayer_getTimebase(player->auPlayer_)));
     }
     static NAN_METHOD(Dump) {
         ttLibC_Allocator_dump();
