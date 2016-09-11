@@ -8,7 +8,7 @@
 #   include <ttLibC/util/audioUnitUtil.h>
 #endif
 
-#include <ttLibC/frame/audio/pcmS16.h>
+#include <ttLibC/frame/audio/pcms16.h>
 #include <ttLibC/frame/frame.h>
 #include <pthread.h>
 #include <stdlib.h>
