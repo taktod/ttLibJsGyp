@@ -47,6 +47,7 @@ private:
                 maxQuantizer,
                 minQuantizer,
                 bitrate);
+        ttLibC_Openh264Encoder_setIDRInterval(encoder_, 15);
         frameManager_ = new JsFrameManager();
     }
     ~Openh264Encoder() {
