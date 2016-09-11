@@ -447,6 +447,22 @@
             ]
         },
         {
+            "conditions": [[
+                'imageResizer=="yes"', {
+                    "defines": ["__ENABLE__"]
+                }
+            ]],
+            "target_name": 'bgrImageResizer',
+            "sources": [
+                "src/c/resampler/bgrImageResizer.cpp",
+                "src/c/frame/frame.cpp"],
+            "include_dirs": [
+                "<!(node -e \"require('nan')\")",
+                "<!(pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g')"],
+            'libraries': [
+                '<!@(pkg-config --libs ttLibC)']
+        },
+        {
             "target_name": 'imageResampler',
             "sources": [
                 "src/c/resampler/imageResampler.cpp",

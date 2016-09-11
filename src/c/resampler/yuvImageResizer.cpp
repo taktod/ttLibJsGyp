@@ -124,7 +124,7 @@ private:
                 (ttLibC_Yuv420 *)frame,
                 resampler->isQuick_);
         if(yuv == NULL) {
-            info.GetReturnValue().Set(Nan::New(true));
+            info.GetReturnValue().Set(Nan::New(false));
             return;
         }
         resampler->r_yuv_ = yuv;
