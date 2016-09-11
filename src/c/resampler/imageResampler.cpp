@@ -34,7 +34,6 @@ private:
         if(strcmp(type, "yuv420") == 0) {
             type_ = frameType_yuv420;
             srcType_ = frameType_bgr;
-            puts("yuv420");
             if(strcmp(subType, "planar") == 0) {
                 subType_ = Yuv420Type_planar;
             }
@@ -49,7 +48,6 @@ private:
             }
         }
         else if(strcmp(type, "bgr") == 0) {
-            puts("bgr");
             type_ = frameType_bgr;
             srcType_ = frameType_yuv420;
             if(strcmp(subType, "bgr") == 0) {

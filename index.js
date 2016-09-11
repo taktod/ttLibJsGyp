@@ -41,5 +41,8 @@ module.exports = {
         Image: require("bindings")("imageResampler").ImageResampler,
         Speexdsp: require("bindings")("speexdspResampler").SpeexdspResampler,
         YuvImageResizer: require("bindings")("yuvImageResizer").YuvImageResizer
+    },
+    util: {
+        OpencvWindow: require("bindings")("opencvWindow").OpencvWindow
     }
 };

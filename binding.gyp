@@ -29,6 +29,9 @@
 
         'speexdspResampler': "<!(ls `pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g' | sed -e 's/ //g'`/ttLibC/resampler/speexdspResampler.h 1>/dev/null 2>&1 && echo yes || echo no)",
         'imageResizer':      "<!(ls `pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g' | sed -e 's/ //g'`/ttLibC/resampler/imageResizer.h 1>/dev/null 2>&1 && echo yes || echo no)",
+
+        'opencvUtil':    "<!(ls `pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g' | sed -e 's/ //g'`/ttLibC/util/opencvUtil.h 1>/dev/null 2>&1 && echo yes || echo no)",
+        'audioUnitUtil': "<!(ls `pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g' | sed -e 's/ //g'`/ttLibC/util/audioUnitUtil.h 1>/dev/null 2>&1 && echo yes || echo no)"
     },
     "targets": [
         {
@@ -487,6 +490,26 @@
             "target_name": 'yuvImageResizer',
             "sources": [
                 "src/c/resampler/yuvImageResizer.cpp",
+                "src/c/frame/frame.cpp"],
+            "include_dirs": [
+                "<!(node -e \"require('nan')\")",
+                "<!(pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g')"],
+            'libraries': [
+                '<!@(pkg-config --libs ttLibC)']
+        },
+        {
+            "conditions": [[
+                'opencvUtil=="yes"', {
+                    "defines": ["__ENABLE__"],
+                    "include_dirs": [
+                        "<!(pkg-config opencv --cflags-only-I | sed -e 's/\-I//g')"],
+                    'libraries': [
+                        '<!@(pkg-config --libs opencv)']
+                }
+            ]],
+            "target_name": 'opencvWindow',
+            "sources": [
+                "src/c/util/opencvWindow.cpp",
                 "src/c/frame/frame.cpp"],
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",
