@@ -446,6 +446,19 @@
             ]
         },
         {
+            "target_name": 'imageResampler',
+            "sources": [
+                "src/c/resampler/imageResampler.cpp",
+                "src/c/frame/frame.cpp"],
+            "include_dirs": [
+                "<!(node -e \"require('nan')\")",
+                "<!(pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g')"
+            ],
+            'libraries': [
+                '<!@(pkg-config --libs ttLibC)',
+            ]
+        },
+        {
             "conditions": [[
                 'speexdspResampler=="yes"', {
                     "defines": ["__ENABLE__"],

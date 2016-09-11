@@ -36,7 +36,6 @@ public:
     }
 #ifdef __ENABLE__
 private:
-    // type width height isQuick?
     explicit YuvImageResizer(
             const char *yuvType,
             uint32_t    width,

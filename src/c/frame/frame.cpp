@@ -1,6 +1,7 @@
 #include "frame.hpp"
 
 #include <ttLibC/allocator.h>
+#include <ttLibC/frame/video/bgr.h>
 #include <ttLibC/frame/video/flv1.h>
 #include <ttLibC/frame/video/h264.h>
 #include <ttLibC/frame/video/theora.h>
@@ -372,6 +373,40 @@ ttLibC_Frame *JsFrameManager::getFrame(
             return (ttLibC_Frame *)vorbis;
         }
     }
+    else if(checkElementStrCmp(jsFrame, "type", "bgr")) {
+        // bgr
+        uint32_t width_stride = (uint32_t)getElementNumber(jsFrame, "widthStride");
+        ttLibC_Bgr_Type type = BgrType_bgr;
+        if(checkElementStrCmp(jsFrame, "bgrType", "bgr")) {
+            type = BgrType_bgr;
+        }
+        else if(checkElementStrCmp(jsFrame, "bgrType", "bgra")) {
+            type = BgrType_bgra;
+        }
+        else if(checkElementStrCmp(jsFrame, "bgrType", "abgr")) {
+            type = BgrType_abgr;
+        }
+        else {
+            puts("想定外のbgrTypeでした。");
+            return NULL;
+        }
+        ttLibC_Bgr *bgr = ttLibC_Bgr_make(
+            (ttLibC_Bgr *)prev_frame,
+            type,
+            width,
+            height,
+            width_stride,
+            data,
+            data_size,
+            true,
+            pts,
+            timebase);
+        if(bgr != NULL) {
+            bgr->inherit_super.inherit_super.id = id;
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, bgr);
+            return (ttLibC_Frame *)bgr;
+        }
+    }
     else if(checkElementStrCmp(jsFrame, "type", "flv1")) {
         // flv1
         ttLibC_Flv1 *flv1 = ttLibC_Flv1_getFrame(
@@ -624,7 +659,27 @@ bool setupJsFrameObject(
         return false;
     }
     switch(frame->type) {
-//    case frameType_bgr:
+    case frameType_bgr:
+        {
+            setupJsFrameObject_common(jsFrame, frame, "bgr");
+            setupJsFrameObject_commonVideo(jsFrame, (ttLibC_Video *)frame);
+            ttLibC_Bgr *bgr = (ttLibC_Bgr *)frame;
+            switch(bgr->type) {
+            case BgrType_bgr:
+                Nan::Set(jsFrame, Nan::New("bgrType").ToLocalChecked(), Nan::New("bgr").ToLocalChecked());
+                break;
+            case BgrType_bgra:
+                Nan::Set(jsFrame, Nan::New("bgrType").ToLocalChecked(), Nan::New("bgra").ToLocalChecked());
+                break;
+            case BgrType_abgr:
+                Nan::Set(jsFrame, Nan::New("bgrType").ToLocalChecked(), Nan::New("abgr").ToLocalChecked());
+                break;
+            default:
+                break;
+            }
+            Nan::Set(jsFrame, Nan::New("widthStride").ToLocalChecked(), Nan::New(bgr->width_stride));
+        }
+        break;
     case frameType_flv1:
         {
             setupJsFrameObject_common(jsFrame, frame, "flv1");
