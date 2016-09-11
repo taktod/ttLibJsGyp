@@ -23,23 +23,21 @@ public:
         ttLibC_CvWindow *window,
         ttLibC_Bgr *frame,
         pthread_mutex_t *mutex)
-             : Nan::AsyncWorker(NULL), window_(window), mutex_(mutex) {
+             : Nan::AsyncWorker(NULL) {
+        window_ = window;
+        mutex_ = mutex;
         bgr_ = ttLibC_Bgr_clone(NULL, frame);
     }
     void Execute() {
-        puts("execute");
         // ここで実行すればよい。
         // ここにmutexをいれれておく。
         // 表示実行するけど、競合したらいやなので、mutexで管理だけしとくか・・・
         int r = pthread_mutex_lock(mutex_);
         if(r == 0) {
-            printf("window:%d bgr:%d\n", window_, bgr_);
-            puts("実行します。");
             ttLibC_CvWindow_showBgr(window_, bgr_);
             // 表示の更新をこっちで実施するとだめみたい。
             // mainThreadでする必要がある的な感じだ。
 //            ttLibC_CvWindow_waitForKeyInput(1); // とりあえず待ってみよう。
-            puts("処理おわり。");
             r = pthread_mutex_unlock(mutex_);
             if(r != 0) {
                 puts("failed to unlock.");
@@ -51,10 +49,8 @@ public:
         }
         // 処理おわったら、bgrを解放しておく。
         ttLibC_Bgr_close(&bgr_);
-        puts("全部おわり");
     }
     void HandleOKCallback() {
-        puts("done");
         // なんか応答すべきことあるか？
         // 特にない。
     }

@@ -120,12 +120,14 @@ public:
         // イベント名
         if(name == NULL) {
             v8::String::Utf8Value str(info[0]->ToString());
-            sprintf(event->name, (const char *)(*str));
+            strncpy(event->name, (const char *)(*str), strlen((const char *)(*str)));
+//            sprintf(event->name, (const char *)(*str));
             auto callback = new Nan::Callback(info[1].As<Function>());
             event->callback = callback;
         }
         else {
-            sprintf(event->name, name);
+            strncpy(event->name, name, strlen(name));
+//            sprintf(event->name, name);
             auto callback = new Nan::Callback(info[0].As<Function>());
             event->callback = callback;
         }
