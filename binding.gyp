@@ -51,8 +51,7 @@
             "target_name": 'flvWriter',
             "sources": [
                 "src/c/container/flvWriter.cpp",
-                "src/c/frame/frame.cpp",
-                "src/c/util/binary.cpp"],
+                "src/c/frame/frame.cpp"],
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",
                 "<!(pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g')"
@@ -117,8 +116,7 @@
             "target_name": 'mpegtsWriter',
             "sources": [
                 "src/c/container/mpegtsWriter.cpp",
-                "src/c/frame/frame.cpp",
-                "src/c/util/binary.cpp"],
+                "src/c/frame/frame.cpp"],
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",
                 "<!(pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g')"
@@ -490,6 +488,26 @@
             "target_name": 'yuvImageResizer',
             "sources": [
                 "src/c/resampler/yuvImageResizer.cpp",
+                "src/c/frame/frame.cpp"],
+            "include_dirs": [
+                "<!(node -e \"require('nan')\")",
+                "<!(pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g')"],
+            'libraries': [
+                '<!@(pkg-config --libs ttLibC)']
+        },
+        {
+            "conditions": [[
+                'opencvUtil=="yes"', {
+                    "defines": ["__ENABLE__"],
+                    "include_dirs": [
+                        "<!(pkg-config opencv --cflags-only-I | sed -e 's/\-I//g')"],
+                    'libraries': [
+                        '<!@(pkg-config --libs opencv)']
+                }
+            ]],
+            "target_name": 'opencvCapture',
+            "sources": [
+                "src/c/util/opencvCapture.cpp",
                 "src/c/frame/frame.cpp"],
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",

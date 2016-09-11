@@ -99,7 +99,7 @@ private:
     static NAN_METHOD(New) {
         if(info.IsConstructCall()) {
             if(info.Length() != 1) {
-                puts("コンストラクタの引数は4であるべき");
+                puts("コンストラクタの引数は1であるべき");
             }
             else {
                 String::Utf8Value name(info[0]->ToString());
@@ -160,7 +160,6 @@ private:
         int res = 0;
         int r = pthread_mutex_lock(&window->mutex_);
         if(r == 0) {
-            puts("keyInputWaitします。(表示の更新)");
             res = ttLibC_CvWindow_waitForKeyInput(info[0]->Uint32Value()); // とりあえず待ってみよう。
             r = pthread_mutex_unlock(&window->mutex_);
             if(r != 0) {

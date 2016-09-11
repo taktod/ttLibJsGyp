@@ -37,12 +37,13 @@ module.exports = {
         RtmpClient: require("bindings")("rtmpClient")
     },
     resampler: {
-        Audio: require("bindings")("audioResampler").AudioResampler,
-        Image: require("bindings")("imageResampler").ImageResampler,
-        Speexdsp: require("bindings")("speexdspResampler").SpeexdspResampler,
+        Audio:           require("bindings")("audioResampler").AudioResampler,
+        Image:           require("bindings")("imageResampler").ImageResampler,
+        Speexdsp:        require("bindings")("speexdspResampler").SpeexdspResampler,
         YuvImageResizer: require("bindings")("yuvImageResizer").YuvImageResizer
     },
     util: {
-        OpencvWindow: require("bindings")("opencvWindow").OpencvWindow
+        OpencvCapture: require("bindings")("opencvCapture").OpencvCapture,
+        OpencvWindow:  require("bindings")("opencvWindow").OpencvWindow
     }
 };
