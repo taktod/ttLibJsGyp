@@ -495,6 +495,25 @@
             'libraries': [
                 '<!@(pkg-config --libs ttLibC)']
         },
+
+        {
+            "conditions": [[
+                'audioUnitUtil=="yes"', {
+                    "defines": ["__ENABLE__"],
+                    'libraries': [
+                        '-framework AudioToolbox -framework AudioUnit -framework CoreMedia -framework CoreFoundation -framework CoreAudio']
+                }
+            ]],
+            "target_name": 'audioUnitPlayer',
+            "sources": [
+                "src/c/util/audioUnitPlayer.cpp",
+                "src/c/frame/frame.cpp"],
+            "include_dirs": [
+                "<!(node -e \"require('nan')\")",
+                "<!(pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g')"],
+            'libraries': [
+                '<!@(pkg-config --libs ttLibC)']
+        },
         {
             "conditions": [[
                 'opencvUtil=="yes"', {

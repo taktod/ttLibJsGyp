@@ -43,7 +43,8 @@ module.exports = {
         YuvImageResizer: require("bindings")("yuvImageResizer").YuvImageResizer
     },
     util: {
-        OpencvCapture: require("bindings")("opencvCapture").OpencvCapture,
-        OpencvWindow:  require("bindings")("opencvWindow").OpencvWindow
+        AudioUnitPlayer: require("bindings")("audioUnitPlayer").AudioUnitPlayer,
+        OpencvCapture:   require("bindings")("opencvCapture").OpencvCapture,
+        OpencvWindow:    require("bindings")("opencvWindow").OpencvWindow
     }
 };
