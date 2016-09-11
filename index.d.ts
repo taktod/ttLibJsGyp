@@ -503,6 +503,43 @@ declare module 'ttlibjsgyp'{
       resample(frame:JsAudioFrame, func:{(err:string, frame:JsAudioFrame):void}):boolean;
     }
     /**
+     * bgr画像をリサイズします。
+     */
+    export class BgrImageResizer {
+      /**
+       * コンストラクタ
+       * @param type   bgrType
+       * @param width  変換後横幅
+       * @param height 変換後縦幅
+       */
+      constructor(type:string, width:number, height:number);
+      /**
+       * リサイズ実施
+       * @param frame 変換元のyuvフレームデータ
+       * @param func  生成データを受け取るcallback
+       * @return true:成功 false:失敗
+       */
+      resample(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
+    }
+    /**
+     * yuvとbgrの相互変換します。
+     */
+    export class ImageResampler {
+      /**
+       * コンストラクタ
+       * @param type    bgrかyuv420か
+       * @param subType それぞれのtypeのsubType設定
+       */
+      constructor(type:string, subType:string);
+      /**
+       * 変換実施
+       * @param frame 変換元のyuvフレームデータ
+       * @param func  生成データを受け取るcallback
+       * @return true:成功 false:失敗
+       */
+      resample(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
+    }
+    /**
      * speexdspによる周波数変換
      */
     export class Speexdsp {
@@ -543,5 +580,68 @@ declare module 'ttlibjsgyp'{
       resample(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
     }
   }
+  export namespace util {
+    /**
+     * OSXのaudioUnitを利用した音声再生
+     */
+    export class AudioUnitPlayer {
+      /**
+       * コンストラクタ
+       * @param sampleRate
+       * @param channelNum
+       */
+      constructor(sampleRate:number, channelNum:number);
+      /**
+       * 音声データを再生にまわします。
+       * @param frame 再生するpcmS16データ(interleaveのみ対応)
+       */
+      queue(frame:JsAudioFrame);
+      /**
+       * 現在のptsの進行具合を参照します。
+       */
+      getPts();
+      /**
+       * プレーヤーのtimebaseを参照します。
+       */
+      getTimebase();
+    }
+    /**
+     * opencvを利用したカメラキャプチャ動作
+     */
+    export class opencvCapture {
+      /**
+       * コンストラクタ
+       * @param cameraNum
+       * @param width
+       * @param height
+       */
+      constructor(cameraNum:number, width:number, height:number);
+      /**
+       * デバイスからデータを取り出します。
+       * @param func 生成データを受け取るcallback
+       */
+      query(func:{(err:string, frame:JsVideoFrame):void});
+    }
+    /**
+     * opencvを利用したbgrデータの表示
+     */
+    export class opencvWindow {
+      /**
+       * コンストラクタ
+       * @param name ウィンドウ名
+       */
+      constructor(name:string);
+      /**
+       * 表示する。
+       * @param frame 描画するフレーム
+       */
+      show(frame:JsVideoFrame);
+      /**
+       * 描画更新とキーボード入力を確認する。
+       * @param interval 入力待ちミリ秒数
+       * @return 0:なにもなかった場合 それ以外:入力キーコード
+       */
+      update(interval:number):number;
+    }
+  }
 }
-

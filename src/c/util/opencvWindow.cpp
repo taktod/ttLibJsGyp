@@ -120,7 +120,7 @@ private:
     }
     static NAN_METHOD(Show) {
         if(info.Length() != 1) {
-            puts("パラメーターはフレームとcallbackの２つであるべき");
+            puts("パラメーターはフレームであるべき");
             info.GetReturnValue().Set(Nan::New(false));
             return;
         }

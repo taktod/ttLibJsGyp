@@ -76,7 +76,7 @@ private:
     // いや、やっぱりブロックしちゃおう。
     static NAN_METHOD(Queue) {
         if(info.Length() != 1) {
-            puts("パラメーターはフレームとcallbackの２つであるべき");
+            puts("パラメーターはフレームであるべき");
             info.GetReturnValue().Set(Nan::New(false));
             return;
         }
@@ -98,23 +98,9 @@ private:
             return;
         }
         while(!ttLibC_AuPlayer_queue(player->auPlayer_, (ttLibC_PcmS16 *)frame)) {
+            // ここでlockするのはちょっともったいない。
             usleep(100);
         }
-
-/*        // ここで確認して、すでにresampleする必要がなければ、そのまま応答を返すみたいな動作にしておけばいいと思う。
-        OpencvWindow* window = Nan::ObjectWrap::Unwrap<OpencvWindow>(info.Holder());
-        ttLibC_Frame *frame = window->frameManager_->getFrame(info[0]->ToObject());
-        if(frame == NULL) {
-            puts("フレームの復元ができなかった。");
-            info.GetReturnValue().Set(Nan::New(false));
-            return;
-        }
-        if(frame->type != frameType_bgr) {
-            puts("bgrのみ対応しています。");
-            info.GetReturnValue().Set(Nan::New(false));
-            return;
-        }
-        Nan::AsyncQueueWorker(new AsyncShowWorker(window->window_, (ttLibC_Bgr *)frame, &window->mutex_));*/
         info.GetReturnValue().Set(Nan::New(true));
     }
     static NAN_METHOD(GetPts) {
