@@ -203,6 +203,7 @@ private:
         frameManager_ = new JsFrameManager();
     }
     ~AudioConverterDecoder() {
+        // TODO このタイミングで対応している、mutexを解放しないとまずくね？
         ttLibC_AcDecoder_close(&decoder_);
         delete frameManager_;
     }

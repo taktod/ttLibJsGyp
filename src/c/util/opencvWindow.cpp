@@ -8,11 +8,64 @@
 #   include <ttLibC/util/opencvUtil.h>
 #endif
 
-#include <ttLibC/frame/video/yuv420.h>
+#include <ttLibC/frame/video/bgr.h>
 #include <ttLibC/frame/frame.h>
+#include <pthread.h>
 #include <stdlib.h>
 
 using namespace v8;
+
+#ifdef __ENABLE__
+
+class AsyncShowWorker : public Nan::AsyncWorker {
+public:
+    AsyncShowWorker(
+        ttLibC_CvWindow *window,
+        ttLibC_Bgr *frame,
+        pthread_mutex_t *mutex)
+             : Nan::AsyncWorker(NULL), window_(window), mutex_(mutex) {
+        bgr_ = ttLibC_Bgr_clone(NULL, frame);
+    }
+    void Execute() {
+        puts("execute");
+        // ここで実行すればよい。
+        // ここにmutexをいれれておく。
+        // 表示実行するけど、競合したらいやなので、mutexで管理だけしとくか・・・
+        int r = pthread_mutex_lock(mutex_);
+        if(r == 0) {
+            printf("window:%d bgr:%d\n", window_, bgr_);
+            puts("実行します。");
+            ttLibC_CvWindow_showBgr(window_, bgr_);
+            // 表示の更新をこっちで実施するとだめみたい。
+            // mainThreadでする必要がある的な感じだ。
+//            ttLibC_CvWindow_waitForKeyInput(1); // とりあえず待ってみよう。
+            puts("処理おわり。");
+            r = pthread_mutex_unlock(mutex_);
+            if(r != 0) {
+                puts("failed to unlock.");
+                return;
+            }
+        }
+        else {
+            puts("failed to lock.");
+        }
+        // 処理おわったら、bgrを解放しておく。
+        ttLibC_Bgr_close(&bgr_);
+        puts("全部おわり");
+    }
+    void HandleOKCallback() {
+        puts("done");
+        // なんか応答すべきことあるか？
+        // 特にない。
+    }
+private:
+    // ここで必要になる、mutex
+    pthread_mutex_t *mutex_;
+    ttLibC_CvWindow *window_;
+    ttLibC_Bgr *bgr_;
+};
+
+#endif
 
 class OpencvWindow : public Nan::ObjectWrap {
 public:
@@ -38,12 +91,14 @@ public:
 #ifdef __ENABLE__
 private:
     explicit OpencvWindow(const char *name) {
+        pthread_mutex_init(&mutex_, NULL);
         window_ = ttLibC_CvWindow_make(name);
         frameManager_ = new JsFrameManager();
     }
     ~OpencvWindow() {
         ttLibC_CvWindow_close(&window_);
         delete frameManager_;
+        pthread_mutex_destroy(&mutex_);
     }
     static NAN_METHOD(New) {
         if(info.IsConstructCall()) {
@@ -91,7 +146,7 @@ private:
             info.GetReturnValue().Set(Nan::New(false));
             return;
         }
-        ttLibC_CvWindow_showBgr(window->window_, (ttLibC_Bgr *)frame);
+        Nan::AsyncQueueWorker(new AsyncShowWorker(window->window_, (ttLibC_Bgr *)frame, &window->mutex_));
         info.GetReturnValue().Set(Nan::New(true));
     }
     static NAN_METHOD(Update) {
@@ -105,9 +160,22 @@ private:
             info.GetReturnValue().Set(Nan::New(0));
             return;
         }
-        // これいらないのか・・・
-//        OpencvWindow* window = Nan::ObjectWrap::Unwrap<OpencvWindow>(info.Holder());
-        info.GetReturnValue().Set(Nan::New(ttLibC_CvWindow_waitForKeyInput(info[0]->Uint32Value())));
+        OpencvWindow* window = Nan::ObjectWrap::Unwrap<OpencvWindow>(info.Holder());
+        int res = 0;
+        int r = pthread_mutex_lock(&window->mutex_);
+        if(r == 0) {
+            puts("keyInputWaitします。(表示の更新)");
+            res = ttLibC_CvWindow_waitForKeyInput(info[0]->Uint32Value()); // とりあえず待ってみよう。
+            r = pthread_mutex_unlock(&window->mutex_);
+            if(r != 0) {
+                puts("failed to unlock.");
+                return;
+            }
+        }
+        else {
+            puts("failed to lock.");
+        }
+        info.GetReturnValue().Set(Nan::New(res));
     }
     static NAN_METHOD(Dump) {
         ttLibC_Allocator_dump();
@@ -118,6 +186,7 @@ private:
     }
     ttLibC_CvWindow *window_;
     JsFrameManager *frameManager_;
+    pthread_mutex_t mutex_; // ここでmutexをつくっておけばいいか・・・
 #endif
 };
 
