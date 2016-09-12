@@ -524,7 +524,7 @@ declare module 'ttlibjsgyp'{
     /**
      * yuvとbgrの相互変換します。
      */
-    export class ImageResampler {
+    export class Image {
       /**
        * コンストラクタ
        * @param type    bgrかyuv420か
@@ -608,7 +608,7 @@ declare module 'ttlibjsgyp'{
     /**
      * opencvを利用したカメラキャプチャ動作
      */
-    export class opencvCapture {
+    export class OpencvCapture {
       /**
        * コンストラクタ
        * @param cameraNum
@@ -625,7 +625,7 @@ declare module 'ttlibjsgyp'{
     /**
      * opencvを利用したbgrデータの表示
      */
-    export class opencvWindow {
+    export class OpencvWindow {
       /**
        * コンストラクタ
        * @param name ウィンドウ名
