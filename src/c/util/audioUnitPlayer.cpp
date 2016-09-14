@@ -74,6 +74,7 @@ private:
     }
     // このqueueの動作はblockしないことにしておこう。
     // いや、やっぱりブロックしちゃおう。
+    // 応答かえしちゃおう。
     static NAN_METHOD(Queue) {
         if(info.Length() != 1) {
             puts("パラメーターはフレームであるべき");
@@ -97,11 +98,9 @@ private:
             info.GetReturnValue().Set(Nan::New(false));
             return;
         }
-        while(!ttLibC_AuPlayer_queue(player->auPlayer_, (ttLibC_PcmS16 *)frame)) {
-            // ここでlockするのはちょっともったいない。
-            usleep(100);
-        }
-        info.GetReturnValue().Set(Nan::New(true));
+        // falseだったらあとでもう一度入力しなければいけないことになるかも。
+        // ここはlockではなくて、return応答にすればいいかも。
+        info.GetReturnValue().Set(Nan::New(ttLibC_AuPlayer_queue(player->auPlayer_, (ttLibC_PcmS16 *)frame)));
     }
     static NAN_METHOD(GetPts) {
         // ptsの進行具合を参照する。
