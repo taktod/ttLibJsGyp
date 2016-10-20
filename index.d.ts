@@ -102,6 +102,21 @@ declare module 'ttlibjsgyp'{
        */
       read(data:Buffer, func:{(err:string, frame:JsFrame):void}):boolean;
     }
+    /**
+     * mkvデータ書き出しクラス
+     */
+    export class Writer {
+      /**
+       * コンストラクタ
+       * @param types "h264" "vp8" "aac" "opus"といったフレームタイプ指定。
+       * 前から順にIDが1 2と増えていきます。
+       */
+      constructor(...types: string[]);
+      /**
+       * データを書き出す(実際はbinaryデータをcallbackで受け取る)
+       */
+      write(frame:JsFrame, func:{(err:string, buffer:Buffer):void}):boolean;
+    }
   }
   export namespace mp4 {
     /**
@@ -132,6 +147,23 @@ declare module 'ttlibjsgyp'{
       constructor(...types: string[]);
       /**
        * データを書き出す(実際はb inaryデータをcallbackで受け取る)
+       */
+      write(frame:JsFrame, func:{(err:string, buffer:Buffer):void}):boolean;
+    }
+  }
+  export namespace webm {
+    /**
+     * webmデータ書き出しクラス
+     */
+    export class Writer {
+      /**
+       * コンストラクタ
+       * @param types "vp8" "opus"といったフレームタイプ指定。
+       * 前から順にIDが1 2と増えていきます。
+       */
+      constructor(...types: string[]);
+      /**
+       * データを書き出す(実際はbinaryデータをcallbackで受け取る)
        */
       write(frame:JsFrame, func:{(err:string, buffer:Buffer):void}):boolean;
     }
