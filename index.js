@@ -4,7 +4,8 @@ module.exports = {
         Writer: require("bindings")("flvWriter").FlvWriter
     },
     mkv: {
-        Reader: require("bindings")("mkvReader").MkvReader
+        Reader: require("bindings")("mkvReader").MkvReader,
+        Writer: require("bindings")("mkvWriter").MkvWriter
     },
     mp4: {
         Reader: require("bindings")("mp4Reader").Mp4Reader,
@@ -13,6 +14,9 @@ module.exports = {
     mpegts: {
         Reader: require("bindings")("mpegtsReader").MpegtsReader,
         Writer: require("bindings")("mpegtsWriter").MpegtsWriter
+    },
+    webm: {
+        Writer: require("bindings")("webmWriter").WebmWriter
     },
     decoder: {
         AudioConverter:      require("bindings")("audioConverterDecoder").AudioConverterDecoder,

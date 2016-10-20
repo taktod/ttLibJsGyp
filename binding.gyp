@@ -74,6 +74,19 @@
             ]
         },
         {
+            "target_name": 'mkvWriter',
+            "sources": [
+                "src/c/container/mkvWriter.cpp",
+                "src/c/frame/frame.cpp"],
+            "include_dirs": [
+                "<!(node -e \"require('nan')\")",
+                "<!(pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g')"
+            ],
+            'libraries': [
+                '<!@(pkg-config --libs ttLibC)',
+            ]
+        },
+        {
             "target_name": 'mp4Reader',
             "sources": [
                 "src/c/container/mp4Reader.cpp",
@@ -116,6 +129,19 @@
             "target_name": 'mpegtsWriter',
             "sources": [
                 "src/c/container/mpegtsWriter.cpp",
+                "src/c/frame/frame.cpp"],
+            "include_dirs": [
+                "<!(node -e \"require('nan')\")",
+                "<!(pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g')"
+            ],
+            'libraries': [
+                '<!@(pkg-config --libs ttLibC)',
+            ]
+        },
+        {
+            "target_name": 'webmWriter',
+            "sources": [
+                "src/c/container/webmWriter.cpp",
                 "src/c/frame/frame.cpp"],
             "include_dirs": [
                 "<!(node -e \"require('nan')\")",
