@@ -4,12 +4,15 @@
 #include <ttLibC/frame/video/bgr.h>
 #include <ttLibC/frame/video/flv1.h>
 #include <ttLibC/frame/video/h264.h>
+#include <ttLibC/frame/video/h265.h>
+#include <ttLibC/frame/video/jpeg.h>
 #include <ttLibC/frame/video/theora.h>
 #include <ttLibC/frame/video/vp6.h>
 #include <ttLibC/frame/video/vp8.h>
 #include <ttLibC/frame/video/vp9.h>
 #include <ttLibC/frame/video/yuv420.h>
 #include <ttLibC/frame/audio/aac.h>
+#include <ttLibC/frame/audio/adpcmImaWav.h>
 #include <ttLibC/frame/audio/mp3.h>
 #include <ttLibC/frame/audio/nellymoser.h>
 #include <ttLibC/frame/audio/opus.h>
@@ -185,6 +188,24 @@ ttLibC_Frame *JsFrameManager::getFrame(
             ttLibC_StlMap_put(frameStlMap_, (void *)lid, aac);
 //            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)aac));
             return (ttLibC_Frame *)aac;
+        }
+    }
+    else if(checkElementStrCmp(jsFrame, "type", "adpcmimawav")) {
+        ttLibC_AdpcmImaWav *adpcm = ttLibC_AdpcmImaWav_make(
+                (ttLibC_AdpcmImaWav *)prev_frame,
+                sample_rate,
+                sample_num,
+                channel_num,
+                data,
+                data_size,
+                true,
+                pts,
+                timebase);
+        if(adpcm != NULL) {
+            adpcm->inherit_super.inherit_super.id = id;
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, adpcm);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)adpcm));
+            return (ttLibC_Frame *)adpcm;
         }
     }
     else if(checkElementStrCmp(jsFrame, "type", "mp3")) {
@@ -437,6 +458,38 @@ ttLibC_Frame *JsFrameManager::getFrame(
             ttLibC_StlMap_put(frameStlMap_, (void *)lid, h264);
 //            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)h264));
             return (ttLibC_Frame *)h264;
+        }
+    }
+    else if(checkElementStrCmp(jsFrame, "type", "h265")) {
+        // h265
+        ttLibC_H265 *h265 = ttLibC_H265_getFrame(
+            (ttLibC_H265 *)prev_frame,
+            data,
+            data_size,
+            true,
+            pts,
+            timebase);
+        if(h265 != NULL) {
+            h265->inherit_super.inherit_super.id = id;
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, h265);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)h265));
+            return (ttLibC_Frame *)h265;
+        }
+    }
+    else if(checkElementStrCmp(jsFrame, "type", "jpeg")) {
+        // jpeg
+        ttLibC_Jpeg *jpeg = ttLibC_Jpeg_getFrame(
+            (ttLibC_Jpeg *)prev_frame,
+            data,
+            data_size,
+            true,
+            pts,
+            timebase);
+        if(jpeg != NULL) {
+            jpeg->inherit_super.inherit_super.id = id;
+            ttLibC_StlMap_put(frameStlMap_, (void *)lid, jpeg);
+//            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)jpeg));
+            return (ttLibC_Frame *)jpeg;
         }
     }
     else if(checkElementStrCmp(jsFrame, "type", "theora")) {
@@ -722,7 +775,28 @@ bool setupJsFrameObject(
             }
         }
         break;
-//    case frameType_h265:
+    case frameType_h265:
+        {
+            setupJsFrameObject_common(jsFrame, frame, "h265");
+            setupJsFrameObject_commonVideo(jsFrame, (ttLibC_Video *)frame);
+            ttLibC_H265 *h265 = (ttLibC_H265 *)frame;
+            switch(h265->type) {
+            case H265Type_configData:
+                Nan::Set(jsFrame, Nan::New("h265Type").ToLocalChecked(), Nan::New("configData").ToLocalChecked());
+                break;
+            case H265Type_sliceIDR:
+                Nan::Set(jsFrame, Nan::New("h265Type").ToLocalChecked(), Nan::New("sliceIDR").ToLocalChecked());
+                break;
+            case H265Type_slice:
+                Nan::Set(jsFrame, Nan::New("h265Type").ToLocalChecked(), Nan::New("slice").ToLocalChecked());
+                break;
+            case H265Type_unknown:
+            default:
+                Nan::Set(jsFrame, Nan::New("h265Type").ToLocalChecked(), Nan::New("unknown").ToLocalChecked());
+                break;
+            }
+        }
+        break;
     case frameType_jpeg:
         {
             setupJsFrameObject_common(jsFrame, frame, "jpeg");
@@ -849,7 +923,12 @@ bool setupJsFrameObject(
             }
         }
         break;
-//    case frameType_adpcm_ima_wav:
+    case frameType_adpcm_ima_wav:
+        {
+            setupJsFrameObject_common(jsFrame, frame, "adpcmimawav");
+            setupJsFrameObject_commonAudio(jsFrame, (ttLibC_Audio *)frame);
+        }
+        break;
     case frameType_mp3:
         {
             setupJsFrameObject_common(jsFrame, frame, "mp3");

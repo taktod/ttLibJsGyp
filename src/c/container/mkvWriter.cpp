@@ -46,14 +46,38 @@ private:
                 if(strcmp((const char *)*codec, "h264") == 0) {
                     types[i] = frameType_h264;
                 }
+                else if(strcmp((const char *)*codec, "h265") == 0) {
+                    types[i] = frameType_h265;
+                }
+                else if(strcmp((const char *)*codec, "jpeg") == 0) {
+                    types[i] = frameType_jpeg;
+                }
+                else if(strcmp((const char *)*codec, "theora") == 0) {
+                    types[i] = frameType_theora;
+                }
                 else if(strcmp((const char *)*codec, "vp8") == 0) {
                     types[i] = frameType_vp8;
+                }
+                else if(strcmp((const char *)*codec, "vp9") == 0) {
+                    types[i] = frameType_vp9;
                 }
                 else if(strcmp((const char *)*codec, "aac") == 0) {
                     types[i] = frameType_aac;
                 }
+                else if(strcmp((const char *)*codec, "adpcmimawav") == 0) {
+                    types[i] = frameType_adpcm_ima_wav;
+                }
+                else if(strcmp((const char *)*codec, "mp3") == 0) {
+                    types[i] = frameType_mp3;
+                }
                 else if(strcmp((const char *)*codec, "opus") == 0) {
                     types[i] = frameType_opus;
+                }
+                else if(strcmp((const char *)*codec, "speex") == 0) {
+                    types[i] = frameType_speex;
+                }
+                else if(strcmp((const char *)*codec, "vorbis") == 0) {
+                    types[i] = frameType_vorbis;
                 }
             }
             MkvWriter *obj = new MkvWriter(types, num);

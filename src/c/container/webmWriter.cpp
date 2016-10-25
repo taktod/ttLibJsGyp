@@ -47,8 +47,17 @@ private:
                 if(strcmp((const char *)*codec, "vp8") == 0) {
                     types[i] = frameType_vp8;
                 }
+                else if(strcmp((const char *)*codec, "vp9") == 0) {
+                    types[i] = frameType_vp9;
+                }
+                else if(strcmp((const char *)*codec, "theora") == 0) {
+                    types[i] = frameType_theora;
+                }
                 else if(strcmp((const char *)*codec, "opus") == 0) {
                     types[i] = frameType_opus;
+                }
+                else if(strcmp((const char *)*codec, "vorbis") == 0) {
+                    types[i] = frameType_vorbis;
                 }
             }
             WebmWriter *obj = new WebmWriter(types, num);
