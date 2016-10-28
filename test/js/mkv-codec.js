@@ -25,7 +25,7 @@ var h264AacTest = function() {
         });
         readableStream.on('end', function() {
             resolve();
-        })
+        });
     });
 }
 var h265Mp3Test = function() {
@@ -44,7 +44,7 @@ var h265Mp3Test = function() {
         });
         readableStream.on('end', function() {
             resolve();
-        })
+        });
     });
 }
 var mjpegAdpcmimawavTest = function() {
@@ -63,7 +63,7 @@ var mjpegAdpcmimawavTest = function() {
         });
         readableStream.on('end', function() {
             resolve();
-        })
+        });
     });
 }
 var theoraSpeexTest = function() {
@@ -82,7 +82,7 @@ var theoraSpeexTest = function() {
         });
         readableStream.on('end', function() {
             resolve();
-        })
+        });
     });
 }
 var vp8VorbisTest = function() {
@@ -101,7 +101,7 @@ var vp8VorbisTest = function() {
         });
         readableStream.on('end', function() {
             resolve();
-        })
+        });
     });
 }
 var vp9OpusTest = function() {
@@ -120,7 +120,7 @@ var vp9OpusTest = function() {
         });
         readableStream.on('end', function() {
             resolve();
-        })
+        });
     });
 }
 start()

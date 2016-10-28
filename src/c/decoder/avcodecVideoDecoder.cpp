@@ -57,14 +57,26 @@ private:
                 if(strcmp((const char *)*codec, "h264") == 0) {
                     type = frameType_h264;
                 }
+                else if(strcmp((const char *)*codec, "h265") == 0) {
+                    type = frameType_h265;
+                }
                 else if(strcmp((const char *)*codec, "flv1") == 0) {
                     type = frameType_flv1;
+                }
+                else if(strcmp((const char *)*codec, "jpeg") == 0) {
+                    type = frameType_jpeg;
+                }
+                else if(strcmp((const char *)*codec, "theora") == 0) {
+                    type = frameType_theora;
                 }
                 else if(strcmp((const char *)*codec, "vp6") == 0) {
                     type = frameType_vp6;
                 }
                 else if(strcmp((const char *)*codec, "vp8") == 0) {
                     type = frameType_vp8;
+                }
+                else if(strcmp((const char *)*codec, "vp9") == 0) {
+                    type = frameType_vp9;
                 }
                 AvcodecVideoDecoder *decoder = new AvcodecVideoDecoder(
                         info[0]->Uint32Value(),
