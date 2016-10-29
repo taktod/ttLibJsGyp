@@ -57,14 +57,23 @@ private:
                 if(strcmp((const char *)*codec, "aac") == 0) {
                     type = frameType_aac;
                 }
+                else if(strcmp((const char *)*codec, "adpcmimawav") == 0) {
+                    type = frameType_adpcm_ima_wav;
+                }
                 else if(strcmp((const char *)*codec, "mp3") == 0) {
                     type = frameType_mp3;
+                }
+                else if(strcmp((const char *)*codec, "nellymoser") == 0) {
+                    type = frameType_nellymoser;
+                }
+                else if(strcmp((const char *)*codec, "opus") == 0) {
+                    type = frameType_opus;
                 }
                 else if(strcmp((const char *)*codec, "speex") == 0) {
                     type = frameType_speex;
                 }
-                else if(strcmp((const char *)*codec, "nellymoser") == 0) {
-                    type = frameType_nellymoser;
+                else if(strcmp((const char *)*codec, "vorbis") == 0) {
+                    type = frameType_vorbis;
                 }
                 AvcodecAudioDecoder *decoder = new AvcodecAudioDecoder(
                         info[0]->Uint32Value(),
@@ -122,6 +131,11 @@ private:
             return;
         }
         AvcodecAudioDecoder *decoder = Nan::ObjectWrap::Unwrap<AvcodecAudioDecoder>(info.Holder());
+        if(decoder->decoder_ == NULL) {
+            puts("decoderの準備ができていません。");
+            info.GetReturnValue().Set(Nan::New(false));
+            return;
+        }
         decoder->callback_ = info[1];
         // フレーム取得
         ttLibC_Frame *frame = decoder->frameManager_->getFrame(info[0]->ToObject());
