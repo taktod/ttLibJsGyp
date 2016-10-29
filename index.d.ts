@@ -457,6 +457,25 @@ declare module 'ttlibjsgyp'{
        */
       encode(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
     }
+    /**
+     * x265によるh265エンコード動作
+     */
+    export class X265 {
+      /**
+       * コンストラクタ
+       * @param width        横幅
+       * @param height       縦幅
+       * @param bitrate      動作bitrate bit/sec
+       */
+      constructor(width:number, height:number, bitrate:number);
+      /**
+       * エンコードを実施します。
+       * @param frame 生成元のフレームデータyuv420のplanar
+       * @param func  生成データを受け取るcallback
+       * @return true:成功 false:失敗
+       */
+      encode(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
+    }
   }
   export namespace net {
     export namespace RtmpClient {

@@ -35,7 +35,8 @@ module.exports = {
         Openh264: require("bindings")("openh264Encoder").Openh264Encoder,
         Opus:     require("bindings")("opusEncoder").OpusEncoder,
         Theora:   require("bindings")("theoraEncoder").TheoraEncoder,
-        X264:     require("bindings")("x264Encoder").X264Encoder
+        X264:     require("bindings")("x264Encoder").X264Encoder,
+        X265:     require("bindings")("x265Encoder").X265Encoder
     },
     net: {
         RtmpClient: require("bindings")("rtmpClient")
