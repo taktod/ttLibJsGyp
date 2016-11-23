@@ -53,8 +53,14 @@ private:
             }
             Mp4Writer *obj = new Mp4Writer(types, num);
             obj->Wrap(info.This());
+            Nan::Set(info.This(), Nan::New("enableDts").ToLocalChecked(),      Nan::New(false));
+            Nan::Set(info.This(), Nan::New("splitType").ToLocalChecked(),      Nan::New(0));
+            Nan::Set(info.This(), Nan::New("splitTypeKey").ToLocalChecked(),   Nan::New(0));
+            Nan::Set(info.This(), Nan::New("splitTypeInner").ToLocalChecked(), Nan::New(1));
+            Nan::Set(info.This(), Nan::New("splitTypeAll").ToLocalChecked(),   Nan::New(2));
+            Nan::Set(info.This(), Nan::New("pts").ToLocalChecked(),            Nan::New(0));
+            Nan::Set(info.This(), Nan::New("timebase").ToLocalChecked(),       Nan::New(1000));
             info.GetReturnValue().Set(info.This());
-
             delete[] types;
         }
         else {
@@ -95,6 +101,29 @@ private:
             return;
         }
         Mp4Writer* writer = Nan::ObjectWrap::Unwrap<Mp4Writer>(info.Holder());
+        Local<Value> enableDts = Nan::Get(info.Holder(), Nan::New("enableDts").ToLocalChecked()).ToLocalChecked();
+        uint32_t mode = 0x00;
+        if(enableDts->IsBoolean()) {
+            if(enableDts->IsTrue()) {
+                mode |= containerWriter_enable_dts;
+            }
+        }
+        Local<Value> splitType = Nan::Get(info.Holder(), Nan::New("splitType").ToLocalChecked()).ToLocalChecked();
+        if(splitType->IsNumber()) {
+            switch((uint32_t)splitType->NumberValue()) {
+            case 0:
+            default:
+                mode |= containerWriter_keyFrame_division;
+                break;
+            case 1:
+                mode |= containerWriter_innerFrame_division;
+                break;
+            case 2:
+                mode |= containerWriter_allFrame_division;
+                break;
+            }
+        }
+        writer->writer_->inherit_super.mode = mode;
         writer->callback_ = info[1];
         // フレームを取得
         ttLibC_Frame *frame = writer->frameManager_->getFrame(info[0]->ToObject());
@@ -111,6 +140,7 @@ private:
             info.GetReturnValue().Set(Nan::New(false));
             return;
         }
+        Nan::Set(info.This(), Nan::New("pts").ToLocalChecked(), Nan::New((double)writer->writer_->inherit_super.pts));
         info.GetReturnValue().Set(Nan::New(true));
     }
     static NAN_METHOD(Dump) {

@@ -2,6 +2,7 @@ var ttg = require("../../");
 var capture = new ttg.util.OpencvCapture(0, 320, 240);
 var org_win = new ttg.util.OpencvWindow("original");
 var dec_win = new ttg.util.OpencvWindow("decode");
+console.log(ttg.encoder.X264);
 var encoder = new ttg.encoder.X264(320, 240, 40, 4, 500000, 3, "veryfast", "zerolatency", "main");
 var decoder = new ttg.decoder.AvcodecVideo(320, 240, "h264");
 var toYuv = new ttg.resampler.Image("yuv420", "planar");
@@ -16,7 +17,6 @@ setInterval(function() {
         toYuv.resample(frame, function(err, frame) {
             // yuv -> h264変換
             encoder.encode(frame, function(err, frame) {
-                console.log(frame);
                 // h264 -> yuv変換
                 decoder.decode(frame, function(err, frame) {
                     // yuv -> bgr変換
@@ -30,4 +30,4 @@ setInterval(function() {
         // window表示(org_winもdec_winも更新される)
         org_win.update(1);
     });
-}, 30);
+}, 5);

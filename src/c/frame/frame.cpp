@@ -647,7 +647,7 @@ bool setupJsFrameObject_common(
         return false;
     }
     Nan::Set(jsFrame, Nan::New("type").ToLocalChecked(), Nan::New(type).ToLocalChecked());
-    Nan::Set(jsFrame, Nan::New("pts").ToLocalChecked(), Nan::New((float)(frame->pts)));
+    Nan::Set(jsFrame, Nan::New("pts").ToLocalChecked(), Nan::New((double)(frame->pts)));
     Nan::Set(jsFrame, Nan::New("timebase").ToLocalChecked(), Nan::New(frame->timebase));
     if(frame->data != NULL) {
         // ここがNULLの場合はぬるぽがでて、動作しないのか・・・
@@ -773,6 +773,26 @@ bool setupJsFrameObject(
                 Nan::Set(jsFrame, Nan::New("h264Type").ToLocalChecked(), Nan::New("unknown").ToLocalChecked());
                 break;
             }
+            switch(h264->frame_type) {
+            case H264FrameType_P: 
+                Nan::Set(jsFrame, Nan::New("frameType").ToLocalChecked(), Nan::New("P").ToLocalChecked());
+                break;
+            case H264FrameType_B:
+                Nan::Set(jsFrame, Nan::New("frameType").ToLocalChecked(), Nan::New("B").ToLocalChecked());
+                break;
+            case H264FrameType_I:
+                Nan::Set(jsFrame, Nan::New("frameType").ToLocalChecked(), Nan::New("I").ToLocalChecked());
+                break;
+            case H264FrameType_SP:
+                Nan::Set(jsFrame, Nan::New("frameType").ToLocalChecked(), Nan::New("SP").ToLocalChecked());
+                break;
+            case H264FrameType_SI:
+                Nan::Set(jsFrame, Nan::New("frameType").ToLocalChecked(), Nan::New("SI").ToLocalChecked());
+                break;
+            default:
+                break;
+            }
+            Nan::Set(jsFrame, Nan::New("disposable").ToLocalChecked(), Nan::New(h264->is_disposable));
         }
         break;
     case frameType_h265:
@@ -795,6 +815,20 @@ bool setupJsFrameObject(
                 Nan::Set(jsFrame, Nan::New("h265Type").ToLocalChecked(), Nan::New("unknown").ToLocalChecked());
                 break;
             }
+            switch(h265->frame_type) {
+            case H265FrameType_P:
+                Nan::Set(jsFrame, Nan::New("frameType").ToLocalChecked(), Nan::New("P").ToLocalChecked());
+                break;
+            case H265FrameType_B:
+                Nan::Set(jsFrame, Nan::New("frameType").ToLocalChecked(), Nan::New("B").ToLocalChecked());
+                break;
+            case H265FrameType_I:
+                Nan::Set(jsFrame, Nan::New("frameType").ToLocalChecked(), Nan::New("I").ToLocalChecked());
+                break;
+            default:
+                break;
+            }
+            Nan::Set(jsFrame, Nan::New("disposable").ToLocalChecked(), Nan::New(h265->is_disposable));
         }
         break;
     case frameType_jpeg:

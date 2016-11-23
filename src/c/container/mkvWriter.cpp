@@ -82,8 +82,15 @@ private:
             }
             MkvWriter *obj = new MkvWriter(types, num);
             obj->Wrap(info.This());
+            Nan::Set(info.This(), Nan::New("enableDts").ToLocalChecked(),      Nan::New(false));
+            Nan::Set(info.This(), Nan::New("splitType").ToLocalChecked(),      Nan::New(0));
+            Nan::Set(info.This(), Nan::New("splitTypeKey").ToLocalChecked(),   Nan::New(0));
+            Nan::Set(info.This(), Nan::New("splitTypeInner").ToLocalChecked(), Nan::New(1));
+            Nan::Set(info.This(), Nan::New("splitTypeAll").ToLocalChecked(),   Nan::New(2));
+            Nan::Set(info.This(), Nan::New("pts").ToLocalChecked(),            Nan::New(0));
+            Nan::Set(info.This(), Nan::New("timebase").ToLocalChecked(),       Nan::New(1000));
+            Nan::Set(info.This(), Nan::New("isWebm").ToLocalChecked(),         Nan::New(false));
             info.GetReturnValue().Set(info.This());
-
             delete[] types;
         }
         else {
