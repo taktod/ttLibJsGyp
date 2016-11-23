@@ -132,7 +132,7 @@ private:
             info.GetReturnValue().Set(Nan::New(false));
             return;
         }
-        printf("pts check:llu\n", frame->pts);
+        printf("pts check:%llu\n", frame->pts);
         if(!ttLibC_Mp4Writer_write(
                 writer->writer_,
                 frame,

@@ -152,7 +152,7 @@ ttLibC_Frame *JsFrameManager::getFrame(
     // jsFrameから必要な情報を復元しなければならない。
     // はじめから必要になりそうな情報をすべて取得しておけばいいのか。
     uint64_t pts = getElementNumber(jsFrame, "pts");
-    printf("pts check on getFrame:llu\n", pts);
+    printf("pts check on getFrame:%llu\n", pts);
     uint32_t timebase = (uint32_t)getElementNumber(jsFrame, "timebase");
     uint32_t id = (uint32_t)getElementNumber(jsFrame, "id");
     uint64_t lid = (uint64_t)id;
@@ -188,7 +188,7 @@ ttLibC_Frame *JsFrameManager::getFrame(
             aac->inherit_super.inherit_super.id = id;
             ttLibC_StlMap_put(frameStlMap_, (void *)lid, aac);
 //            frameMap_->insert(std::pair<uint32_t, ttLibC_Frame *>(id, (ttLibC_Frame *)aac));
-            printf("ptscheckhoge:%llu", aac->inherit_super.inherit_super.pts);
+            printf("ptscheckhoge:%llu\n", aac->inherit_super.inherit_super.pts);
             return (ttLibC_Frame *)aac;
         }
     }
