@@ -650,6 +650,7 @@ bool setupJsFrameObject_common(
         return false;
     }
     Nan::Set(jsFrame, Nan::New("type").ToLocalChecked(), Nan::New(type).ToLocalChecked());
+    printf("target pts:%llu %llu", frame->pts, frame->timebase);
     Nan::Set(jsFrame, Nan::New("pts").ToLocalChecked(), Nan::New((uint32_t)(frame->pts)));
     Nan::Set(jsFrame, Nan::New("timebase").ToLocalChecked(), Nan::New(frame->timebase));
     if(frame->data != NULL) {
