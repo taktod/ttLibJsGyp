@@ -163,6 +163,7 @@ ttLibC_Frame *JsFrameManager::getFrame(
     uint32_t height = (uint32_t)getElementNumber(jsFrame, "height");
     uint32_t sample_rate = (uint32_t)getElementNumber(jsFrame, "sampleRate");
     uint32_t sample_num = (uint32_t)getElementNumber(jsFrame, "sampleNum");
+    printf("sample_num:%d\n", sample_num);
     uint32_t channel_num = (uint32_t)getElementNumber(jsFrame, "channelNum");
 
     Local<Value> v8Data = Nan::Get(jsFrame->ToObject(), Nan::New("data").ToLocalChecked()).ToLocalChecked();
@@ -650,7 +651,7 @@ bool setupJsFrameObject_common(
         return false;
     }
     Nan::Set(jsFrame, Nan::New("type").ToLocalChecked(), Nan::New(type).ToLocalChecked());
-    printf("target pts:%llu %llu", frame->pts, frame->timebase);
+    printf("target pts:%llu %llu\n", frame->pts, frame->timebase);
     Nan::Set(jsFrame, Nan::New("pts").ToLocalChecked(), Nan::New((uint32_t)(frame->pts)));
     Nan::Set(jsFrame, Nan::New("timebase").ToLocalChecked(), Nan::New(frame->timebase));
     if(frame->data != NULL) {
