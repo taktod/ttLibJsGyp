@@ -138,6 +138,7 @@ static uint64_t getElementNumber(Local<Object> object, const char *key) {
     if(!val->IsNumber()) {
         return 0; // 数値じゃなければとりあえず0を応答しておこうと思う。
     }
+    printf("check:%f %llu %llu \n", (float)val->NumberValue(), (uint32_t)val->NumberValue(), (uint32_t)val->Uint32Value());
     return (uint64_t)val->NumberValue();
 }
 
