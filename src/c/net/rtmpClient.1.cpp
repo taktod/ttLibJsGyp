@@ -319,7 +319,6 @@ private:
         event->callback = callback;
         ttLibC_StlList_addLast(client->eventList_, event);
         puts("eventListenerを追加することできました。");
-        printf("アドレス%d", event);
     }
     static NAN_METHOD(RemoveEventListener) {
         // これ・・・remove実装できなくね？

@@ -92,7 +92,6 @@ private:
     }
     static bool encodeCallback(void *ptr, ttLibC_Aac *aac) {
         FaacEncoder *encoder = (FaacEncoder *)ptr;
-        printf("output aac for faac:%lld %d\n", aac->inherit_super.inherit_super.pts, aac->inherit_super.inherit_super.timebase);
         auto callback = new Nan::Callback(encoder->callback_.As<Function>());
 //        Nan::AsyncQueueWorker(new FramePassingWorker((ttLibC_Frame *)aac, callback));
         Local<Object> jsFrame = Nan::New<Object>();
@@ -132,7 +131,6 @@ private:
         FaacEncoder *encoder = Nan::ObjectWrap::Unwrap<FaacEncoder>(info.Holder());
         encoder->callback_ = info[1];
         ttLibC_Frame *frame = encoder->frameManager_->getFrame(info[0]->ToObject());
-        printf("input pcm for faac:%lld %d\n", frame->pts, frame->timebase);
         if(frame == NULL) {
             puts("frameを復元できなかった。");
             info.GetReturnValue().Set(Nan::New(false));
