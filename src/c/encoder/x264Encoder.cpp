@@ -3,6 +3,7 @@
 #include "../frame/frame.hpp"
 
 #include <ttLibC/allocator.h>
+#include <x264.h>
 
 #ifdef __ENABLE__
 #   include <ttLibC/encoder/x264Encoder.h>
@@ -40,13 +41,29 @@ private:
             uint32_t height,
             uint32_t maxQuantizer,
             uint32_t minQuantizer,
-            uint32_t bitrate) {
-        encoder_ = ttLibC_X264Encoder_make_ex(
+            uint32_t bitrate,
+            uint32_t bframe,
+            const char *preset,
+            const char *tune,
+            const char *profile) {
+        x264_param_t param;
+        ttLibC_X264Encoder_getDefaultX264ParamTWithPresetTune(
+                &param,
                 width,
                 height,
-                maxQuantizer,
-                minQuantizer,
-                bitrate);
+                preset,
+                tune);
+        param.rc.i_qp_max = maxQuantizer;
+        param.rc.i_qp_min = minQuantizer;
+        param.rc.i_bitrate = bitrate / 1000;
+        param.i_bframe = bframe;
+        if(x264_param_apply_profile(&param, profile) < 0) {
+            puts("x264のprofile設定失敗しました。");
+            encoder_ = NULL;
+        }
+        else {
+            encoder_ = ttLibC_X264Encoder_makeWithX264ParamT(&param);
+        }
         frameManager_ = new JsFrameManager();
     }
     ~X264Encoder() {
@@ -55,16 +72,37 @@ private:
     }
     static NAN_METHOD(New) {
         if(info.IsConstructCall()) {
-            if(info.Length() != 5) {
-                puts("コンストラクタの引数は5であるべき");
-            }
-            else {
+            if(info.Length() == 5) {
+                // 既存の動作 width height maxQuantizer minQuantizer bitrate
                 X264Encoder *encoder = new X264Encoder(
                         info[0]->Uint32Value(),
                         info[1]->Uint32Value(),
                         info[2]->Uint32Value(),
                         info[3]->Uint32Value(),
-                        info[4]->Uint32Value());
+                        info[4]->Uint32Value(),
+                        0,
+                        NULL,
+                        NULL,
+                        "baseline");
+                encoder->Wrap(info.This());
+            }
+            else if(info.Length() == 9){
+                // あたらしいものだったらwidth height maxQuantizer minQuantizer bitrate
+                // width height maxQuantizer minQuantizer bitrate
+                // bframe preset tune profile
+                String::Utf8Value preset(info[6]->ToString());
+                String::Utf8Value tune(info[7]->ToString());
+                String::Utf8Value profile(info[8]->ToString());
+                X264Encoder *encoder = new X264Encoder(
+                        info[0]->Uint32Value(),
+                        info[1]->Uint32Value(),
+                        info[2]->Uint32Value(),
+                        info[3]->Uint32Value(),
+                        info[4]->Uint32Value(),
+                        info[5]->Uint32Value(),
+                        (const char *)*preset,
+                        (const char *)*tune,
+                        (const char *)*profile);
                 encoder->Wrap(info.This());
             }
             info.GetReturnValue().Set(info.This());
