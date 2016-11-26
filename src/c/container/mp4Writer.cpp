@@ -53,13 +53,17 @@ private:
             }
             Mp4Writer *obj = new Mp4Writer(types, num);
             obj->Wrap(info.This());
-            Nan::Set(info.This(), Nan::New("enableDts").ToLocalChecked(),      Nan::New(false));
-            Nan::Set(info.This(), Nan::New("splitType").ToLocalChecked(),      Nan::New(0));
-            Nan::Set(info.This(), Nan::New("splitTypeKey").ToLocalChecked(),   Nan::New(0));
-            Nan::Set(info.This(), Nan::New("splitTypeInner").ToLocalChecked(), Nan::New(1));
-            Nan::Set(info.This(), Nan::New("splitTypeAll").ToLocalChecked(),   Nan::New(2));
-            Nan::Set(info.This(), Nan::New("pts").ToLocalChecked(),            Nan::New(0));
-            Nan::Set(info.This(), Nan::New("timebase").ToLocalChecked(),       Nan::New(1000));
+            Nan::Set(info.This(), Nan::New("enableDts").ToLocalChecked(),       Nan::New(false));
+            Nan::Set(info.This(), Nan::New("splitType").ToLocalChecked(),       Nan::New(0));
+            // allkey:0x10 key:0 inner:1 p:2 dispoB:4 b:8
+            Nan::Set(info.This(), Nan::New("splitTypeKey").ToLocalChecked(),    Nan::New(0x00));
+            Nan::Set(info.This(), Nan::New("splitTypeInner").ToLocalChecked(),  Nan::New(0x01));
+            Nan::Set(info.This(), Nan::New("splitTypeP").ToLocalChecked(),      Nan::New(0x02));
+            Nan::Set(info.This(), Nan::New("splitTypeDB").ToLocalChecked(),     Nan::New(0x04));
+            Nan::Set(info.This(), Nan::New("splitTypeB").ToLocalChecked(),      Nan::New(0x08));
+            Nan::Set(info.This(), Nan::New("splitTypeAllKey").ToLocalChecked(), Nan::New(0x10));
+            Nan::Set(info.This(), Nan::New("pts").ToLocalChecked(),             Nan::New(0));
+            Nan::Set(info.This(), Nan::New("timebase").ToLocalChecked(),        Nan::New(1000));
             info.GetReturnValue().Set(info.This());
             delete[] types;
         }
@@ -110,17 +114,22 @@ private:
         }
         Local<Value> splitType = Nan::Get(info.Holder(), Nan::New("splitType").ToLocalChecked()).ToLocalChecked();
         if(splitType->IsNumber()) {
-            switch((uint32_t)splitType->NumberValue()) {
-            case 0:
-            default:
-                mode |= containerWriter_keyFrame_division;
-                break;
-            case 1:
-                mode |= containerWriter_innerFrame_division;
-                break;
-            case 2:
-                mode |= containerWriter_allFrame_division;
-                break;
+            uint32_t divtype = (uint32_t)splitType->NumberValue();
+            mode |= containerWriter_keyFrame_split;
+            if((divtype & 0x01) != 0x00) {
+                mode |= containerWriter_innerFrame_split;
+            }
+            if((divtype & 0x02) != 0x00) {
+                mode |= containerWriter_pFrame_split;
+            }
+            if((divtype & 0x04) != 0x00) {
+                mode |= containerWriter_disposableBFrame_split;
+            }
+            if((divtype & 0x08) != 0x00) {
+                mode |= containerWriter_bFrame_split;
+            }
+            if((divtype & 0x10) != 0x00) {
+                mode |= containerWriter_allKeyFrame_split;
             }
         }
         writer->writer_->inherit_super.mode = mode;
