@@ -47,8 +47,20 @@ private:
                 if(strcmp((const char *)*codec, "h264") == 0) {
                     types[i] = frameType_h264;
                 }
+                else if(strcmp((const char *)*codec, "h265") == 0) {
+                    types[i] = frameType_h265;
+                }
+                else if(strcmp((const char *)*codec, "jpeg") == 0) {
+                    types[i] = frameType_jpeg;
+                }
                 else if(strcmp((const char *)*codec, "aac") == 0) {
                     types[i] = frameType_aac;
+                }
+                else if(strcmp((const char *)*codec, "mp3") == 0) {
+                    types[i] = frameType_mp3;
+                }
+                else if(strcmp((const char *)*codec, "vorbis") == 0) {
+                    types[i] = frameType_vorbis;
                 }
             }
             Mp4Writer *obj = new Mp4Writer(types, num);
@@ -56,14 +68,14 @@ private:
             Nan::Set(info.This(), Nan::New("enableDts").ToLocalChecked(),       Nan::New(false));
             Nan::Set(info.This(), Nan::New("splitType").ToLocalChecked(),       Nan::New(0));
             // allkey:0x10 key:0 inner:1 p:2 dispoB:4 b:8
-            Nan::Set(info.This(), Nan::New("splitTypeKey").ToLocalChecked(),    Nan::New(0x00));
-            Nan::Set(info.This(), Nan::New("splitTypeInner").ToLocalChecked(),  Nan::New(0x01));
-            Nan::Set(info.This(), Nan::New("splitTypeP").ToLocalChecked(),      Nan::New(0x02));
-            Nan::Set(info.This(), Nan::New("splitTypeDB").ToLocalChecked(),     Nan::New(0x04));
-            Nan::Set(info.This(), Nan::New("splitTypeB").ToLocalChecked(),      Nan::New(0x08));
-            Nan::Set(info.This(), Nan::New("splitTypeAllKey").ToLocalChecked(), Nan::New(0x10));
-            Nan::Set(info.This(), Nan::New("pts").ToLocalChecked(),             Nan::New(0));
-            Nan::Set(info.This(), Nan::New("timebase").ToLocalChecked(),        Nan::New(1000));
+            Nan::Set(info.This(), Nan::New("splitTypeKey").ToLocalChecked(),    Nan::New(containerWriter_keyFrame_split));
+            Nan::Set(info.This(), Nan::New("splitTypeInner").ToLocalChecked(),  Nan::New(containerWriter_innerFrame_split));
+            Nan::Set(info.This(), Nan::New("splitTypeP").ToLocalChecked(),      Nan::New(containerWriter_pFrame_split));
+            Nan::Set(info.This(), Nan::New("splitTypeDB").ToLocalChecked(),     Nan::New(containerWriter_disposableBFrame_split));
+            Nan::Set(info.This(), Nan::New("splitTypeB").ToLocalChecked(),      Nan::New(containerWriter_bFrame_split));
+            Nan::Set(info.This(), Nan::New("splitTypeAllKey").ToLocalChecked(), Nan::New(containerWriter_allKeyFrame_split));
+            Nan::Set(info.This(), Nan::New("pts").ToLocalChecked(),             Nan::New((double)obj->writer_->pts));
+            Nan::Set(info.This(), Nan::New("timebase").ToLocalChecked(),        Nan::New((uint32_t)obj->writer_->timebase));
             info.GetReturnValue().Set(info.This());
             delete[] types;
         }
@@ -106,7 +118,7 @@ private:
         }
         Mp4Writer* writer = Nan::ObjectWrap::Unwrap<Mp4Writer>(info.Holder());
         Local<Value> enableDts = Nan::Get(info.Holder(), Nan::New("enableDts").ToLocalChecked()).ToLocalChecked();
-        uint32_t mode = 0x00;
+        uint32_t mode = containerWriter_keyFrame_split;
         if(enableDts->IsBoolean()) {
             if(enableDts->IsTrue()) {
                 mode |= containerWriter_enable_dts;
@@ -115,24 +127,9 @@ private:
         Local<Value> splitType = Nan::Get(info.Holder(), Nan::New("splitType").ToLocalChecked()).ToLocalChecked();
         if(splitType->IsNumber()) {
             uint32_t divtype = (uint32_t)splitType->NumberValue();
-            mode |= containerWriter_keyFrame_split;
-            if((divtype & 0x01) != 0x00) {
-                mode |= containerWriter_innerFrame_split;
-            }
-            if((divtype & 0x02) != 0x00) {
-                mode |= containerWriter_pFrame_split;
-            }
-            if((divtype & 0x04) != 0x00) {
-                mode |= containerWriter_disposableBFrame_split;
-            }
-            if((divtype & 0x08) != 0x00) {
-                mode |= containerWriter_bFrame_split;
-            }
-            if((divtype & 0x10) != 0x00) {
-                mode |= containerWriter_allKeyFrame_split;
-            }
+            mode |= divtype;
         }
-        writer->writer_->inherit_super.mode = mode;
+        writer->writer_->mode = mode;
         writer->callback_ = info[1];
         // フレームを取得
         ttLibC_Frame *frame = writer->frameManager_->getFrame(info[0]->ToObject());
@@ -149,7 +146,7 @@ private:
             info.GetReturnValue().Set(Nan::New(false));
             return;
         }
-        Nan::Set(info.This(), Nan::New("pts").ToLocalChecked(), Nan::New((double)writer->writer_->inherit_super.pts));
+        Nan::Set(info.This(), Nan::New("pts").ToLocalChecked(), Nan::New((double)writer->writer_->pts));
         info.GetReturnValue().Set(Nan::New(true));
     }
     static NAN_METHOD(Dump) {
