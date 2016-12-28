@@ -9,6 +9,7 @@
   "author": "taktod",
   "license": "BSD-3-Clause",
   "dependencies": {
+    "@types/node": "^6.0.54",
     "bindings": "^1.2.1",
     "del": "^2.2.1",
     "gulp": "^3.9.1",
