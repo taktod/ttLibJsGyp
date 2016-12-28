@@ -2,12 +2,12 @@
 // ttLibJsGyp.d.ts
 declare module 'ttlibjsgyp'{
   export class value {
-    public splitTypeKey: number;
-    public splitTypeInner: number;
-    public splitTypeP: number;
-    public splitTypeDB: number;
-    public splitTypeB: number;
-    public splitTypeAllKey: number;
+    splitTypeKey: number;
+    splitTypeInner: number;
+    splitTypeP: number;
+    splitTypeDB: number;
+    splitTypeB: number;
+    splitTypeAllKey: number;
   }
   export class JsFrame {
     public type:string;
