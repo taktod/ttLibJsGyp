@@ -474,9 +474,15 @@ declare module 'ttlibjsgyp'{
        * @param maxQuantizer quantizer値の最大値
        * @param minQuantizer quantizer値の最小値
        * @param bitrate      動作bitrate bit/sec
+       * @param bframe       bFrameの設定値
+       * @param preset       preset
+       * @param tune         tune
+       * @param profile      profile
        * quantizerの値は小さいほど高画質
+       * bframe以降を省略した、5個のparamでも動作します。
        */
-      constructor(width:number, height:number, maxQuantizer:number, minQuantizer:number, bitrate:number);
+      constructor(width:number, height:number, maxQuantizer:number, minQuantizer:number, bitrate:number,
+        bframe?:number, preset?:string, tune?:string, profile?:string);
       /**
        * エンコードを実施します。
        * @param frame 生成元のフレームデータyuv420のplanar
@@ -519,8 +525,10 @@ declare module 'ttlibjsgyp'{
          * イベントをリスナを追加する。
          * @param target
          * @param listener
+         * ここでいうlistenerでは、amf3のcallbackみたいに、object->codeとかが帰ってくるわけか・・・
+         * とりあえずe:anyにしておく。
          */
-        addEventListener(target:string, listener:{(e):void}):boolean;
+        addEventListener(target:string, listener:{(e:any):void}):boolean;
         /**
          * 接続する
          */
@@ -553,7 +561,7 @@ declare module 'ttlibjsgyp'{
          * @param target
          * @param listener
          */
-        addEventListener(target:string, listener:{(e):void}):boolean;
+        addEventListener(target:string, listener:{(e:any):void}):boolean;
         /**
          * フレーム受け取り時に呼ばれるcallback
          */
