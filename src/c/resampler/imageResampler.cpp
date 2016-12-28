@@ -2,7 +2,6 @@
 #include <nan.h>
 #include "../frame/frame.hpp"
 
-#include <ttLibC/allocator.h>
 #include <ttLibC/resampler/imageResampler.h>
 #include <ttLibC/frame/video/yuv420.h>
 #include <ttLibC/frame/frame.h>
@@ -13,13 +12,11 @@ using namespace v8;
 class ImageResampler : public Nan::ObjectWrap {
 public:
     static NAN_MODULE_INIT(Init) {
-        ttLibC_Allocator_init();
         Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
         tpl->SetClassName(Nan::New("ImageResampler").ToLocalChecked());
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
         SetPrototypeMethod(tpl, "resample", Resample);
-        SetPrototypeMethod(tpl, "dump", Dump);
 
         constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
         Nan::Set(
@@ -175,9 +172,6 @@ private:
             callback->Call(2, args);
         }
         info.GetReturnValue().Set(Nan::New(true));
-    }
-    static NAN_METHOD(Dump) {
-        ttLibC_Allocator_dump();
     }
     static inline Nan::Persistent<Function> & constructor() {
         static Nan::Persistent<Function> my_constructor;

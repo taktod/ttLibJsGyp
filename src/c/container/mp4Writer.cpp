@@ -3,7 +3,6 @@
 #include "../frame/frame.hpp"
 #include "../util/binary.hpp"
 
-#include <ttLibC/allocator.h>
 #include <ttLibC/container/mp4.h>
 #include <ttLibC/frame/frame.h>
 #include <stdlib.h>
@@ -13,13 +12,11 @@ using namespace v8;
 class Mp4Writer : public Nan::ObjectWrap {
 public:
     static NAN_MODULE_INIT(Init) {
-        ttLibC_Allocator_init();
         Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
         tpl->SetClassName(Nan::New("Mp4Writer").ToLocalChecked());
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
         SetPrototypeMethod(tpl, "write", Write);
-        SetPrototypeMethod(tpl, "dump", Dump);
 
         constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
         Nan::Set(
@@ -141,9 +138,6 @@ private:
         }
         Nan::Set(info.This(), Nan::New("pts").ToLocalChecked(), Nan::New((double)writer->writer_->pts));
         info.GetReturnValue().Set(Nan::New(true));
-    }
-    static NAN_METHOD(Dump) {
-        ttLibC_Allocator_dump();
     }
     static inline Nan::Persistent<Function> & constructor() {
         static Nan::Persistent<Function> my_constructor;

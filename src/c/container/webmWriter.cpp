@@ -2,7 +2,6 @@
 #include <nan.h>
 #include "../frame/frame.hpp"
 
-#include <ttLibC/allocator.h>
 #include <ttLibC/container/mkv.h>
 #include <ttLibC/frame/frame.h>
 #include <stdlib.h>
@@ -12,13 +11,11 @@ using namespace v8;
 class WebmWriter : public Nan::ObjectWrap {
 public:
     static NAN_MODULE_INIT(Init) {
-        ttLibC_Allocator_init();
         Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
         tpl->SetClassName(Nan::New("WebmWriter").ToLocalChecked());
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
         SetPrototypeMethod(tpl, "write", Write);
-        SetPrototypeMethod(tpl, "dump", Dump);
 
         constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
         Nan::Set(
@@ -31,7 +28,6 @@ private:
             ttLibC_Frame_Type *types,
             uint32_t types_num) {
         writer_ = ttLibC_MkvWriter_make(types, types_num);
-//        writer_->is_webm = true;
         writer_->type = containerType_webm;
         frameManager_ = new JsFrameManager();
     }
@@ -139,9 +135,6 @@ private:
         }
         Nan::Set(info.This(), Nan::New("pts").ToLocalChecked(), Nan::New((double)writer->writer_->pts));
         info.GetReturnValue().Set(Nan::New(true));
-    }
-    static NAN_METHOD(Dump) {
-        ttLibC_Allocator_dump();
     }
     static inline Nan::Persistent<Function> & constructor() {
         static Nan::Persistent<Function> my_constructor;

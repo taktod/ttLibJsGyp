@@ -2,8 +2,6 @@
 #include <nan.h>
 #include "../frame/frame.hpp"
 
-#include <ttLibC/allocator.h>
-
 #ifdef __ENABLE__
 #   include <ttLibC/encoder/openh264Encoder.h>
 #endif
@@ -17,14 +15,11 @@ class Openh264Encoder : public Nan::ObjectWrap {
 public:
     static NAN_MODULE_INIT(Init) {
 #ifdef __ENABLE__
-        ttLibC_Allocator_init();
-//        FramePassingWorker::Init();
         Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
         tpl->SetClassName(Nan::New("Openh264Encoder").ToLocalChecked());
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
         SetPrototypeMethod(tpl, "encode", Encode);
-        SetPrototypeMethod(tpl, "dump", Dump);
 
         constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
         Nan::Set(
@@ -83,7 +78,6 @@ private:
     static bool encodeCallback(void *ptr, ttLibC_H264 *h264) {
         Openh264Encoder *encoder = (Openh264Encoder *)ptr;
         auto callback = new Nan::Callback(encoder->callback_.As<Function>());
-//        Nan::AsyncQueueWorker(new FramePassingWorker((ttLibC_Frame *)h264, callback));
         Local<Object> jsFrame = Nan::New<Object>();
         if(!setupJsFrameObject(
                 jsFrame,
@@ -140,9 +134,6 @@ private:
             puts("それ以外だ");
         }
         info.GetReturnValue().Set(Nan::New(true));
-    }
-    static NAN_METHOD(Dump) {
-        ttLibC_Allocator_dump();
     }
     static inline Nan::Persistent<Function> & constructor() {
         static Nan::Persistent<Function> my_constructor;

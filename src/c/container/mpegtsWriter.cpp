@@ -3,7 +3,6 @@
 #include "../frame/frame.hpp"
 #include "../util/binary.hpp"
 
-#include <ttLibC/allocator.h>
 #include <ttLibC/container/mpegts.h>
 #include <ttLibC/frame/frame.h>
 #include <stdlib.h>
@@ -13,15 +12,12 @@ using namespace v8;
 class MpegtsWriter : public Nan::ObjectWrap {
 public:
     static NAN_MODULE_INIT(Init) {
-        ttLibC_Allocator_init();
-//        BinaryPassingWorker::Init();
         Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
         tpl->SetClassName(Nan::New("MpegtsWriter").ToLocalChecked());
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
         SetPrototypeMethod(tpl, "write", Write);
         SetPrototypeMethod(tpl, "writeInfo", WriteInfo);
-        SetPrototypeMethod(tpl, "dump", Dump);
 
         constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
         Nan::Set(
@@ -158,9 +154,6 @@ private:
             return;
         }
         info.GetReturnValue().Set(Nan::New(true));
-    }
-    static NAN_METHOD(Dump) {
-        ttLibC_Allocator_dump();
     }
     static inline Nan::Persistent<Function> & constructor() {
         static Nan::Persistent<Function> my_constructor;

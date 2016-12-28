@@ -2,7 +2,6 @@
 #include <nan.h>
 #include "../frame/frame.hpp"
 
-#include <ttLibC/allocator.h>
 #include <ttLibC/container/mpegts.h>
 #include <ttLibC/frame/frame.h>
 #include <stdlib.h>
@@ -12,14 +11,11 @@ using namespace v8;
 class MpegtsReader : public Nan::ObjectWrap {
 public:
     static NAN_MODULE_INIT(Init) {
-        ttLibC_Allocator_init();
-//        FramePassingWorker::Init();
         Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
         tpl->SetClassName(Nan::New("MpegtsReader").ToLocalChecked());
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
         SetPrototypeMethod(tpl, "read", Read);
-        SetPrototypeMethod(tpl, "dump", Dump);
 
         constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
         Nan::Set(
@@ -33,7 +29,6 @@ private:
     }
     ~MpegtsReader() {
         ttLibC_MpegtsReader_close(&reader_);
-        ttLibC_Allocator_close();
     }
     static NAN_METHOD(New) {
         if(info.IsConstructCall()) {
@@ -100,9 +95,6 @@ private:
             }
         }
         info.GetReturnValue().Set(false);
-    }
-    static NAN_METHOD(Dump) {
-        ttLibC_Allocator_dump();
     }
     static inline Nan::Persistent<Function> & constructor() {
         static Nan::Persistent<Function> my_constructor;

@@ -176,6 +176,8 @@ public:
         mutex_map_ = new std::map<uint32_t, forMutex_t *>();
     }
     ~Initializer() {
+        // ここもmapの中身をttLibC_freeで解放する動作があった方がよさげ。
+        // だけど、osが勝手にプログラム完了時に解放してくれそうではある。
     }
 };
 Initializer init;
@@ -185,13 +187,11 @@ class VtDecompressSessionDecoder : public Nan::ObjectWrap {
 public:
     static NAN_MODULE_INIT(Init) {
 #ifdef __ENABLE__
-        ttLibC_Allocator_init();
         Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
         tpl->SetClassName(Nan::New("VtDecompressSessionDecoder").ToLocalChecked());
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
         SetPrototypeMethod(tpl, "decode", Decode);
-        SetPrototypeMethod(tpl, "dump", Dump);
 
         constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
         Nan::Set(
@@ -271,9 +271,6 @@ private:
         auto callback = new Nan::Callback(info[1].As<Function>());
         Nan::AsyncQueueWorker(new AsyncVtDecodeWorker(decoder->decoder_, (ttLibC_Video *)frame, callback));
         info.GetReturnValue().Set(Nan::New(true));
-    }
-    static NAN_METHOD(Dump) {
-        ttLibC_Allocator_dump();
     }
     static inline Nan::Persistent<Function> & constructor() {
         static Nan::Persistent<Function> my_constructor;

@@ -168,6 +168,8 @@ public:
         mutex_map_ = new std::map<uint32_t, forMutex_t *>();
     }
     ~Initializer() {
+        // ここでmutex_map上のオブジェクトをttLibC_freeしておかないとメモリーリークになる。
+        // まぁ、プログラムが終わるときに、解放すべきデータということなので、やらなくてもOSが解放すると思うけど。
     }
 };
 Initializer init;
@@ -177,14 +179,11 @@ class AudioConverterDecoder : public Nan::ObjectWrap {
 public:
     static NAN_MODULE_INIT(Init) {
 #ifdef __ENABLE__
-        ttLibC_Allocator_init();
-//        FramePassingWorker::Init();
         Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
         tpl->SetClassName(Nan::New("AudioConverterDecoder").ToLocalChecked());
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
         SetPrototypeMethod(tpl, "decode", Decode);
-        SetPrototypeMethod(tpl, "dump", Dump);
 
         constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
         Nan::Set(
@@ -285,9 +284,6 @@ private:
             return;
         }*/
         info.GetReturnValue().Set(Nan::New(true));
-    }
-    static NAN_METHOD(Dump) {
-        ttLibC_Allocator_dump();
     }
     static inline Nan::Persistent<Function> & constructor() {
         static Nan::Persistent<Function> my_constructor;

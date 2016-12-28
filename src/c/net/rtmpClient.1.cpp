@@ -25,7 +25,6 @@
 #include <nan.h>
 #include "../frame/frame.hpp"
 
-#include <ttLibC/allocator.h>
 #ifdef __ENABLE__
 #   include <ttLibC/net/client/rtmp.h>
 #endif
@@ -61,7 +60,6 @@ static Local<Value> makeJsObject_from_ttLibCAmf0(ttLibC_Amf0Object *src_obj);
 class RtmpClient : public Nan::ObjectWrap {
 public:
     static NAN_MODULE_INIT(Init) {
-        ttLibC_Allocator_init();
         Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(NewConn);
         tpl->SetClassName(Nan::New("NetConnection").ToLocalChecked());
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
@@ -69,7 +67,6 @@ public:
         SetPrototypeMethod(tpl, "connect", Connect);
         SetPrototypeMethod(tpl, "addEventListener", AddEventListener);
         SetPrototypeMethod(tpl, "removeEventListener", RemoveEventListener);
-        SetPrototypeMethod(tpl, "dump", Dump);
 
         constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
 
@@ -89,7 +86,6 @@ public:
         SetPrototypeMethod(tpl, "addFrameListener", AddFrameListener);
         SetPrototypeMethod(tpl, "addEventListener", AddEventListener);
         SetPrototypeMethod(tpl, "removeEventListener", RemoveEventListener);
-        SetPrototypeMethod(tpl, "dump", Dump);
 
         constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
 
@@ -290,9 +286,6 @@ private:
         info.GetReturnValue().Set(false);
     }
 
-    static NAN_METHOD(Dump) {
-        ttLibC_Allocator_dump();
-    }
     static NAN_METHOD(AddEventListener) {
         if(info.Length() < 2) {
             info.GetReturnValue().Set(false);

@@ -2,8 +2,6 @@
 #include <nan.h>
 #include "../frame/frame.hpp"
 
-#include <ttLibC/allocator.h>
-
 #ifdef __ENABLE__
 #   include <ttLibC/encoder/jpegEncoder.h>
 #endif
@@ -17,14 +15,11 @@ class JpegEncoder : public Nan::ObjectWrap {
 public:
     static NAN_MODULE_INIT(Init) {
 #ifdef __ENABLE__
-        ttLibC_Allocator_init();
-//        FramePassingWorker::Init();
         Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
         tpl->SetClassName(Nan::New("JpegEncoder").ToLocalChecked());
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
         SetPrototypeMethod(tpl, "encode", Encode);
-        SetPrototypeMethod(tpl, "dump", Dump);
 
         constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
         Nan::Set(
@@ -130,9 +125,6 @@ private:
             puts("それ以外だ");
         }
         info.GetReturnValue().Set(Nan::New(true));
-    }
-    static NAN_METHOD(Dump) {
-        ttLibC_Allocator_dump();
     }
     static inline Nan::Persistent<Function> & constructor() {
         static Nan::Persistent<Function> my_constructor;
