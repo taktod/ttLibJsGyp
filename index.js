@@ -1,4 +1,5 @@
 module.exports = {
+    Value: require("bindings")("valueDefine").ValueDefine,
     flv: {
         Reader: require("bindings")("flvReader").FlvReader,
         Writer: require("bindings")("flvWriter").FlvWriter

@@ -1,6 +1,14 @@
 /// <reference types="node" />
 // ttLibJsGyp.d.ts
 declare module 'ttlibjsgyp'{
+  export class value {
+    public splitTypeKey: number;
+    public splitTypeInner: number;
+    public splitTypeP: number;
+    public splitTypeDB: number;
+    public splitTypeB: number;
+    public splitTypeAllKey: number;
+  }
   export class JsFrame {
     public type:string;
     public pts:number;
@@ -73,6 +81,10 @@ declare module 'ttlibjsgyp'{
      * mpegtsデータ書き出しクラス
      */
     export class Writer {
+      public enableDts:boolean;
+      public splitType:number;
+      public pts:number;
+      public timebase:number;
       /**
        * コンストラクタ
        * @param types "h264" "aac" "mp3"といったフレームタイプ指定。
@@ -106,6 +118,10 @@ declare module 'ttlibjsgyp'{
      * mkvデータ書き出しクラス
      */
     export class Writer {
+      public enableDts:boolean;
+      public splitType:number;
+      public pts:number;
+      public timebase:number;
       /**
        * コンストラクタ
        * @param types "h264" "vp8" "aac" "opus"といったフレームタイプ指定。
@@ -139,6 +155,10 @@ declare module 'ttlibjsgyp'{
      * mp4データ書き出しクラス
      */
     export class Writer {
+      public enableDts:boolean;
+      public splitType:number;
+      public pts:number;
+      public timebase:number;
       /**
        * コンストラクタ
        * @param types "h264" "aac"といったフレームタイプ指定。
@@ -156,6 +176,10 @@ declare module 'ttlibjsgyp'{
      * webmデータ書き出しクラス
      */
     export class Writer {
+      public enableDts:boolean;
+      public splitType:number;
+      public pts:number;
+      public timebase:number;
       /**
        * コンストラクタ
        * @param types "vp8" "opus"といったフレームタイプ指定。

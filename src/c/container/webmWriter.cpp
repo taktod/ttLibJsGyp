@@ -65,13 +65,6 @@ private:
             obj->Wrap(info.This());
             Nan::Set(info.This(), Nan::New("enableDts").ToLocalChecked(),       Nan::New(false));
             Nan::Set(info.This(), Nan::New("splitType").ToLocalChecked(),       Nan::New(0));
-            // allkey:0x10 key:0 inner:1 p:2 dispoB:4 b:8
-            Nan::Set(info.This(), Nan::New("splitTypeKey").ToLocalChecked(),    Nan::New(containerWriter_keyFrame_split));
-            Nan::Set(info.This(), Nan::New("splitTypeInner").ToLocalChecked(),  Nan::New(containerWriter_innerFrame_split));
-            Nan::Set(info.This(), Nan::New("splitTypeP").ToLocalChecked(),      Nan::New(containerWriter_pFrame_split));
-            Nan::Set(info.This(), Nan::New("splitTypeDB").ToLocalChecked(),     Nan::New(containerWriter_disposableBFrame_split));
-            Nan::Set(info.This(), Nan::New("splitTypeB").ToLocalChecked(),      Nan::New(containerWriter_bFrame_split));
-            Nan::Set(info.This(), Nan::New("splitTypeAllKey").ToLocalChecked(), Nan::New(containerWriter_allKeyFrame_split));
             Nan::Set(info.This(), Nan::New("pts").ToLocalChecked(),             Nan::New((double)obj->writer_->pts));
             Nan::Set(info.This(), Nan::New("timebase").ToLocalChecked(),        Nan::New((uint32_t)obj->writer_->timebase));
             info.GetReturnValue().Set(info.This());

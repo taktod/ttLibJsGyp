@@ -35,6 +35,18 @@
     },
     "targets": [
         {
+            "target_name": 'valueDefine',
+            "sources": [
+                "src/c/value.cpp"],
+            "include_dirs": [
+                "<!(node -e \"require('nan')\")",
+                "<!(pkg-config ttLibC --cflags-only-I | sed -e 's/\-I//g')"
+            ],
+            'libraries': [
+                '<!@(pkg-config --libs ttLibC)',
+            ]
+        },
+        {
             "target_name": 'flvReader',
             "sources": [
                 "src/c/container/flvReader.cpp",
