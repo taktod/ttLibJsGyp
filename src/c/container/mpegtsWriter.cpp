@@ -20,6 +20,7 @@ public:
         tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
         SetPrototypeMethod(tpl, "write", Write);
+        SetPrototypeMethod(tpl, "writeInfo", WriteInfo);
         SetPrototypeMethod(tpl, "dump", Dump);
 
         constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
@@ -134,6 +135,28 @@ private:
             return;
         }
         Nan::Set(info.This(), Nan::New("pts").ToLocalChecked(), Nan::New((double)writer->writer_->pts));
+        info.GetReturnValue().Set(Nan::New(true));
+    }
+    static NAN_METHOD(WriteInfo) {
+        if(info.Length() != 1) {
+            puts("パラメーターはcallbackであるべき");
+            info.GetReturnValue().Set(Nan::New(false));
+            return;
+        }
+        if(!info[0]->IsFunction()) {
+            puts("1st argはfunctionオブジェクトでないとだめです。");
+            info.GetReturnValue().Set(Nan::New(false));
+            return;
+        }
+        MpegtsWriter* writer = Nan::ObjectWrap::Unwrap<MpegtsWriter>(info.Holder());
+        writer->callback_ = info[0];
+        if(!ttLibC_MpegtsWriter_writeInfo(
+                writer->writer_,
+                writeCallback,
+                writer)) {
+            info.GetReturnValue().Set(Nan::New(false));
+            return;
+        }
         info.GetReturnValue().Set(Nan::New(true));
     }
     static NAN_METHOD(Dump) {

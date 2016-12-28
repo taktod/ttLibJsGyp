@@ -92,9 +92,13 @@ declare module 'ttlibjsgyp'{
        */
       constructor(...types: string[]);
       /**
-       * データを書き出す(実際はb inaryデータをcallbackで受け取る)
+       * データを書き出す(実際はbinaryデータをcallbackで受け取る)
        */
       write(frame:JsFrame, func:{(err:string, buffer:Buffer):void}):boolean;
+      /**
+       * sdt pat pmtの情報を書き出す。
+       */
+      writeInfo(func:{(err:string, buffer:Buffer):void}):boolean;
     }
   }
   export namespace mkv {
