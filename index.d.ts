@@ -1,13 +1,13 @@
 /// <reference types="node" />
 // ttLibJsGyp.d.ts
 declare module 'ttlibjsgyp'{
-  export class value {
-    splitTypeKey: number;
-    splitTypeInner: number;
-    splitTypeP: number;
-    splitTypeDB: number;
-    splitTypeB: number;
-    splitTypeAllKey: number;
+  export class Value {
+    public static splitTypeKey:number;
+    public static splitTypeInner:number;
+    public static splitTypeP:number;
+    public static splitTypeDB:number;
+    public static splitTypeB:number;
+    public static splitTypeAllKey:number;
   }
   export class JsFrame {
     public type:string;
