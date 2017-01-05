@@ -550,12 +550,12 @@ declare module 'ttlibjsgyp'{
          * @param hasVideo 映像トラックを取得するかどうか
          * @param hasAudio 音声トラックを取得するかどうか
          */
-        play(name:string, hasVideo?:boolean, hasAudio?:boolean);
+        play(name:string, hasVideo?:boolean, hasAudio?:boolean):void;
         /**
          * bufferLengthを設定する。
          * @param value 
          */
-        setBufferLength(value:number);
+        setBufferLength(value:number):void;
         /**
          * イベントをリスナを追加する。
          * @param target
@@ -625,6 +625,30 @@ declare module 'ttlibjsgyp'{
        * @return true:成功 false:失敗
        */
       resample(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
+    }
+    /**
+     * soundtouchによる音変換
+     */
+    export class Soundtouch {
+      /**
+       * コンストラクタ
+       * @param sampleRate 動作サンプルレート
+       * @param channelNum 動作チャンネル数
+       */
+      constructor(sampleRate:number, channelNum:number);
+      /**
+       * リサンプル実施
+       * この動作では、リサンプル後の音声データにpts情報が追加されません。
+       * tempo等で音声が揺れるのでサンプル数からうまく割り当ててください。
+       */
+      resample(frame:JsAudioFrame, func:{(err:string, frame:JsAudioFrame):void}):boolean;
+      setRate(value:number):boolean;
+      setTempo(value:number):boolean;
+      setRateChange(value:number):boolean;
+      setTempoChange(value:number):boolean;
+      setPitch(value:number):boolean;
+      setPitchOctaves(value:number):boolean;
+      setPitchSemiTones(value:number):boolean;
     }
     /**
      * speexdspによる周波数変換

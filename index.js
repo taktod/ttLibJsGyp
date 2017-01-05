@@ -46,6 +46,7 @@ module.exports = {
         Audio:           require("bindings")("audioResampler").AudioResampler,
         BgrImageResizer: require("bindings")("bgrImageResizer").BgrImageResizer,
         Image:           require("bindings")("imageResampler").ImageResampler,
+        Soundtouch:      require("bindings")("soundtouchResampler").SoundtouchResampler,
         Speexdsp:        require("bindings")("speexdspResampler").SpeexdspResampler,
         YuvImageResizer: require("bindings")("yuvImageResizer").YuvImageResizer
     },

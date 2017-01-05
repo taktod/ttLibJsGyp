@@ -4,18 +4,20 @@
   "description": "taktod's js library with node-gyp",
   "main": "index.js",
   "scripts": {
+    "rebuild": "node-gyp rebuild",
+    "build": "node-gyp build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "taktod",
   "license": "BSD-3-Clause",
   "dependencies": {
-    "@types/node": "^6.0.54",
     "bindings": "^1.2.1",
-    "del": "^2.2.1",
-    "gulp": "^3.9.1",
-    "gulp-exec": "^2.1.2",
-    "gulp-plumber": "^1.1.0",
-    "gulp-typescript": "^2.13.6",
     "nan": "^2.4.0"
+  },
+  "peerDependencies": {
+    "@types/node": "^6.0.54"
+  },
+  "devDependencies": {
+    "node-gyp": "^3.4.0"
   }
 }
