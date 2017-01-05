@@ -550,12 +550,23 @@ declare module 'ttlibjsgyp'{
          * @param hasVideo 映像トラックを取得するかどうか
          * @param hasAudio 音声トラックを取得するかどうか
          */
-        play(name:string, hasVideo?:boolean, hasAudio?:boolean):void;
+        play(name:string, hasVideo?:boolean, hasAudio?:boolean):boolean;
+        /**
+         * publishを開始する。
+         * @param name 対象ストリーム名
+         */
+        publish(name:string):boolean;
+        /**
+         * フレームデータをサーバーに送りつける。
+         * この動作はタイミングを見計らって送信しないと、rtmpサーバーの仕様によっては、一気に再生が進んだりするみたいです。
+         * 特に普通のファイルを送信する場合は、ptsを見ながら、加減しないとおかしなことになる模様。
+         */
+        queueFrame(frame:JsFrame):boolean;
         /**
          * bufferLengthを設定する。
          * @param value 
          */
-        setBufferLength(value:number):void;
+        setBufferLength(value:number):boolean;
         /**
          * イベントをリスナを追加する。
          * @param target

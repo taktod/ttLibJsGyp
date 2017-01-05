@@ -396,6 +396,7 @@ private:
         isCalled_ = false;
         callObjectList_ = ttLibC_StlList_make();
         receiveFrameList_ = ttLibC_StlList_make();
+        frameManager_ = new JsFrameManager();
     }
     ~NetStream() {
         ttLibC_StlList_forEach(callObjectList_, clearAllAmf0Callback, NULL);
@@ -403,6 +404,7 @@ private:
         ttLibC_StlList_forEach(receiveFrameList_, clearAllFrameCallback, NULL);
         ttLibC_StlList_close(&receiveFrameList_);
         ttLibC_RtmpStream_close(&stream_);
+        delete frameManager_;
     }
     static NAN_METHOD(New) {
         if(info.IsConstructCall()) {
@@ -460,12 +462,12 @@ private:
         }
         bool hasVideo = true;
         bool hasAudio = true;
-        if(info.Length() < 3) {
+        if(info.Length() > 1) {
             if(info[1]->IsBoolean()) {
                 hasVideo = info[1]->IsTrue();
             }
         }
-        if(info.Length() < 4) {
+        if(info.Length() > 2) {
             if(info[2]->IsBoolean()) {
                 hasAudio = info[2]->IsTrue();
             }
@@ -474,6 +476,7 @@ private:
         // playを実行する。
         v8::String::Utf8Value str(info[0]->ToString());
         ttLibC_RtmpStream_play(stream->stream_, (const char *)(*str), hasVideo, hasAudio);
+        info.GetReturnValue().Set(true);
     }
     static NAN_METHOD(SetBufferLength) {
         if(info.Length() != 1) {
@@ -500,10 +503,47 @@ private:
         stream->eventManager_->addEventListener(stream, info, "onFrame");
     }
     static NAN_METHOD(Publish) {
-
+        if(info.Length() != 1) {
+            puts("パラメーターは1つ");
+            info.GetReturnValue().Set(false);
+            return;
+        }
+        if(!info[0]->IsString()) {
+            puts("パラメーターは文字列であるべき");
+            info.GetReturnValue().Set(false);
+            return;
+        }
+        NetStream* stream = Nan::ObjectWrap::Unwrap<NetStream>(info.Holder());
+        // publishを実行する。
+        v8::String::Utf8Value str(info[0]->ToString());
+        ttLibC_RtmpStream_publish(stream->stream_, (const char *)(*str));
+        info.GetReturnValue().Set(true);
     }
     static NAN_METHOD(QueueFrame) {
-
+        if(info.Length() != 1) {
+            puts("パラメーターはフレーム1つである必要があります。");
+            info.GetReturnValue().Set(Nan::New(false));
+            return;
+        }
+        if(!info[0]->IsObject()) {
+            puts("1st argはframeオブジェクトでないとだめです。");
+            info.GetReturnValue().Set(Nan::New(false));
+            return;
+        }
+        NetStream* stream = Nan::ObjectWrap::Unwrap<NetStream>(info.Holder());
+        ttLibC_Frame *frame = stream->frameManager_->getFrame(info[0]->ToObject());
+        if(frame == NULL) {
+            puts("frameを復元できなかった。");
+            info.GetReturnValue().Set(Nan::New(false));
+            return;
+        }
+        if(!ttLibC_RtmpStream_addFrame(
+                stream->stream_,
+                frame)) {
+            info.GetReturnValue().Set(Nan::New(false));
+            return;
+        }
+        info.GetReturnValue().Set(Nan::New(true));
     }
     /**
      * イベントを追加しておく。
@@ -524,6 +564,8 @@ private:
     ttLibC_StlList *callObjectList_;
     // play時にうけとったframeリスト
     ttLibC_StlList *receiveFrameList_;
+    // フレームを扱うためのマネージャー
+    JsFrameManager *frameManager_;
 };
 
 #endif
