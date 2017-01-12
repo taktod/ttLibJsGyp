@@ -200,18 +200,20 @@ public:
     }
     void doUpdate() {
         // update処理を実施する。
-        while(true) {
+//        while(true) {
             if(!ttLibC_RtmpConnection_update(conn_, 10000)) {
                 // 処理でエラーが発生したら抜ける。
-                break;
+                eventManager_->hasError_ = true;
+//                break;
+                return;
             }
             if(eventManager_->isCalled_) {
                 // managerがcallされた場合 処理を抜ける。
                 // mutexいれるべきか？ほんのちょっとだけ心配。
                 return;
             }
-        }
-        eventManager_->hasError_ = true;
+//        }
+//        eventManager_->hasError_ = true;
     }
     void doCallback(rtmpEventList_t *event) {
         // ここで発動させるわけだが・・・
