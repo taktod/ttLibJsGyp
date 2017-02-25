@@ -76,7 +76,7 @@ private:
             preset,
             tune);
         Local<Array> keys = params->GetOwnPropertyNames();
-        for(int i = 0;i < keys->Length();++ i) {
+        for(uint32_t i = 0;i < keys->Length();++ i) {
             Local<Value> key = keys->Get(i);
             Local<Value> value = params->Get(key);
             String::Utf8Value keyName(key->ToString());
@@ -146,6 +146,9 @@ private:
                         (const char *)*tune,
                         (const char *)*profile);
                 encoder->Wrap(info.This());
+            }
+            else {
+                puts("コンストラクタのパラメーター数がおかしいです。");
             }
             info.GetReturnValue().Set(info.This());
         }

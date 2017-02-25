@@ -3,6 +3,7 @@
 #include "../frame/frame.hpp"
 
 #ifdef __ENABLE__
+#   include <x265.h>
 #   include <ttLibC/encoder/x265Encoder.h>
 #endif
 
@@ -40,21 +41,71 @@ private:
                 bitrate);
         frameManager_ = new JsFrameManager();
     }
+    explicit X265Encoder(
+            uint32_t width,
+            uint32_t height,
+            const char *preset,
+            const char *tune,
+            const char *profile,
+            Local<Object> params) {
+        x265_api *api;
+        x265_param *param;
+        encoder_ = NULL;
+        if(!ttLibC_X265Encoder_getDefaultX265ApiAndParam(
+                (void **)&api, (void **)&param,
+                preset, tune,
+                width, height)) {
+            puts("preset tuneの設定失敗");
+        }
+        else {
+            Local<Array> keys = params->GetOwnPropertyNames();
+            for(uint32_t i = 0;i < keys->Length();++ i) {
+                Local<Value> key = keys->Get(i);
+                Local<Value> value = params->Get(key);
+                String::Utf8Value keyName(key->ToString());
+                String::Utf8Value valueName(value->ToString());
+                if(x265_param_parse(param, (const char *)*keyName, (const char *)*valueName) != 0) {
+                    printf("x265_param_parse failed. key:%s value:%s\n", (const char *)*keyName, (const char *)*valueName);
+                }
+            }
+            if(x265_param_apply_profile(param, profile) < 0) {
+                puts("profile設定失敗");
+            }
+            else {
+                encoder_ = ttLibC_X265Encoder_makeWithX265ApiAndParam(api, param);
+            }
+        }
+        frameManager_ = new JsFrameManager();
+    }
     ~X265Encoder() {
         ttLibC_X265Encoder_close(&encoder_);
         delete frameManager_;
     }
     static NAN_METHOD(New) {
         if(info.IsConstructCall()) {
-            if(info.Length() != 3) {
-                puts("コンストラクタの引数は3であるべき");
-            }
-            else {
+            if(info.Length() == 3) {
                 X265Encoder *encoder = new X265Encoder(
                         info[0]->Uint32Value(),
                         info[1]->Uint32Value(),
                         info[2]->Uint32Value());
                 encoder->Wrap(info.This());
+            }
+            else if(info.Length() == 6) {
+                // width height preset tune profile params
+                String::Utf8Value preset(info[2]->ToString());
+                String::Utf8Value tune(info[3]->ToString());
+                String::Utf8Value profile(info[4]->ToString());
+                X265Encoder *encoder = new X265Encoder(
+                    info[0]->Uint32Value(),
+                    info[1]->Uint32Value(),
+                    (const char *)*preset,
+                    (const char *)*tune,
+                    (const char *)*profile,
+                    info[5]->ToObject());
+                encoder->Wrap(info.This());
+            }
+            else {
+                puts("コンストラクタのパラメーター数がおかしいです。");
             }
             info.GetReturnValue().Set(info.This());
         }
