@@ -61,6 +61,39 @@ private:
         }
         frameManager_ = new JsFrameManager();
     }
+    explicit X264Encoder(
+            uint32_t width,
+            uint32_t height,
+            const char *preset,
+            const char *tune,
+            const char *profile,
+            Local<Object> params) {
+        x264_param_t param;
+        ttLibC_X264Encoder_getDefaultX264ParamTWithPresetTune(
+            &param,
+            width,
+            height,
+            preset,
+            tune);
+        Local<Array> keys = params->GetOwnPropertyNames();
+        for(int i = 0;i < keys->Length();++ i) {
+            Local<Value> key = keys->Get(i);
+            Local<Value> value = params->Get(key);
+            String::Utf8Value keyName(key->ToString());
+            String::Utf8Value valueName(value->ToString());
+            if(x264_param_parse(&param, (const char *)*keyName, (const char *)*valueName) != 0) {
+                printf("x264_param_parse failed. key:%s value:%s\n", (const char *)*keyName, (const char *)*valueName);
+            }
+        }
+        if(x264_param_apply_profile(&param, profile) < 0) {
+            puts("x264のprofile設定失敗しました。");
+            encoder_ = NULL;
+        }
+        else {
+            encoder_ = ttLibC_X264Encoder_makeWithX264ParamT(&param);
+        }
+        frameManager_ = new JsFrameManager();
+    }
     ~X264Encoder() {
         ttLibC_X264Encoder_close(&encoder_);
         delete frameManager_;
@@ -79,6 +112,20 @@ private:
                         NULL,
                         NULL,
                         "baseline");
+                encoder->Wrap(info.This());
+            }
+            else if(info.Length() == 6) {
+                // width height preset tune profile params
+                String::Utf8Value preset(info[2]->ToString());
+                String::Utf8Value tune(info[3]->ToString());
+                String::Utf8Value profile(info[4]->ToString());
+                X264Encoder *encoder = new X264Encoder(
+                    info[0]->Uint32Value(),
+                    info[1]->Uint32Value(),
+                    (const char *)*preset,
+                    (const char *)*tune,
+                    (const char *)*profile,
+                    info[5]->ToObject());
                 encoder->Wrap(info.This());
             }
             else if(info.Length() == 9){
