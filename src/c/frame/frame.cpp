@@ -516,7 +516,8 @@ ttLibC_Frame *JsFrameManager::getFrame(
             data_size,
             true,
             pts,
-            timebase);
+            timebase,
+            0x00);
         if(vp6 != NULL) {
             vp6->inherit_super.inherit_super.id = id;
             ttLibC_StlMap_put(frameStlMap_, (void *)lid, vp6);
