@@ -893,7 +893,7 @@ bool setupJsFrameObject(
             Nan::Set(jsFrame, Nan::New("yStride").ToLocalChecked(), Nan::New(yuv->y_stride));
             Nan::Set(jsFrame, Nan::New("uStride").ToLocalChecked(), Nan::New(yuv->u_stride));
             Nan::Set(jsFrame, Nan::New("vStride").ToLocalChecked(), Nan::New(yuv->v_stride));
-            if(frame->data == NULL) {
+            if(frame->data == NULL || frame->buffer_size < yuv->inherit_super.height * yuv->inherit_super.width) {
                 switch(yuv->type) {
                 case Yuv420Type_planar:
                     {
