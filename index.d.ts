@@ -1,769 +1,421 @@
-/// <reference types="node" />
-// ttLibJsGyp.d.ts
-declare module 'ttlibjsgyp'{
-  export class Value {
-    public static splitTypeKey:number;
-    public static splitTypeInner:number;
-    public static splitTypeP:number;
-    public static splitTypeDB:number;
-    public static splitTypeB:number;
-    public static splitTypeAllKey:number;
-  }
-  export class JsFrame {
-    public type:string;
-    public pts:number;
-    public timebase:number;
-    public data:Buffer;
-    public is_non_copy:boolean;
-    public id:number;
-  }
-  export class JsVideoFrame extends JsFrame {
-    public width:number;
-    public height:number;
-    public videoType:string;
-  }
-  export class JsAudioFrame extends JsFrame {
-    public sampleRate:number;
-    public sampleNum:number;
-    public channelNum:number;
-  }
-  export namespace flv {
+/// <reference types="node"/>
+declare module 'ttlibjsgyp2' {
+  /**
+   * Frame object
+   */
+  export class Frame {
+    /** type of frame */
+    type:string;
+    /** presentation timestamp */
+    pts:number;
+    /** timebase */
+    timebase:number;
+    /** id for frame. */
+    id:number;
+
+    /** width for video frame */
+    width?:number;
+    /** height for video frame */
+    height?:number;
+    /** videoType string (key inner info) */
+    videoType?:string;
+
+    /** sampleRate for audio frame */
+    sampleRate?:number;
+    /** sampleNUm for audio frame */
+    sampleNum?:number;
+    /** channelNum for audio frame */
+    channelNum?:number;
+
+    /** bgrデータのデータ開始位置指定 */
+    data?:number;
+    /** pcm lチャンネルデータのデータ開始位置指定 */
+    lData?:number;
+    /** pcm rチャンネルデータのデータ開始位置指定 */
+    rData?:number;
+    /** yuv yデータのdーた開始位置指定 */
+    yData?:number;
+    /** yuv uデータのdーた開始位置指定 */
+    uData?:number;
+    /** yuv vデータのdーた開始位置指定 */
+    vData?:number;
+    /** bgr stride値 */
+    stride?:number;
+    /** yuv yStride値 */
+    yStride?:number;
+    /** yuv uStride値 */
+    uStride?:number;
+    /** yuv vStride値 */
+    vStride?:number;
+    /** 特定のframe用 subType情報 */
+    subType?:string;
+    /** flv1 h264 h265用 該当フレームが破棄可能かフラグ */
+    isDisposable?:boolean;
     /**
-     * flvデータを読み込みクラス
+     * frameのbinaryデータを参照する
+     * @return Buffer
      */
-    export class Reader {
-      /**
-       * コンストラクタ
-       */
+    getBinaryBuffer():Buffer;
+    /**
+     * frameのcloneを作成する。
+     * @return Frame
+     */
+    clone():Frame;
+    /**
+     * binaryデータからframeを復元する。
+     * @param prevFrame
+     * @param binary    フレーム復元に利用するbinaryデータ
+     * @param params    フレーム復元実施に必要な追加情報
+     * @return Frame
+     */
+    static fromBinaryBuffer(
+      prevFrame:Frame,
+      binary:Buffer|DataView|ArrayBuffer,
+      params:{}
+    ):Frame;
+  }
+  export namespace reader {
+    /**
+     * flvデータを読み込む
+     */
+    export class FlvReader {
       constructor();
       /**
-       * データを読み込む
-       * @param data Bufferのbinaryデータ
-       * @param func 結果を受け取るcallback関数
-       * @return true:成功時 false:失敗時
+       * binaryデータからFrameを読み込む
+       * @param data 読み込み対象のデータ
+       * @param func データが見つかった時のcallback
+       * @return
        */
-      read(data:Buffer, func:{(err:string, frame:JsFrame):void}):boolean;
+      readFrame(
+        data:Buffer,
+        func:{(err:string, frame:Frame):boolean}
+      ):boolean;
     }
     /**
-     * flvデータ書き出しクラス
+     * matroskaデータを読み込む
      */
-    export class Writer {
-      /**
-       * コンストラクタ
-       * @param video_type "h264"や"flv1"といった映像フレームタイプ指定
-       * @param audio_type "aac"や"mp3"といった音声フレームタイプ指定
-       */
-      constructor(video_type: string, audio_type: string);
-      /**
-       * データを書き出す(実際はbinaryデータをcallbackで受け取る)
-       */
-      write(frame:JsFrame, func:{(err:string, buffer:Buffer):void}):boolean;
-    }
-  }
-  export namespace mpegts {
-    /**
-     * mpegtsデータ読み込みクラス
-     */
-    export class Reader {
-      /**
-       * コンストラクタ
-       */
+    export class MkvReader {
       constructor();
       /**
-       * データを読み込む
-       * @param data Bufferのbinaryデータ
-       * @param func 結果を受け取るcallback関数
-       * @return true:成功時 false:失敗時
+       * binaryデータからFrameを読み込む
+       * @param data 読み込み対象のデータ
+       * @param func データが見つかった時のcallback
+       * @return
        */
-      read(data:Buffer, func:{(err:string, frame:JsFrame):void}):boolean;
+      readFrame(data:Buffer, func:{(err:string, frame:Frame):boolean}):boolean;
     }
     /**
-     * mpegtsデータ書き出しクラス
+     * mp4データを読み込む
      */
-    export class Writer {
-      public enableDts:boolean;
-      public splitType:number;
-      public pts:number;
-      public timebase:number;
-      /**
-       * コンストラクタ
-       * @param types "h264" "aac" "mp3"といったフレームタイプ指定。
-       * 前から順にIDが0x100 0x101..と増えていきます。
-       */
-      constructor(...types: string[]);
-      /**
-       * データを書き出す(実際はbinaryデータをcallbackで受け取る)
-       */
-      write(frame:JsFrame, func:{(err:string, buffer:Buffer):void}):boolean;
-      /**
-       * sdt pat pmtの情報を書き出す。
-       */
-      writeInfo(func:{(err:string, buffer:Buffer):void}):boolean;
-    }
-  }
-  export namespace mkv {
-    /**
-     * mkvデータ読み込みクラス
-     */
-    export class Reader {
-      /**
-       * コンストラクタ
-       */
+    export class Mp4Reader {
       constructor();
       /**
-       * データを読み込む
-       * @param data Bufferのbinaryデータ
-       * @param func 結果を受け取るcallback関数
-       * @return true:成功時 false:失敗時
+       * binaryデータからFrameを読み込む
+       * @param data 読み込み対象のデータ
+       * @param func データが見つかった時のcallback
+       * @return
        */
-      read(data:Buffer, func:{(err:string, frame:JsFrame):void}):boolean;
+      readFrame(data:Buffer, func:{(err:string, frame:Frame):boolean}):boolean;
     }
     /**
-     * mkvデータ書き出しクラス
+     * mpegtsデータを読み込む
      */
-    export class Writer {
-      public enableDts:boolean;
-      public splitType:number;
-      public pts:number;
-      public timebase:number;
-      /**
-       * コンストラクタ
-       * @param types "h264" "vp8" "aac" "opus"といったフレームタイプ指定。
-       * 前から順にIDが1 2と増えていきます。
-       */
-      constructor(...types: string[]);
-      /**
-       * データを書き出す(実際はbinaryデータをcallbackで受け取る)
-       */
-      write(frame:JsFrame, func:{(err:string, buffer:Buffer):void}):boolean;
-    }
-  }
-  export namespace mp4 {
-    /**
-     * mp4データ読み込みクラス
-     */
-    export class Reader {
-      /**
-       * コンストラクタ
-       */
+    export class MpegtsReader {
       constructor();
       /**
-       * データを読み込む
-       * @param data Bufferのbinaryデータ
-       * @param func 結果を受け取るcallback関数
-       * @return true:成功時 false:失敗時
+       * binaryデータからFrameを読み込む
+       * @param data 読み込み対象のデータ
+       * @param func データが見つかった時のcallback
+       * @return
        */
-      read(data:Buffer, func:{(err:string, frame:JsFrame):void}):boolean;
+      readFrame(data:Buffer, func:{(err:string, frame:Frame):boolean}):boolean;
     }
     /**
-     * mp4データ書き出しクラス
+     * webmデータを読み込む
      */
-    export class Writer {
-      public enableDts:boolean;
-      public splitType:number;
-      public pts:number;
-      public timebase:number;
+    export class WebmReader {
+      constructor();
       /**
-       * コンストラクタ
-       * @param types "h264" "aac"といったフレームタイプ指定。
-       * 前から順にIDが1,2,3...と増えていきます。
+       * binaryデータからFrameを読み込む
+       * @param data 読み込み対象のデータ
+       * @param func データが見つかった時のcallback
+       * @return
        */
-      constructor(...types: string[]);
-      /**
-       * データを書き出す(実際はb inaryデータをcallbackで受け取る)
-       */
-      write(frame:JsFrame, func:{(err:string, buffer:Buffer):void}):boolean;
+      readFrame(data:Buffer, func:{(err:string, frame:Frame):boolean}):boolean;
     }
   }
-  export namespace webm {
+  export namespace writer {
     /**
-     * webmデータ書き出しクラス
+     * frameをflvデータとして書き出す
      */
-    export class Writer {
-      public enableDts:boolean;
-      public splitType:number;
-      public pts:number;
-      public timebase:number;
+    export class FlvWriter {
       /**
        * コンストラクタ
-       * @param types "vp8" "opus"といったフレームタイプ指定。
-       * 前から順にIDが1 2と増えていきます。
+       * @param videoCodec 映像コーデック
+       * @param audioCodec 音声コーデック
        */
-      constructor(...types: string[]);
+      constructor(videoCodec:string, audioCodec:string);
       /**
-       * データを書き出す(実際はbinaryデータをcallbackで受け取る)
+       * フレームからbinaryを作成します
+       * 音声フレームはid=8 映像フレームはid=9である必要があります
+       * @param frame フレームを書き出す
+       * @param func  生成されたbinaryデータをつけとるcallback
+       * @return
        */
-      write(frame:JsFrame, func:{(err:string, buffer:Buffer):void}):boolean;
+      writeFrame(frame:Frame, func:{(err:string, data:Buffer):boolean}):boolean;
+      /**
+       * 動作モードを設定します。
+       * @param mode
+       */
+      setMode(mode:number):boolean;
+    }
+    export class MkvWriter {
+      /**
+       * コンストラクタ
+       * @param unitDuration データの塊をどのくらいの大きさでつくるかミリ秒で指定します。
+       * @param codecs 書き出しを実施するコーデック指定
+       */
+      constructor(unitDuration:number, ...codecs:string[]);
+      /**
+       * フレームからbinaryを作成します
+       * コーデック指定に従って前から順にid=1 id=2と指定しなくてはなりません
+       * @param frame フレームを書き出す
+       * @param func  生成されたbinaryデータをつけとるcallback
+       * @return
+       */
+      writeFrame(frame:Frame, func:{(err:string, data:Buffer):boolean}):boolean;
+      /**
+       * 動作モードを設定します。
+       * @param mode
+       */
+      setMode(mode:number):boolean;
+    }
+    export class Mp4Writer {
+      /**
+       * コンストラクタ
+       * @param unitDuration データの塊をどのくらいの大きさでつくるかミリ秒で指定します。
+       * @param codecs 書き出しを実施するコーデック指定
+       */
+      constructor(unitDuration:number, ...codecs:string[]);
+      /**
+       * フレームからbinaryを作成します
+       * コーデック指定に従って前から順にid=1 id=2と指定しなくてはなりません
+       * @param frame フレームを書き出す
+       * @param func  生成されたbinaryデータをつけとるcallback
+       * @return
+       */
+      writeFrame(frame:Frame, func:{(err:string, data:Buffer):boolean}):boolean;
+      /**
+       * 動作モードを設定します。
+       * @param mode
+       */
+      setMode(mode:number):boolean;
+    }
+    export class MpegtsWriter {
+      /**
+       * コンストラクタ
+       * @param unitDuration データの塊をどのくらいの大きさでつくるか1/90000杪単位で指定します。
+       * @param codecs 書き出しを実施するコーデック指定
+       */
+      constructor(unitDuration:number, ...codecs:string[]);
+      /**
+       * フレームからbinaryを作成します
+       * コーデック指定に従って前から順にid=0x100 id=0x101と指定しなくてはなりません
+       * @param frame フレームを書き出す
+       * @param func  生成されたbinaryデータをつけとるcallback
+       * @return
+       */
+      writeFrame(frame:Frame, func:{(err:string, data:Buffer):boolean}):boolean;
+      /**
+       * metaデータを作成します
+       * @param func 生成されたbinaryデータをつけとるcallback
+       */
+      writeInfo(func:{(err:string, data:Buffer):boolean}):boolean;
+      /**
+       * 動作モードを設定します。
+       * @param mode
+       */
+      setMode(mode:number):boolean;
+    }
+    export class WebmWriter {
+      /**
+       * コンストラクタ
+       * @param unitDuration データの塊をどのくらいの大きさでつくるかミリ秒で指定します。
+       * @param codecs 書き出しを実施するコーデック指定
+       */
+      constructor(unitDuration:number, ...codecs:string[]);
+      /**
+       * フレームからbinaryを作成します
+       * コーデック指定に従って前から順にid=1 id=2と指定しなくてはなりません
+       * @param frame フレームを書き出す
+       * @param func  生成されたbinaryデータをつけとるcallback
+       * @return
+       */
+      writeFrame(frame:Frame, func:{(err:string, data:Buffer):boolean}):boolean;
+      /**
+       * 動作モードを設定します。
+       * @param mode
+       */
+      setMode(mode:number):boolean;
     }
   }
   export namespace decoder {
-    /**
-     * OSXのAudioConverterによるデコード動作
-     */
-    export class AudioConverter {
-      /**
-       * コンストラクタ
-       * @param sampleRate 動作サンプルレート
-       * @param channelNum 動作チャンネル数
-       * @param frameType  ターゲットフレームタイプ "aac"や"mp3"
-       */
-      constructor(sampleRate:number, channelNum:number, frameType:string);
-      /**
-       * デコードを実施します。
-       * @param frame 変換元のフレーム
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      decode(frame:JsAudioFrame, func:{(err:string, frame:JsAudioFrame):void}):boolean;
+    export class AvcodecVideoDecoder {
+      constructor(type:string, width:number, height:number);
+      decode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
     }
-    /**
-     * ffmpegのavcodecによるデコード動作、今の所aacとmp3のデコード実績があります。
-     */
-    export class AvcodecAudio {
-      /**
-       * コンストラクタ
-       * @param sampleRate 動作サンプルレート
-       * @param channelNum 動作チャンネル数
-       * @param frameType  ターゲットフレームタイプ "aac"や"mp3"
-       */
-      constructor(sampleRate:number, channelNum:number, frameType:string);
-      /**
-       * デコードを実施します。
-       * @param frame 変換元のフレーム
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      decode(frame:JsAudioFrame, func:{(err:string, frame:JsAudioFrame):void}):boolean;
-    }
-    /**
-     * ffmpegのaavcodecによるデコード動作、今の所 flv1とvp8のデコード実績があります。
-     */
-    export class AvcodecVideo {
-      /**
-       * コンストラクタ
-       * @param width     横幅
-       * @param height    縦幅
-       * @param frameType ターゲットフレームタイプ "flv1"や"vp8"
-       */
-      constructor(width:number, height:number, frameType:string);
-      /**
-       * デコードを実施します。
-       * @param frame 変換元のフレーム
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      decode(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
-    }
-    /**
-     * openh264によるh264のデコード動作
-     */
-    export class Openh264 {
-      /**
-       * コンストラクタ
-       */
-      constructor();
-      /**
-       * デコードを実施します。
-       * @param frame 変換元のフレーム
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      decode(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
-    }
-    /**
-     * libopusによるopusのデコード動作
-     */
-    export class Opus {
-      /**
-       * コンストラクタ
-       * @param sampleRate 動作サンプルレート
-       * @param channelNum 動作チャンネル数
-       */
-      constructor(sampleRate:number, channelNum:number);
-      /**
-       * デコードを実施します。
-       * @param frame 変換元のフレーム
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      decode(frame:JsAudioFrame, func:{(err:string, frame:JsAudioFrame):void}):boolean;
-    }
-    /**
-     * libtheoraによるtheoraのデコード動作
-     */
-    export class Theora {
-      /**
-       * コンストラクタ
-       */
-      constructor();
-      /**
-       * デコードを実施します。
-       * @param frame 変換元のフレーム
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      decode(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
-    }
-    /**
-     * libvorbisによるvorbisのデコード動作
-     */
-    export class Vorbis {
-      /**
-       * コンストラクタ
-       */
-      constructor();
-      /**
-       * デコードを実施します。
-       * @param frame 変換元のフレーム
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      decode(frame:JsAudioFrame, func:{(err:string, frame:JsAudioFrame):void}):boolean;
-    }
-    /**
-     * OSXのVideoToolDecompressSessionによるデコード動作
-     * いまのところ"h264"のデコード実績があります。たぶんjpegもいける。
-     */
-    export class VtDecompressSession {
-      /**
-       * コンストラクタ
-       * @param frameType 動作対象のフレームタイプ
-       */
-      constructor(frameType:string);
-      /**
-       * デコードを実施します。
-       * @param frame 変換元のフレーム
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      decode(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
+    export class AvcodecAudioDecoder {
+      constructor(type:string, sampleRate:number, channelNum:number);
+      decode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
     }
   }
   export namespace encoder {
     /**
-     * libfaacによるエンコード動作
+     * osxのaudioConverterによるaacやmp3のencode動作
      */
-    export class Faac {
-      /**
-       * コンストラクタ
-       * @param aacType    "main" "low"等のaacのprofile設定
-       * @param sampleRate 対象サンプルレート
-       * @param channelNum 対象チャンネル数
-       * @param bitrate    動作ビットレート bit/sec
-       */
-      constructor(aacType:string, sampleRate:number, channelNum:number, bitrate:number);
-      /**
-       * エンコードを実施します。
-       * @param frame 生成元のフレームデータPcmS16のlittleEndian
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      encode(frame:JsAudioFrame, func:{(err:string, frame:JsAudioFrame):void}):boolean;
+    export class AudioConverterEncoder {
+      constructor(type:string, sampleRate:number, channelNum:number, bitrate:number);
+      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
     }
-    /**
-     * libjpegによるエンコード動作
-     * ttLibCのコンパイル時にリンクがlibjpeg-turboになっている場合は、jpeg-turboでも動作可能でした。
-     */
-    export class Jpeg {
-      /**
-       * コンストラクタ
-       * @param width   横幅
-       * @param height  縦幅
-       * @param quality 0 - 100 100が一番高画質
-       */
-      constructor(width:number, height:number, quality:number);
-      /**
-       * エンコードを実施します。
-       * @param frame 生成元のフレームデータyuv420のplanar
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      encode(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
+    export class FaacEncoder {
+      constructor(type:string, sampleRate:number, channelNum:number, bitrate:number);
+      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
     }
-    /**
-     * libmp3lameによるmp3エンコード動作
-     */
-    export class Mp3lame {
-      /**
-       * コンストラクタ
-       * @param sampleRate ターゲットサンプルレート
-       * @param channelNum ターゲットチャンネル数
-       * @param quality    動作クオリティー 0 - 10 2:near best 5:good fast 7:ok very fast
-       * 数値が小さいほど、high qualityだったのか・・・
-       */
+    export class Mp3lameEncoder {
       constructor(sampleRate:number, channelNum:number, quality:number);
-      /**
-       * エンコードを実施します。
-       * @param frame 生成元のフレームデータPcmS16のlittleEndian
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      encode(frame:JsAudioFrame, func:{(err:string, frame:JsAudioFrame):void}):boolean;
+      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
     }
-    /**
-     * openh264によるh264エンコード動作
-     */
-    export class Openh264 {
-      /**
-       * コンストラクタ
-       * @param width        横幅
-       * @param height       縦幅
-       * @param maxQuantizer quantizer値の最大値
-       * @param minQuantizer quantizer値の最小値
-       * @param bitrate      動作bitrate bit/sec
-       * quantizerの値は小さいほど高画質
-       */
-      constructor(width:number, height:number, maxQuantizer:number, minQuantizer:number, bitrate:number);
-      /**
-       * エンコードを実施します。
-       * @param frame 生成元のフレームデータyuv420のplanar
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      encode(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
+    export class JpegEncoder {
+      constructor(width:number, height:number, quality:number);
+      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
     }
-    /**
-     * libopusによるopusエンコード動作
-     */
-    export class Opus {
-      /**
-       * コンストラクタ
-       * @param sampleRate    動作サンプルレート
-       * @param channelNum    動作チャンネル数
-       * @param unitSampleNum 出力フレームのサンプル数設定
-       */
+    export class Openh264Encoder {
+      constructor(width:number, height:number, param:{}, spatialParamArray:{}[]);
+      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
+    }
+    export class OpusEncoder {
       constructor(sampleRate:number, channelNum:number, unitSampleNum:number);
-      /**
-       * エンコードを実施します。
-       * @param frame 生成元のフレームデータPcmS16のlittleEndian
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      encode(frame:JsAudioFrame, func:{(err:string, frame:JsAudioFrame):void}):boolean;
+      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
+    }
+    export class TheoraEncoder {
+      constructor(width:number, height:number, quality:number, bitrate:number, keyFrameInterval:number);
+      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
     }
     /**
-     * libtheoraによるtheoraのencode動作
+     * osxのvideoToolboxによるh264やjpegのencode動作
      */
-    export class Theora {
-      /**
-       * コンストラクタ
-       * @param width   横幅
-       * @param height  縦幅
-       * @param quality 変換クオリティ値 0 - 63 数値が大きいほど綺麗になる。
-       * @param bitrate ビットレート値 bps
-       * @param keyFrameInterval キーフレーム間隔、ただし、oggのpacketセットの数なので、これがそのままフレーム数になるわけではないっぽい。
-       * あと激しくうごいたりしたら、キーフレームが数個連続することもある。
-       */
-      constructor(width:number, height:number, quality?:number, bitrate?:number, keyFrameInterval?:number);
-      /**
-       * エンコードを実施します。
-       * @param frame 生成元のフレームデータyuv420のplanar
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      encode(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
+    export class VtCompressSessionEncoder {
+      constructor(type:string, width:number, height:number, fps?:number, bitrate?:number, isBaseline?:boolean);
+      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
+    }
+    export class X264Encoder {
+      constructor(width:number, height:number, preset?:string, tune?:string, profile?:string, params?:{});
+      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
+    }
+    export class X265Encoder {
+      constructor(width:number, height:number, preset?:string, tune?:string, profile?:string, params?:{});
+      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
     }
     /**
-     * x264によるh264エンコード動作
+     * windowsのaacEncoder
      */
-    export class X264 {
-      /**
-       * コンストラクタ
-       * @param width        横幅
-       * @param height       縦幅
-       * @param maxQuantizer quantizer値の最大値
-       * @param minQuantizer quantizer値の最小値
-       * @param bitrate      動作bitrate bit/sec
-       * @param bframe       bFrameの設定値
-       * @param preset       preset
-       * @param tune         tune
-       * @param profile      profile
-       * quantizerの値は小さいほど高画質
-       * bframe以降を省略した、5個のparamでも動作します。
-       */
-      constructor(width:number, height:number, maxQuantizer:number, minQuantizer:number, bitrate:number,
-        bframe?:number, preset?:string, tune?:string, profile?:string);
-      /**
-       * エンコードを実施します。
-       * @param frame 生成元のフレームデータyuv420のplanar
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      encode(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
+    export class MSAacEncoder {
+      constructor(sampleRate:number, channelNum:number, bitrate:number);
+      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
     }
     /**
-     * x265によるh265エンコード動作
+     * windowsのh264Encoder
      */
-    export class X265 {
-      /**
-       * コンストラクタ
-       * @param width        横幅
-       * @param height       縦幅
-       * @param bitrate      動作bitrate bit/sec
-       */
-      constructor(width:number, height:number, bitrate:number);
-      /**
-       * エンコードを実施します。
-       * @param frame 生成元のフレームデータyuv420のplanar
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      encode(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
-    }
-  }
-  export namespace net {
-    export namespace RtmpClient {
-      /**
-       * rtmpのNetConnection
-       */
-      export class NetConnection {
-        /**
-         * コンストラクタ
-         */
-        constructor();
-        /**
-         * イベントをリスナを追加する。
-         * @param target
-         * @param listener
-         * ここでいうlistenerでは、amf3のcallbackみたいに、object->codeとかが帰ってくるわけか・・・
-         * とりあえずe:anyにしておく。
-         */
-        addEventListener(target:string, listener:{(e:any):void}):boolean;
-        /**
-         * 接続する
-         */
-        connect(address:string):boolean;
-      }
-      /**
-       * rtmpに接続したら、つくるnetStream
-       * このstreamを通して、映像データや音声データにアクセスする。
-       */
-      export class NetStream {
-        /**
-         * コンストラクタ
-         * @param nc NetConnection.Connect.Successしたコネクションオブジェクト
-         */
-        constructor(nc:NetConnection);
-        /**
-         * playを開始する。
-         * @param name     対象ストリーム名
-         * @param hasVideo 映像トラックを取得するかどうか
-         * @param hasAudio 音声トラックを取得するかどうか
-         */
-        play(name:string, hasVideo?:boolean, hasAudio?:boolean):boolean;
-        /**
-         * publishを開始する。
-         * @param name 対象ストリーム名
-         */
-        publish(name:string):boolean;
-        /**
-         * フレームデータをサーバーに送りつける。
-         * この動作はタイミングを見計らって送信しないと、rtmpサーバーの仕様によっては、一気に再生が進んだりするみたいです。
-         * 特に普通のファイルを送信する場合は、ptsを見ながら、加減しないとおかしなことになる模様。
-         */
-        queueFrame(frame:JsFrame):boolean;
-        /**
-         * bufferLengthを設定する。
-         * @param value 
-         */
-        setBufferLength(value:number):boolean;
-        /**
-         * イベントをリスナを追加する。
-         * @param target
-         * @param listener
-         */
-        addEventListener(target:string, listener:{(e:any):void}):boolean;
-        /**
-         * フレーム受け取り時に呼ばれるcallback
-         */
-        setFrameListener(listener:{(err:string, frame:JsFrame):void}):boolean;
-      }
+    export class MSH264Encoder {
+      constructor(encoder:string, width:number, height:number, bitrate:number);
+      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static listEncoders(func:{(err:string, encoder:string):boolean}):boolean;
+      static enabled:boolean;
     }
   }
   export namespace resampler {
-    /**
-     * Audioのresampler動作
-     * pcmS16とpcmF32のいろんなタイプのデータに互いに変換します。
-     */
-    export class Audio {
-      /**
-       * コンストラクタ
-       * @param type    変換先フレームタイプ "pcmS16"か"pcmF32"
-       * @param pcmType フレームの詳細設定 littleEndianとかinterleaveとか
-       */
-      constructor(type:string, pcmType:string);
-      /**
-       * リサンプル実施
-       * @param frame 変換元のフレームデータ
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      resample(frame:JsAudioFrame, func:{(err:string, frame:JsAudioFrame):void}):boolean;
+    export class AudioResampler {
+      constructor(type:string, subType:string, channelNum?:number);
+      resample(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
     }
-    /**
-     * bgr画像をリサイズします。
-     */
-    export class BgrImageResizer {
-      /**
-       * コンストラクタ
-       * @param type   bgrType
-       * @param width  変換後横幅
-       * @param height 変換後縦幅
-       */
-      constructor(type:string, width:number, height:number);
-      /**
-       * リサイズ実施
-       * @param frame 変換元のyuvフレームデータ
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      resample(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
-    }
-    /**
-     * yuvとbgrの相互変換します。
-     */
-    export class Image {
-      /**
-       * コンストラクタ
-       * @param type    bgrかyuv420か
-       * @param subType それぞれのtypeのsubType設定
-       */
+    export class ImageResampler {
       constructor(type:string, subType:string);
-      /**
-       * 変換実施
-       * @param frame 変換元のyuvフレームデータ
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      resample(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
+      resample(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
     }
-    /**
-     * soundtouchによる音変換
-     */
-    export class Soundtouch {
-      /**
-       * コンストラクタ
-       * @param sampleRate 動作サンプルレート
-       * @param channelNum 動作チャンネル数
-       */
+    export class SoundtouchResampler {
       constructor(sampleRate:number, channelNum:number);
-      /**
-       * リサンプル実施
-       * この動作では、リサンプル後の音声データにpts情報が追加されません。
-       * tempo等で音声が揺れるのでサンプル数からうまく割り当ててください。
-       */
-      resample(frame:JsAudioFrame, func:{(err:string, frame:JsAudioFrame):void}):boolean;
-      setRate(value:number):boolean;
-      setTempo(value:number):boolean;
-      setRateChange(value:number):boolean;
-      setTempoChange(value:number):boolean;
-      setPitch(value:number):boolean;
-      setPitchOctaves(value:number):boolean;
-      setPitchSemiTones(value:number):boolean;
+      resample(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
     }
-    /**
-     * speexdspによる周波数変換
-     */
-    export class Speexdsp {
-      /**
-       * コンストラクタ
-       * @param channelNum       動作チャンネル数
-       * @param inputSampleRate  入力サンプルレート
-       * @param outputSampleRate 出力サンプルレート
-       * @param quality          変換quality 0 - 10 10が最高だったはず。
-       */
-      constructor(channelNum:number, inputSampleRate:number, outputSampleRate:number, quality:number);
-      /**
-       * リサンプル実施
-       * @param frame 変換元のフレームデータ pcmS16のlittleEndianが対応
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      resample(frame:JsAudioFrame, func:{(err:string, frame:JsAudioFrame):void}):boolean;
+    export class SpeexdspResampler {
+      constructor(channelNum:number, inSampleRate:number, outSampleRate:number, quality:number);
+      resample(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      static enabled:boolean;
     }
-    /**
-     * yuvの画像サイズ変換
-     */
+/*
+    export class ImageResizer {
+
+    }
     export class YuvImageResizer {
-      /**
-       * コンストラクタ
-       * @param type
-       * @param width
-       * @param height
-       * @param isQuick
-       */
-      constructor(type:string, width:number, height:number, isQuick:boolean);
-      /**
-       * リサイズ実施
-       * @param frame 変換元のyuvフレームデータ
-       * @param func  生成データを受け取るcallback
-       * @return true:成功 false:失敗
-       */
-      resample(frame:JsVideoFrame, func:{(err:string, frame:JsVideoFrame):void}):boolean;
+
     }
+    export class YuvImageRotater {
+
+    }
+    export class SwscaleResizer {
+
+    }
+    export class SwresampleResampler {
+
+    }
+*/
   }
-  export namespace util {
-    /**
-     * OSXのaudioUnitを利用した音声再生
-     */
-    export class AudioUnitPlayer {
+  export class MsSetup {
+    static CoInitialize(type?:string):boolean;
+    static CoUninitialize():void;
+    static MFStartup():boolean;
+    static MFShutdown():void;
+    static setlocale(locale:string):boolean;
+  }
+  export class MsLoopback {
+    constructor(locale?:string, targetDevice?:string);
+    querySring(func:{(err:string, frame:Frame):boolean}):boolean;
+  }
+  export namespace rtmp {
+    export class NetConnection {
+      constructor();
+      connect(address:string):void;
       /**
-       * コンストラクタ
-       * @param sampleRate
-       * @param channelNum
+       * eventにonStatusEventをいれる
        */
-      constructor(sampleRate:number, channelNum:number);
-      /**
-       * 音声データを再生にまわします。
-       * @param frame 再生するpcmS16データ(interleaveのみ対応)
-       */
-      queue(frame:JsAudioFrame);
-      /**
-       * 現在のptsの進行具合を参照します。
-       */
-      getPts();
-      /**
-       * プレーヤーのtimebaseを参照します。
-       */
-      getTimebase();
+      on(event:string, func:{(event:any):void}):void;
     }
-    /**
-     * opencvを利用したカメラキャプチャ動作
-     */
-    export class OpencvCapture {
+    export class NetStream {
+      constructor(nc:NetConnection);
+      play(name:string, video?:boolean, audio?:boolean):void;
+      publish(name:string):void;
+      setBufferLength(length:number):void;
+      queueFrame(jsFrame:Frame): void;
       /**
-       * コンストラクタ
-       * @param cameraNum
-       * @param width
-       * @param height
+       * eventにonStatusEventかonFrameCallbackをいれる
        */
-      constructor(cameraNum:number, width:number, height:number);
-      /**
-       * デバイスからデータを取り出します。
-       * @param func 生成データを受け取るcallback
-       */
-      query(func:{(err:string, frame:JsVideoFrame):void});
-    }
-    /**
-     * opencvを利用したbgrデータの表示
-     */
-    export class OpencvWindow {
-      /**
-       * コンストラクタ
-       * @param name ウィンドウ名
-       */
-      constructor(name:string);
-      /**
-       * 表示する。
-       * @param frame 描画するフレーム
-       */
-      show(frame:JsVideoFrame);
-      /**
-       * 描画更新とキーボード入力を確認する。
-       * @param interval 入力待ちミリ秒数
-       * @return 0:なにもなかった場合 それ以外:入力キーコード
-       */
-      update(interval:number):number;
+      on(event:string, func:{(event:any):void}|{(err:string,frame:Frame):void}):void;
+      close():void;
     }
   }
 }

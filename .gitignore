@@ -1,13 +1,3 @@
-/.vscode/
-/build/
-/node_modules/
-.project
-jpeg/
-binding.*.gyp
-mario.*
-mario_out.*
-mario_*
-**/.DS_Store
-*.flv
-smile.*
-*.mp4
+node_modules
+.vscode
+build
