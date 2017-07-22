@@ -42,7 +42,7 @@ export class NetConnection extends EventEmitter {
         return;
       }
       else {
-        this.socket["netStream"][streamId].emit("onFrameCallback", frame);
+        this.socket["netStreams"][streamId].emit("onFrameCallback", frame);
       }
     };
     this.socket.setKeepAlive(true);

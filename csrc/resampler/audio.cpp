@@ -96,10 +96,9 @@ bool AudioResampler::resample(ttLibC_Frame *ttFrame) {
   Local<Object> jsFrame = Nan::New(jsFrame_);
   Frame::setFrame(jsFrame, resultFrame);
   Local<Value> args[] = {
-    Nan::Null(),
     jsFrame
   };
-  Local<Value> result = callback.Call(2, args);
+  Local<Value> result = callback.Call(1, args);
   if(result->IsTrue()) {
     return true;
   }

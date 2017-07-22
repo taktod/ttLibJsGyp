@@ -23,10 +23,9 @@ bool JpegEncoder::encodeCallback(void *ptr, ttLibC_Jpeg *jpeg) {
   Local<Object> jsFrame = Nan::New(encoder->jsFrame_);
   Frame::setFrame(jsFrame, (ttLibC_Frame *)jpeg);
   Local<Value> args[] = {
-    Nan::Null(),
     jsFrame
   };
-  Local<Value> result = callback.Call(2, args);
+  Local<Value> result = callback.Call(1, args);
   if(result->IsTrue()) {
     return true;
   }

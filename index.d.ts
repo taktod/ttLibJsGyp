@@ -88,7 +88,7 @@ declare module 'ttlibjsgyp2' {
        */
       readFrame(
         data:Buffer,
-        func:{(err:string, frame:Frame):boolean}
+        func:{(frame:Frame):boolean}
       ):boolean;
     }
     /**
@@ -102,7 +102,10 @@ declare module 'ttlibjsgyp2' {
        * @param func データが見つかった時のcallback
        * @return
        */
-      readFrame(data:Buffer, func:{(err:string, frame:Frame):boolean}):boolean;
+      readFrame(
+        data:Buffer,
+        func:{(frame:Frame):boolean}
+      ):boolean;
     }
     /**
      * mp4データを読み込む
@@ -115,7 +118,10 @@ declare module 'ttlibjsgyp2' {
        * @param func データが見つかった時のcallback
        * @return
        */
-      readFrame(data:Buffer, func:{(err:string, frame:Frame):boolean}):boolean;
+      readFrame(
+        data:Buffer,
+        func:{(frame:Frame):boolean}
+      ):boolean;
     }
     /**
      * mpegtsデータを読み込む
@@ -128,7 +134,10 @@ declare module 'ttlibjsgyp2' {
        * @param func データが見つかった時のcallback
        * @return
        */
-      readFrame(data:Buffer, func:{(err:string, frame:Frame):boolean}):boolean;
+      readFrame(
+        data:Buffer,
+        func:{(frame:Frame):boolean}
+      ):boolean;
     }
     /**
      * webmデータを読み込む
@@ -141,7 +150,10 @@ declare module 'ttlibjsgyp2' {
        * @param func データが見つかった時のcallback
        * @return
        */
-      readFrame(data:Buffer, func:{(err:string, frame:Frame):boolean}):boolean;
+      readFrame(
+        data:Buffer,
+        func:{(frame:Frame):boolean}
+      ):boolean;
     }
   }
   export namespace writer {
@@ -162,7 +174,10 @@ declare module 'ttlibjsgyp2' {
        * @param func  生成されたbinaryデータをつけとるcallback
        * @return
        */
-      writeFrame(frame:Frame, func:{(err:string, data:Buffer):boolean}):boolean;
+      writeFrame(
+        frame:Frame,
+        func:{(data:Buffer):boolean}
+      ):boolean;
       /**
        * 動作モードを設定します。
        * @param mode
@@ -183,7 +198,10 @@ declare module 'ttlibjsgyp2' {
        * @param func  生成されたbinaryデータをつけとるcallback
        * @return
        */
-      writeFrame(frame:Frame, func:{(err:string, data:Buffer):boolean}):boolean;
+      writeFrame(
+        frame:Frame,
+        func:{(data:Buffer):boolean}
+      ):boolean;
       /**
        * 動作モードを設定します。
        * @param mode
@@ -204,7 +222,10 @@ declare module 'ttlibjsgyp2' {
        * @param func  生成されたbinaryデータをつけとるcallback
        * @return
        */
-      writeFrame(frame:Frame, func:{(err:string, data:Buffer):boolean}):boolean;
+      writeFrame(
+        frame:Frame,
+        func:{(data:Buffer):boolean}
+      ):boolean;
       /**
        * 動作モードを設定します。
        * @param mode
@@ -225,12 +246,15 @@ declare module 'ttlibjsgyp2' {
        * @param func  生成されたbinaryデータをつけとるcallback
        * @return
        */
-      writeFrame(frame:Frame, func:{(err:string, data:Buffer):boolean}):boolean;
+      writeFrame(
+        frame:Frame,
+        func:{(data:Buffer):boolean}
+      ):boolean;
       /**
        * metaデータを作成します
        * @param func 生成されたbinaryデータをつけとるcallback
        */
-      writeInfo(func:{(err:string, data:Buffer):boolean}):boolean;
+      writeInfo(func:{(data:Buffer):boolean}):boolean;
       /**
        * 動作モードを設定します。
        * @param mode
@@ -251,7 +275,10 @@ declare module 'ttlibjsgyp2' {
        * @param func  生成されたbinaryデータをつけとるcallback
        * @return
        */
-      writeFrame(frame:Frame, func:{(err:string, data:Buffer):boolean}):boolean;
+      writeFrame(
+        frame:Frame,
+        func:{(data:Buffer):boolean}
+      ):boolean;
       /**
        * 動作モードを設定します。
        * @param mode
@@ -262,12 +289,18 @@ declare module 'ttlibjsgyp2' {
   export namespace decoder {
     export class AvcodecVideoDecoder {
       constructor(type:string, width:number, height:number);
-      decode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      decode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
     export class AvcodecAudioDecoder {
       constructor(type:string, sampleRate:number, channelNum:number);
-      decode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      decode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
   }
@@ -277,37 +310,58 @@ declare module 'ttlibjsgyp2' {
      */
     export class AudioConverterEncoder {
       constructor(type:string, sampleRate:number, channelNum:number, bitrate:number);
-      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      encode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
     export class FaacEncoder {
       constructor(type:string, sampleRate:number, channelNum:number, bitrate:number);
-      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      encode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
     export class Mp3lameEncoder {
       constructor(sampleRate:number, channelNum:number, quality:number);
-      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      encode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
     export class JpegEncoder {
       constructor(width:number, height:number, quality:number);
-      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      encode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
     export class Openh264Encoder {
       constructor(width:number, height:number, param:{}, spatialParamArray:{}[]);
-      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      encode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
     export class OpusEncoder {
       constructor(sampleRate:number, channelNum:number, unitSampleNum:number);
-      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      encode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
     export class TheoraEncoder {
       constructor(width:number, height:number, quality:number, bitrate:number, keyFrameInterval:number);
-      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      encode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
     /**
@@ -315,17 +369,26 @@ declare module 'ttlibjsgyp2' {
      */
     export class VtCompressSessionEncoder {
       constructor(type:string, width:number, height:number, fps?:number, bitrate?:number, isBaseline?:boolean);
-      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      encode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
     export class X264Encoder {
       constructor(width:number, height:number, preset?:string, tune?:string, profile?:string, params?:{});
-      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      encode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
     export class X265Encoder {
       constructor(width:number, height:number, preset?:string, tune?:string, profile?:string, params?:{});
-      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      encode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
     /**
@@ -333,7 +396,10 @@ declare module 'ttlibjsgyp2' {
      */
     export class MSAacEncoder {
       constructor(sampleRate:number, channelNum:number, bitrate:number);
-      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      encode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
     /**
@@ -341,30 +407,45 @@ declare module 'ttlibjsgyp2' {
      */
     export class MSH264Encoder {
       constructor(encoder:string, width:number, height:number, bitrate:number);
-      encode(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
-      static listEncoders(func:{(err:string, encoder:string):boolean}):boolean;
+      encode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
+      static listEncoders(func:{(encoder:string):boolean}):boolean;
       static enabled:boolean;
     }
   }
   export namespace resampler {
     export class AudioResampler {
       constructor(type:string, subType:string, channelNum?:number);
-      resample(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      resample(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
     export class ImageResampler {
       constructor(type:string, subType:string);
-      resample(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      resample(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
     export class SoundtouchResampler {
       constructor(sampleRate:number, channelNum:number);
-      resample(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      resample(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
     export class SpeexdspResampler {
       constructor(channelNum:number, inSampleRate:number, outSampleRate:number, quality:number);
-      resample(frame:Frame, func:{(err:string, frame:Frame):boolean}):boolean;
+      resample(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
       static enabled:boolean;
     }
 /*
@@ -394,7 +475,8 @@ declare module 'ttlibjsgyp2' {
   }
   export class MsLoopback {
     constructor(locale?:string, targetDevice?:string);
-    querySring(func:{(err:string, frame:Frame):boolean}):boolean;
+    querySring(func:{(frame:Frame):boolean}):boolean;
+    static listDevices(func:{(encoder:string):boolean}):boolean;
   }
   export namespace rtmp {
     export class NetConnection {
@@ -414,7 +496,7 @@ declare module 'ttlibjsgyp2' {
       /**
        * eventにonStatusEventかonFrameCallbackをいれる
        */
-      on(event:string, func:{(event:any):void}|{(err:string,frame:Frame):void}):void;
+      on(event:string, func:{(event:any):void}|{(frame:Frame):void}):void;
       close():void;
     }
   }

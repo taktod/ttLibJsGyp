@@ -27,10 +27,9 @@ bool MSH264Encoder::listEncoderCallback(void *ptr, const char *name) {
   Local<Value> *callback_ = (Local<Value> *)ptr;
   Nan::Callback callback((*callback_).As<Function>());
   Local<Value> args[] = {
-    Nan::Null(),
     Nan::New(name).ToLocalChecked()
   };
-  Local<Value> result = callback.Call(2, args);
+  Local<Value> result = callback.Call(1, args);
   if(result->IsTrue()) {
     return true;
   }
@@ -118,10 +117,9 @@ bool MSH264Encoder::encode(ttLibC_Frame *frame) {
 
       Frame::setFrame(jsFrame, frame);
       Local<Value> args[] = {
-        Nan::Null(),
         jsFrame
       };
-      Local<Value> jsResult = callback.Call(2, args);
+      Local<Value> jsResult = callback.Call(1, args);
       if(!jsResult->IsTrue()) {
         if(jsResult->IsUndefined()) {
           puts("応答が設定されていません。");

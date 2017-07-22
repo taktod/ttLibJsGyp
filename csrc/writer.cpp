@@ -183,10 +183,9 @@ bool Writer::writeCallback(
   Nan::Callback callback(writer->callback_.As<Function>());
   Local<Object> binary   = Nan::CopyBuffer((char *)data, data_size).ToLocalChecked();
   Local<Value>  args[]   = {
-    Nan::Null(),
     binary
   };
-  Local<Value> result = callback.Call(2, args);
+  Local<Value> result = callback.Call(1, args);
   if(result->IsTrue()) {
     return true;
   }

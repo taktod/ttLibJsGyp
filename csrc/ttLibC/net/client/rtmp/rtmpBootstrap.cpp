@@ -102,10 +102,11 @@ void RtmpBootstrap::recvAmf0Result(
 
 bool RtmpBootstrap::playFrameCallback(uint32_t streamId, ttLibC_Frame *frame) {
   Local<Object> socket = Nan::New(socket_);
-  Local<Value> func = Nan::Get(socket, Nan::New("tettyEventCallback").ToLocalChecked()).ToLocalChecked();
+  Local<Value> func = Nan::Get(socket, Nan::New("tettyFrameCallback").ToLocalChecked()).ToLocalChecked();
   Nan::Callback callback(func.As<Function>());
 
-  Local<Object> jsFrame = Frame::newInstance();
+//  Local<Object> jsFrame = Frame::newInstance();
+  Local<Object> jsFrame = Nan::New(jsFrame_);
   Frame::setFrame(jsFrame, frame);
   Local<Value> args[] = {
     Nan::New(streamId),
@@ -541,6 +542,8 @@ RtmpBootstrap::RtmpBootstrap(Local<Value> address, Local<Value> app) : Bootstrap
 
   streamIdFlvFrameManagerMap_ = ttLibC_StlMap_make();
   frameGroupMap_ = ttLibC_StlMap_make();
+
+  jsFrame_.Reset(Frame::newInstance());
 }
 
 RtmpBootstrap::~RtmpBootstrap() {

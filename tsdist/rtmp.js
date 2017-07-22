@@ -41,7 +41,7 @@ var NetConnection = (function (_super) {
                 return;
             }
             else {
-                _this.socket["netStream"][streamId].emit("onFrameCallback", frame);
+                _this.socket["netStreams"][streamId].emit("onFrameCallback", frame);
             }
         };
         this.socket.setKeepAlive(true);

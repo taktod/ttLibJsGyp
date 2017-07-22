@@ -85,10 +85,9 @@ bool VtCompressSessionEncoder::encode(ttLibC_Frame *frame) {
       ttLibC_StlList_remove(frameStack_, frame);
       Frame::setFrame(jsFrame, frame);
       Local<Value> args[] = {
-        Nan::Null(),
         jsFrame
       };
-      Local<Value> jsResult = callback.Call(2, args);
+      Local<Value> jsResult = callback.Call(1, args);
       if(!jsResult->IsTrue()) {
         if(jsResult->IsUndefined()) {
           puts("応答が設定されていません。");

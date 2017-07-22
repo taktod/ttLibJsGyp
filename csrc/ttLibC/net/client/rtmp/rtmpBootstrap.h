@@ -62,6 +62,8 @@ private:
   ttLibC_StlMap *streamIdFlvFrameManagerMap_;
   // streamId -> ttg_frameGroup
   ttLibC_StlMap *frameGroupMap_;
+
+  Nan::Persistent<Object> jsFrame_;
 };
 
 #endif

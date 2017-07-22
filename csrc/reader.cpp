@@ -145,10 +145,9 @@ bool Reader::frameCallback(
   }
   Frame::setFrame(jsFrame, ttFrame);
   Local<Value> args[] = {
-    Nan::Null(),
     jsFrame // あとはここにframe情報をうまく折り込めばOKの予定だが・・・
   };
-  Local<Value> result = callback.Call(2, args);
+  Local<Value> result = callback.Call(1, args);
   if(result->IsTrue()) {
     return true;
   }

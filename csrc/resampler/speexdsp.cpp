@@ -50,10 +50,9 @@ bool SpeexdspResampler::resample(ttLibC_Frame *frame) {
   Local<Object> jsFrame = Nan::New(jsFrame_);
   Frame::setFrame(jsFrame, (ttLibC_Frame *)pcm_);
   Local<Value> args[] = {
-    Nan::Null(),
     jsFrame
   };
-  Local<Value> result = callback.Call(2, args);
+  Local<Value> result = callback.Call(1, args);
   if(result->IsTrue()) {
     return true;
   }

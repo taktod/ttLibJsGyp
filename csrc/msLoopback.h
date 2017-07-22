@@ -12,7 +12,7 @@ public:
   static void classInit(Local<Object> target);
 private:
   static NAN_METHOD(New);
-  static NAN_METHOD(ListDevice);
+  static NAN_METHOD(ListDevices);
   static NAN_METHOD(QueryFrame);
   static inline Nan::Persistent<Function> & constructor() {
     static Nan::Persistent<Function> my_constructor;

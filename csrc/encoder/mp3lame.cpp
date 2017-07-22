@@ -27,10 +27,9 @@ bool Mp3lameEncoder::encodeCallback(void *ptr, ttLibC_Mp3 *mp3) {
   Local<Object> jsFrame = Nan::New(encoder->jsFrame_);
   Frame::setFrame(jsFrame, (ttLibC_Frame *)mp3);
   Local<Value> args[] = {
-    Nan::Null(),
     jsFrame
   };
-  Local<Value> result = callback.Call(2, args);
+  Local<Value> result = callback.Call(1, args);
   if(result->IsTrue()) {
     return true;
   }

@@ -12,7 +12,7 @@ void TTLIBJSGYP_CDECL MSLoopback::classInit(Local<Object> target) {
   SetPrototypeMethod(tpl, "queryFrame", QueryFrame);
   Local<Function> func = Nan::GetFunction(tpl).ToLocalChecked();
   constructor().Reset(func);
-  Nan::Set(func, Nan::New("listDevice").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(ListDevice)).ToLocalChecked());
+  Nan::Set(func, Nan::New("listDevices").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(ListDevices)).ToLocalChecked());
   Nan::Set(
     target,
     Nan::New("MsLoopback").ToLocalChecked(),
@@ -45,10 +45,9 @@ bool MSLoopback::getDeviceCallback(void *ptr, const char *name) {
   Local<Value> *callback_ = (Local<Value> *)ptr;
   Nan::Callback callback((*callback_).As<Function>());
   Local<Value> args[] = {
-    Nan::Null(),
     Nan::New(name).ToLocalChecked()
   };
-  Local<Value> result = callback.Call(2, args);
+  Local<Value> result = callback.Call(1, args);
   if(result->IsTrue()) {
     return true;
   }
@@ -58,7 +57,7 @@ bool MSLoopback::getDeviceCallback(void *ptr, const char *name) {
   return false;
 }
 
-NAN_METHOD(MSLoopback::ListDevice) {
+NAN_METHOD(MSLoopback::ListDevices) {
 #ifdef __ENABLE_WIN32__
   // ここで文字列としてcallbackで応答しなければならないわけだが・・・
   // nodeでもcallbackにしとくか・・・
@@ -95,10 +94,9 @@ bool MSLoopback::captureCallback(void *ptr, ttLibC_PcmS16 *pcm) {
   Local<Object> jsFrame = Nan::New(loopback->jsPcmFrame_);
   Frame::setFrame(jsFrame, (ttLibC_Frame *)pcm);
   Local<Value> args[] = {
-    Nan::Null(),
     jsFrame
   };
-  Local<Value> result = callback.Call(2, args);
+  Local<Value> result = callback.Call(1, args);
   if(result->IsTrue()) {
     return true;
   }
