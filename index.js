@@ -37,6 +37,14 @@ module.exports = {
     }
   },
   decoder: {
+    AudioConverterDecoder: (function() {
+      var name = "audioConverter";
+      var decoder = function(type, sampleRate, channelNum) {
+        return ttLibJsGyp.Decoder.apply(null, [name, {type: type, sampleRate: sampleRate, channelNum: channelNum}]);
+      }
+      decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
+      return decoder;
+    })(),
     AvcodecVideoDecoder: (function() {
       var name = "avcodec";
       var decoder = function(type, width, height) {

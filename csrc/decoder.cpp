@@ -2,6 +2,7 @@
 #include "decoder.h"
 #include "frame.h"
 
+#include "decoder/audioConverter.h"
 #include "decoder/avcodec.h"
 #include "decoder/jpeg.h"
 #include "decoder/mp3lame.h"
@@ -42,7 +43,12 @@ NAN_METHOD(Decoder::CheckAvailable) {
   bool result = false;
   if(info.Length() > 0) {
     std::string type(*String::Utf8Value(info[0]->ToString()));
-    if(type == "avcodec") {
+    if(type == "audioConverter") {
+#ifdef __ENABLE_APPLE__
+      result = true;
+#endif
+    }
+    else if(type == "avcodec") {
 #ifdef __ENABLE_AVCODEC__
       result = true;
 #endif
@@ -91,6 +97,9 @@ NAN_METHOD(Decoder::New) {
     std::string type(*String::Utf8Value(info[0]->ToString()));
     Decoder *decoder = NULL;
     if(type == "avcodec") {
+      decoder = new AudioConverterDecoder(info[1]->ToObject());
+    }
+    else if(type == "avcodec") {
       decoder = new AvcodecDecoder(info[1]->ToObject());
     }
     else if(type == "jpeg") {

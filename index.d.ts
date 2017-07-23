@@ -296,6 +296,14 @@ declare module 'ttlibjsgyp' {
     }
   }
   export namespace decoder {
+    export class AudioConvererDecoder {
+      constructor(type:string, sampleRate:number, channelNum:number);
+      decode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
+      static enabled:boolean;
+    }
     export class AvcodecVideoDecoder {
       constructor(type:string, width:number, height:number);
       decode(
