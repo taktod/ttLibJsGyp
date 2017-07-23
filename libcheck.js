@@ -152,7 +152,36 @@ function setupFaac() {
 }
 
 function setupFdkaac() {
-
+  if(setting["disable"].indexOf("fdkaac") != -1) {
+    // fdkaacが無効になってる
+    return;
+  }
+  if(setting["targetValue"] == 0) {
+    return;
+  }
+  switch(setting["os"]) {
+  case "darwin":
+  case "linux":
+    if(exec("pkg-config --exists fdk-aac && echo yes || echo no").toString().trim() == "yes") {
+      // pkg-configで存在してる。
+      switch(target) {
+      case "defs":
+        console.log("__ENABLE_FDKAAC_ENCODE__");
+        break;
+      case "libs":
+        console.log(exec("pkg-config --libs fdk-aac").toString().trim());
+        break;
+      case "includes":
+        console.log(exec("pkg-config --cflags-only-I fdk-aac | sed -e 's/\-I//g'").toString().trim());
+        break;
+      }
+    }
+    break;
+  case "windows":
+  case "windows_nt":
+  default:
+    break;
+  }
 }
 
 function setupJpeg() {

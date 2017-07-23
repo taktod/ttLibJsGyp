@@ -149,6 +149,7 @@
         "csrc/encoder.cpp",
         "csrc/encoder/audioConverter.cpp",
         "csrc/encoder/faac.cpp",
+        "csrc/encoder/fdkaac.cpp",
         "csrc/encoder/jpeg.cpp",
         "csrc/encoder/mp3lame.cpp",
         "csrc/encoder/msAac.cpp",

@@ -333,6 +333,14 @@ declare module 'ttlibjsgyp' {
       ):boolean;
       static enabled:boolean;
     }
+    export class FdkaacEncoder {
+      constructor(type:string, sampleRate:number, channelNum:number, bitrate:number);
+      encode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
+      static enabled:boolean;
+    }
     export class Mp3lameEncoder {
       constructor(sampleRate:number, channelNum:number, quality:number);
       encode(

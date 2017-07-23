@@ -4,6 +4,7 @@
 
 #include "encoder/audioConverter.h"
 #include "encoder/faac.h"
+#include "encoder/fdkaac.h"
 #include "encoder/mp3lame.h"
 #include "encoder/jpeg.h"
 #include "encoder/openh264.h"
@@ -60,6 +61,11 @@ NAN_METHOD(Encoder::CheckAvailable) {
     }
     else if(type == "faac") {
 #ifdef __ENABLE_FAAC_ENCODE__
+      result = true;
+#endif
+    }
+    else if(type == "fdkaac") {
+#ifdef __ENABLE_FDKAAC_ENCODE__
       result = true;
 #endif
     }
@@ -127,6 +133,9 @@ NAN_METHOD(Encoder::New) {
     }
     else if(type == "faac") {
       encoder = new FaacEncoder(info[1]->ToObject());
+    }
+    else if(type == "fdkaac") {
+      encoder = new FdkaacEncoder(info[1]->ToObject());
     }
     else if(type == "jpeg") {
       encoder = new JpegEncoder(info[1]->ToObject());

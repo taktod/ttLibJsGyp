@@ -71,6 +71,14 @@ module.exports = {
       encoder["enabled"] = ttLibJsGyp.Encoder.check(name);
       return encoder;
     })(),
+    FdkaacEncoder: (function() {
+      var name = "fdkaac";
+      var encoder = function(type, sampleRate, channelNum, bitrate) {
+        return ttLibJsGyp.Encoder.apply(null, [name, {type: type, sampleRate: sampleRate, channelNum: channelNum, bitrate: bitrate}]);
+      }
+      encoder["enabled"] = ttLibJsGyp.Encoder.check(name);
+      return encoder;
+    })(),
     Mp3lameEncoder: (function() {
       var name = "mp3lame";
       var encoder = function(sampleRate, channelNum, quality) {
