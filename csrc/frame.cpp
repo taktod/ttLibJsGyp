@@ -41,6 +41,8 @@ void TTLIBJSGYP_CDECL Frame::classInit(Local<Object> target) {
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   SetPrototypeMethod(tpl, "getBinaryBuffer", GetBinaryBuffer);
   SetPrototypeMethod(tpl, "clone", Clone);
+  SetPrototypeMethod(tpl, "copy", Copy);
+  SetPrototypeMethod(tpl, "restore", Restore);
   Local<Function> func = Nan::GetFunction(tpl).ToLocalChecked();
   constructor().Reset(func);
   Nan::Set(func, Nan::New("fromBinaryBuffer").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(FromBinaryBuffer)).ToLocalChecked());
@@ -787,6 +789,686 @@ NAN_METHOD(Frame::GetBinaryBuffer) {
   info.GetReturnValue().Set(Nan::CopyBuffer((char *)frame->frame_->data, frame->frame_->buffer_size).ToLocalChecked());
 }
 
+NAN_METHOD(Frame::Restore) {
+  // フレームから復元する場合の動作
+  // 設定されたbinaryの要素とstride等他の要素から復元する
+  // この復元動作は、frameを利用するときにもkickして、c言語のフレームの復元動作時にも発動しようと思う。
+  // 持っている情報からデータを復元する。
+  // 復元動作自体は、refFrameで実施するのでそこまでする必要はない。
+  // ただしbinaryしか保持していない状態の場合は、binaryデータから復元する動作は実施する必要があるかも。
+
+  // こっちの関数必要だな。
+  // 動作としては、内部のbufferはallocしなおしておくことにする
+
+  // まずbinaryの要素があるか確認、なければ処理しない
+  // binaryがある場合はそのデータをin_bufにrefを写しておく
+  // こうしないと蒸発する
+
+  // あとはfromBinaryBufferと同じ処理を実施する
+  Local<Object> jsFrame = info.Holder();
+  Local<Value> binary = Nan::Get(jsFrame, Nan::New("binary").ToLocalChecked()).ToLocalChecked();
+  if(!binary->IsTypedArray() && !binary->IsArrayBuffer()) {
+    ERR_PRINT("binaryの設定値が不正です。");
+    info.GetReturnValue().Set(false);
+    return;
+  }
+  Nan::Set(jsFrame, Nan::New("binary").ToLocalChecked(), Nan::Undefined());
+  // あとはフレームの情報で復元をすすめていけばよい。
+
+#define GetParamInt(target) do { \
+  Local<Value> Js##target = Nan::Get(jsFrame, Nan::New(#target).ToLocalChecked()).ToLocalChecked(); \
+  if(Js##target->IsNumber() || Js##target->IsUint32() || Js##target->IsInt32()) { \
+    target = Js##target->Uint32Value(); \
+  } \
+} while(0)
+#define GetParamLong(target) do { \
+  Local<Value> Js##target = Nan::Get(jsFrame, Nan::New(#target).ToLocalChecked()).ToLocalChecked(); \
+  if(Js##target->IsNumber() || Js##target->IsUint32() || Js##target->IsInt32()) { \
+    target = (uint64_t)Js##target->NumberValue(); \
+  } \
+} while(0)
+#define GetParamString(target) do { \
+  Local<Value> Js##target = Nan::Get(jsFrame, Nan::New(#target).ToLocalChecked()).ToLocalChecked(); \
+  if(Js##target->IsString()) { \
+    target = std::string(*String::Utf8Value(Js##target->ToString())); \
+  } \
+} while(0)
+
+  Frame *frame = Nan::ObjectWrap::Unwrap<Frame>(info.Holder());
+  ttLibC_Frame *prevFrame = frame->frame_;
+  std::string type("");
+  ttLibC_Frame_Type frameType = frameType_unknown;
+  uint8_t *data;
+  size_t data_size;
+  uint64_t pts = 0;
+  uint32_t timebase = 1000;
+  uint32_t id = 0;
+  if(prevFrame != NULL) {
+    frameType = prevFrame->type;
+    id        = prevFrame->id;
+    timebase  = prevFrame->timebase;
+  }
+  data = (uint8_t *)node::Buffer::Data(binary->ToObject());
+  data_size = node::Buffer::Length(binary->ToObject());
+  GetParamString(type);
+  if(type != "") {
+    frameType = getFrameType(type);
+  }
+  GetParamInt(id);
+  GetParamLong(pts);
+  GetParamInt(timebase);
+  // とりあえずbinaryからフレームを作らなければならない。
+  ttLibC_Frame *ttFrame = NULL;
+  switch(frameType) {
+  case frameType_aac:
+    {
+      ttFrame = (ttLibC_Frame *)ttLibC_Aac_getFrame(
+          (ttLibC_Aac *)prevFrame,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_adpcm_ima_wav:
+    {
+      uint32_t sampleRate = 0;
+      uint32_t sampleNum = 0;
+      uint32_t channelNum = 1;
+      GetParamInt(sampleRate);
+      GetParamInt(channelNum);
+      GetParamInt(sampleNum);
+      if(sampleRate == 0) {
+        ERR_PRINT("sampleRateが未設定です。adpcm_ima_wavを復元できません。");
+        info.GetReturnValue().Set(Nan::Null());
+        return;
+      }
+      ttFrame = (ttLibC_Frame *)ttLibC_AdpcmImaWav_make(
+          (ttLibC_AdpcmImaWav *)prevFrame,
+          sampleRate,
+          sampleNum,
+          channelNum,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_mp3:
+    {
+      ttFrame = (ttLibC_Frame *)ttLibC_Mp3_getFrame(
+          (ttLibC_Mp3 *)prevFrame,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_nellymoser:
+    {
+      uint32_t sampleRate = 0;
+      uint32_t sampleNum = 0;
+      uint32_t channelNum = 1;
+      GetParamInt(sampleRate);
+      GetParamInt(channelNum);
+      if(sampleRate == 0) {
+        ERR_PRINT("sampleRateが未設定です。nellymoser復元できません。");
+        info.GetReturnValue().Set(Nan::Null());
+        return;
+      }
+      GetParamInt(sampleNum);
+      // こっちはsampleRateはどうなるか不明だけど、仮として44100をいれておく。
+      // channelは1
+      // あとでjsFrameの属性を変更したら、それを反映するようにすればよい。
+      ttFrame = (ttLibC_Frame *)ttLibC_Nellymoser_make(
+          (ttLibC_Nellymoser *)prevFrame,
+          sampleRate,
+          sampleNum,
+          channelNum,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_opus:
+    {
+      ttFrame = (ttLibC_Frame *)ttLibC_Opus_getFrame(
+          (ttLibC_Opus *)prevFrame,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_pcm_alaw:
+    {
+      uint32_t sampleRate = 0;
+      uint32_t channelNum = 1;
+      GetParamInt(sampleRate);
+      GetParamInt(channelNum);
+      if(sampleRate == 0) {
+        ERR_PRINT("sampleRateが未設定です。pcmAlaw復元できません。");
+        info.GetReturnValue().Set(Nan::Null());
+        return;
+      }
+      // 仮でsampleRate = 16000、channelNum = 1で設定して構築しておく。
+      ttFrame = (ttLibC_Frame *)ttLibC_PcmAlaw_make(
+          (ttLibC_PcmAlaw *)prevFrame,
+          sampleRate,
+          data_size,
+          channelNum,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_pcmF32:
+    {
+      std::string subType = "interleave";
+      uint32_t sampleRate = 0;
+      uint32_t channelNum = 1;
+      GetParamInt(sampleRate);
+      GetParamInt(channelNum);
+      if(sampleRate == 0) {
+        ERR_PRINT("sampleRateが未設定です。pcmF32復元できません。");
+        info.GetReturnValue().Set(Nan::Null());
+        return;
+      }
+      uint32_t sampleNum = data_size / channelNum / sizeof(float);
+      GetParamInt(sampleNum);
+      ttLibC_PcmF32_Type frameSubType = PcmF32Type_interleave;
+      uint8_t *newData = (uint8_t *)ttLibC_malloc(data_size);
+      if(newData == NULL) {
+        ERR_PRINT("memory alloc失敗しました。");
+        info.GetReturnValue().Set(Nan::Null());
+        return;
+      }
+      memcpy(newData, data, data_size);
+      uint8_t *lData = newData;
+      uint8_t *rData = NULL;
+      size_t lStride = data_size;
+      size_t rStride = 0;
+      if(subType == "interleave") {
+        frameSubType = PcmF32Type_interleave;
+        lStride = sampleNum * 4 * channelNum;
+        GetParamInt(lStride);
+        rData = NULL;
+        rStride = 0;
+      }
+      else if(subType == "planar") {
+        frameSubType = PcmF32Type_planar;
+        lStride = sampleNum * 4;
+        GetParamInt(lStride);
+        if(channelNum == 2) {
+          rData = lData + lStride;
+          rStride = lStride;
+          GetParamInt(rStride);
+        }
+      }
+      ttFrame = (ttLibC_Frame *)ttLibC_PcmF32_make(
+          (ttLibC_PcmF32 *)prevFrame,
+          frameSubType,
+          sampleRate,
+          sampleNum,
+          channelNum,
+          newData,
+          data_size,
+          lData,
+          lStride,
+          rData,
+          rStride,
+          true,
+          pts,
+          timebase);
+      if(ttFrame != NULL) {
+        ttFrame->is_non_copy = false;
+      }
+    }
+    break;
+  case frameType_pcm_mulaw:
+    {
+      uint32_t sampleRate = 0;
+      uint32_t channelNum = 1;
+      GetParamInt(sampleRate);
+      GetParamInt(channelNum);
+      if(sampleRate == 0) {
+        ERR_PRINT("sampleRateが未設定です。pcmMulaw復元できません。");
+        info.GetReturnValue().Set(Nan::Null());
+        return;
+      }
+      // こっちも仮でsampleRate = 16000、channelNum = 1で設定する。
+      ttFrame = (ttLibC_Frame *)ttLibC_PcmMulaw_make(
+          (ttLibC_PcmMulaw *)prevFrame,
+          sampleRate,
+          data_size,
+          channelNum,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_pcmS16:
+    {
+      std::string subType = "littleEndian";
+      uint32_t sampleRate = 0;
+      uint32_t channelNum = 1;
+      GetParamInt(sampleRate);
+      GetParamInt(channelNum);
+      if(sampleRate == 0) {
+        ERR_PRINT("sampleRateが未設定です。pcmS16復元できません。");
+        info.GetReturnValue().Set(Nan::Null());
+        return;
+      }
+      uint32_t sampleNum = data_size / channelNum / sizeof(int16_t);
+      GetParamInt(sampleNum);
+      ttLibC_PcmS16_Type frameSubType = PcmS16Type_littleEndian;
+      uint8_t *newData = (uint8_t *)ttLibC_malloc(data_size);
+      if(newData == NULL) {
+        ERR_PRINT("memory alloc失敗しました。");
+        info.GetReturnValue().Set(Nan::Null());
+        return;
+      }
+      memcpy(newData, data, data_size);
+      uint8_t *lData = newData;
+      uint8_t *rData = NULL;
+      size_t lStride = data_size;
+      size_t rStride = 0;
+      if(subType == "littleEndian") {
+        frameSubType = PcmS16Type_littleEndian;
+        lStride = sampleNum * 2 * channelNum;
+        GetParamInt(lStride);
+        rData = NULL;
+        rStride = 0;
+      }
+      else if(subType == "littleEndianPlanar") {
+        frameSubType = PcmS16Type_littleEndian_planar;
+        lStride = sampleNum * 2;
+        GetParamInt(lStride);
+        if(channelNum == 2) {
+          rData = lData + lStride;
+          rStride = lStride;
+          GetParamInt(rStride);
+        }
+      }
+      else if(subType == "bigEndian") {
+        frameSubType = PcmS16Type_bigEndian;
+        lStride = sampleNum * 2 * channelNum;
+        GetParamInt(lStride);
+        rData = NULL;
+        rStride = 0;
+      }
+      else if(subType == "bigEndianPlanar") {
+        frameSubType = PcmS16Type_bigEndian_planar;
+        lStride = sampleNum * 2;
+        GetParamInt(lStride);
+        if(channelNum == 2) {
+          rData = lData + lStride;
+          rStride = lStride;
+          GetParamInt(rStride);
+        }
+      }
+      ttFrame = (ttLibC_Frame *)ttLibC_PcmS16_make(
+          (ttLibC_PcmS16 *)prevFrame,
+          frameSubType,
+          sampleRate,
+          sampleNum,
+          channelNum,
+          newData,
+          data_size,
+          lData,
+          lStride,
+          rData,
+          rStride,
+          true,
+          pts,
+          timebase);
+      if(ttFrame != NULL) {
+        ttFrame->is_non_copy = false;
+      }
+    }
+    break;
+  case frameType_speex:
+    {
+      ttFrame = (ttLibC_Frame *)ttLibC_Speex_getFrame(
+          (ttLibC_Speex *)prevFrame,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_vorbis:
+    {
+      ttFrame = (ttLibC_Frame *)ttLibC_Vorbis_getFrame(
+          (ttLibC_Vorbis *)prevFrame,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+
+  case frameType_bgr:
+    {
+      std::string subType = "bgr";
+      uint32_t width  = 0;
+      uint32_t height = 0;
+      GetParamInt(width);
+      GetParamInt(height);
+      if(width == 0 || height == 0) {
+        ERR_PRINT("widthまたはheightが未設定です。bgr復元できません");
+        info.GetReturnValue().Set(Nan::Null());
+        return;
+      }
+      uint32_t stride = width * 3;
+      GetParamString(subType);
+      ttLibC_Bgr_Type frameSubType = BgrType_bgr;
+      if(subType == "bgr") {
+        GetParamInt(stride);
+        frameSubType = BgrType_bgr;
+      }
+      else if(subType == "bgra") {
+        stride = width * 4;
+        GetParamInt(stride);
+        frameSubType = BgrType_bgra;
+      }
+      else if(subType == "abgr") {
+        stride = width * 4;
+        GetParamInt(stride);
+        frameSubType = BgrType_abgr;
+      }
+      ttFrame = (ttLibC_Frame *)ttLibC_Bgr_make(
+          (ttLibC_Bgr *)prevFrame,
+          frameSubType,
+          width,
+          height,
+          stride,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_flv1:
+    {
+      ttFrame = (ttLibC_Frame *)ttLibC_Flv1_getFrame(
+          (ttLibC_Flv1 *)prevFrame,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_h264:
+    {
+      ttFrame = (ttLibC_Frame *)ttLibC_H264_getFrame(
+          (ttLibC_H264 *)prevFrame,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_h265:
+    {
+      ttFrame = (ttLibC_Frame *)ttLibC_H265_getFrame(
+          (ttLibC_H265 *)prevFrame,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_jpeg:
+    {
+      ttFrame = (ttLibC_Frame *)ttLibC_Jpeg_getFrame(
+          (ttLibC_Jpeg *)prevFrame,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_theora:
+    {
+      ttFrame = (ttLibC_Frame *)ttLibC_Theora_getFrame(
+          (ttLibC_Theora *)prevFrame,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_vp6:
+    {
+      // adjustmentはいれないけど、あとでframeのwidthを設定すれば、そっちを採用するという形で攻めればいいと思う
+      uint32_t adjustment = 0x00;
+      GetParamInt(adjustment);
+      ttFrame = (ttLibC_Frame *)ttLibC_Vp6_getFrame(
+          (ttLibC_Vp6 *)prevFrame,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase,
+          adjustment);
+    }
+    break;
+  case frameType_vp8:
+    {
+      ttFrame = (ttLibC_Frame *)ttLibC_Vp8_getFrame(
+          (ttLibC_Vp8 *)prevFrame,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_vp9:
+    {
+      ttFrame = (ttLibC_Frame *)ttLibC_Vp9_getFrame(
+          (ttLibC_Vp9 *)prevFrame,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_wmv1:
+    {
+      uint32_t width  = 0;
+      uint32_t height = 0;
+      std::string videoType = "key";
+      GetParamInt(width);
+      GetParamInt(height);
+      if(width == 0 || height == 0) {
+        ERR_PRINT("widthまたはheightが未設定です。wmv1復元できません");
+        info.GetReturnValue().Set(Nan::Null());
+        return;
+      }
+      GetParamString(videoType);
+      ttLibC_Video_Type video_type = videoType_key;
+      if(videoType == "key") {
+        video_type = videoType_key;
+      }
+      else if(videoType == "inner") {
+        video_type = videoType_inner;
+      }
+      else if(videoType == "info") {
+        video_type = videoType_info;
+      }
+      ttFrame = (ttLibC_Frame *)ttLibC_Wmv1_make(
+          (ttLibC_Wmv1 *)prevFrame,
+          video_type,
+          width,
+          height,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_wmv2:
+    {
+      uint32_t width  = 0;
+      uint32_t height = 0;
+      std::string videoType = "key";
+      GetParamInt(width);
+      GetParamInt(height);
+      if(width == 0 || height == 0) {
+        ERR_PRINT("widthまたはheightが未設定です。wmv2復元できません");
+        info.GetReturnValue().Set(Nan::Null());
+        return;
+      }
+      GetParamString(videoType);
+      ttLibC_Video_Type video_type = videoType_key;
+      if(videoType == "key") {
+        video_type = videoType_key;
+      }
+      else if(videoType == "inner") {
+        video_type = videoType_inner;
+      }
+      else if(videoType == "info") {
+        video_type = videoType_info;
+      }
+      ttFrame = (ttLibC_Frame *)ttLibC_Wmv2_make(
+          (ttLibC_Wmv2 *)prevFrame,
+          video_type,
+          width,
+          height,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_yuv420:
+    {
+      std::string subType = "planar";
+      uint32_t width  = 0;
+      uint32_t height = 0;
+      GetParamInt(width);
+      GetParamInt(height);
+      if(width == 0 || height == 0) {
+        ERR_PRINT("widthまたはheightが未設定です。yuv420復元できません");
+        info.GetReturnValue().Set(Nan::Null());
+        return;
+      }
+      uint32_t yStride = width;
+      uint32_t uStride = (width >> 1);
+      uint32_t vStride = (width >> 1);
+
+      GetParamString(subType);
+      ttLibC_Yuv420_Type frameSubType = Yuv420Type_planar;
+      uint8_t *newData = (uint8_t *)ttLibC_malloc(data_size);
+      if(newData == NULL) {
+        ERR_PRINT("memory alloc失敗しました。");
+        info.GetReturnValue().Set(Nan::Null());
+        return;
+      }
+      memcpy(newData, data, data_size);
+      uint8_t *yData = newData;
+      uint8_t *uData = newData;
+      uint8_t *vData = newData;
+      if(subType == "planar") {
+        GetParamInt(yStride);
+        GetParamInt(uStride);
+        GetParamInt(vStride);
+        uData = yData + height * yStride;
+        vData = uData + (height >> 1) * uStride;
+      }
+      else if(subType == "semiPlanar") {
+        uStride = width;
+        vStride = width;
+        GetParamInt(yStride);
+        GetParamInt(uStride);
+        GetParamInt(vStride);
+        frameSubType = Yuv420Type_semiPlanar;
+        uData = yData + height * yStride;
+        vData = uData + 1;
+      }
+      else if(subType == "yvuPlanar") {
+        GetParamInt(yStride);
+        GetParamInt(uStride);
+        GetParamInt(vStride);
+        frameSubType = Yvu420Type_planar;
+        vData = yData + height * yStride;
+        uData = vData + (height >> 1) * vStride;
+      }
+      else if(subType == "yvuSemiPlanar") {
+        uStride = width;
+        vStride = width;
+        GetParamInt(yStride);
+        GetParamInt(uStride);
+        GetParamInt(vStride);
+        frameSubType = Yvu420Type_semiPlanar;
+        vData = yData + height * yStride;
+        uData = vData + 1;
+      }
+      else {
+        ERR_PRINT("subTypeが不正です。yuv420復元できません");
+        info.GetReturnValue().Set(Nan::Null());
+        return;
+      }
+      ttFrame = (ttLibC_Frame *)ttLibC_Yuv420_make(
+          (ttLibC_Yuv420 *)prevFrame,
+          frameSubType,
+          width,
+          height,
+          newData,
+          data_size,
+          yData,
+          yStride,
+          uData,
+          uStride,
+          vData,
+          vStride,
+          true,
+          pts,
+          timebase);
+      if(ttFrame != NULL) {
+        ttFrame->is_non_copy = false;
+      }
+    }
+    break;
+  default:
+    break;
+  }
+  if(ttFrame == NULL) {
+    ERR_PRINT("frameが作成できませんでした。");
+    info.GetReturnValue().Set(false);
+  }
+  ttFrame->id = id;
+  Frame::setFrame(jsFrame, ttFrame);
+  frame->isRef_ = false;
+  info.GetReturnValue().Set(true);
+#undef GetParamInt
+#undef GetParamLong
+#undef GetParamString
+}
+
 /**
  * binaryStringからJsFrameを復元します
  * @param prevFrame 前回つかった同じ系列のデータ
@@ -1511,6 +2193,26 @@ NAN_METHOD(Frame::Clone) {
   Frame *newFrame = Nan::ObjectWrap::Unwrap<Frame>(jsFrame);
   newFrame->isRef_ = false;
   info.GetReturnValue().Set(jsFrame);
+}
+
+NAN_METHOD(Frame::Copy) {
+  // 自身が保持しているframeデータから復元する
+  if(info.Length() < 1) {
+    ERR_PRINT("入力パラメーターが足りません");
+    info.GetReturnValue().Set(false);
+    return;
+  }
+  Frame *frame = Nan::ObjectWrap::Unwrap<Frame>(info.Holder()); // コピー先
+  ttLibC_Frame *src_frame = Frame::refFrame(info[0]);
+  if(src_frame == NULL) {
+    ERR_PRINT("入力フレームが不正です");
+    info.GetReturnValue().Set(false);
+    return;
+  }
+  ttLibC_Frame *f = ttLibC_Frame_clone(frame->frame_, src_frame);
+  Frame::setFrame(info.Holder(), f);
+  frame->isRef_ = false;
+  info.GetReturnValue().Set(true);
 }
 
 Frame::Frame() {

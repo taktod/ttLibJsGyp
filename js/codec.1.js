@@ -34,8 +34,8 @@ var readableStream = fs.createReadStream(process.env.HOME + "/tools/data/source/
 
 /*
 readableStream.on("data", (data) => {
-  if(!reader.readFrame(data, (err, frame) => {
-    return writer.writeFrame(frame, (err, data) => {
+  if(!reader.readFrame(data, (frame) => {
+    return writer.writeFrame(frame, (data) => {
       return true;
     });
   })) {
@@ -56,16 +56,16 @@ var faacEncoder = new tt.encoder.FaacEncoder("Low", 44100, 2, 96000);
 var acEncoder = new tt.encoder.AudioConverterEncoder("aac", 44100, 2, 96000);
 
 readableStream.on("data", (data) => {
-  if(!reader.readFrame(data, (err, frame) => {
+  if(!reader.readFrame(data, (frame) => {
     if(frame.type == "aac") {
-      return audioDecoder.decode(frame, (err, frame) => {
-        return audioResampler.resample(frame, (err, frame) => {
-          return acEncoder.encode(frame, (err, frame) => {
+      return audioDecoder.decode(frame, (frame) => {
+        return audioResampler.resample(frame, (frame) => {
+          return acEncoder.encode(frame, (frame) => {
             console.log(frame);
             return true;
           });
-/*          return speexdspResampler.resample(frame, (err, frame) => {
-            return opusEncoder.encode(frame, (err, frame) => {
+/*          return speexdspResampler.resample(frame, (frame) => {
+            return opusEncoder.encode(frame, (frame) => {
               console.log(frame);
               return true;
             })

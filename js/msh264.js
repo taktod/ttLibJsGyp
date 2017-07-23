@@ -25,7 +25,7 @@ if(yuvDummy == null) {
 }
 else {
   setInterval(() => {
-    encoder.encode(yuvDummy, (err, frame) => {
+    encoder.encode(yuvDummy, (frame) => {
       console.log("encodeされました。");
       return true;
     });

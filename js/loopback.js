@@ -8,14 +8,14 @@ var encoder = new tt.encoder.MSAacEncoder(48000, 2, 96000);
 //var writableStream = require("fs").createWriteStream("output2.mkv");
 
 setInterval(() => {
-  loopback.queryFrame((err, frame) => {
+  loopback.queryFrame((frame) => {
     frame.id = 1;
     console.log("frameできた");
-    return encoder.encode(frame, (err, frame) => {
+    return encoder.encode(frame, (frame) => {
       console.log(frame);
       return true;
     });
-/*    return writer.writeFrame(frame, (err, data) => {
+/*    return writer.writeFrame(frame, (data) => {
       writableStream.write(data);
       return true;
     });*/

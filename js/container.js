@@ -34,8 +34,8 @@ var readableStream = fs.createReadStream(process.env.HOME + "/tools/data/source/
 
 /*
 readableStream.on("data", (data) => {
-  if(!reader.readFrame(data, (err, frame) => {
-    return writer.writeFrame(frame, (err, data) => {
+  if(!reader.readFrame(data, (frame) => {
+    return writer.writeFrame(frame, (data) => {
       return true;
     });
   })) {
@@ -46,8 +46,8 @@ readableStream.on("data", (data) => {
 // */
 
 readableStream.on("data", (data) => {
-  if(!reader.readFrame(data, (err, frame) => {
-    return writer.writeFrame(frame, (err, data) => {
+  if(!reader.readFrame(data, (frame) => {
+    return writer.writeFrame(frame, (data) => {
       return true;
     });
   })) {

@@ -34,8 +34,8 @@ var readableStream = fs.createReadStream(process.env.HOME + "/tools/data/source/
 
 /*
 readableStream.on("data", (data) => {
-  if(!reader.readFrame(data, (err, frame) => {
-    return writer.writeFrame(frame, (err, data) => {
+  if(!reader.readFrame(data, (frame) => {
+    return writer.writeFrame(frame, (data) => {
       return true;
     });
   })) {
@@ -48,15 +48,15 @@ readableStream.on("data", (data) => {
 var videoDecoder = new tt.decoder.AvcodecVideoDecoder("h264", 640, 360);
 var audioDecoder = new tt.decoder.AvcodecAudioDecoder("aac", 44100, 2);
 readableStream.on("data", (data) => {
-  if(!reader.readFrame(data, (err, frame) => {
+  if(!reader.readFrame(data, (frame) => {
     if(frame.type == "h264") {
-      return videoDecoder.decode(frame, (err, frame) => {
+      return videoDecoder.decode(frame, (frame) => {
 //        console.log(frame);
         return true;
       });
     }
     else if(frame.type == "aac") {
-      return audioDecoder.decode(frame, (err, frame) => {
+      return audioDecoder.decode(frame, (frame) => {
 //        console.log(frame);
         return true;
       });

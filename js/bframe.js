@@ -42,10 +42,10 @@ nc.on("onStatusEvent", (event) => {
           }
         }, 1000);
         readableStream.on("data", (data) => {
-  if(!reader.readFrame(data, (err, frame) => {
+  if(!reader.readFrame(data, (frame) => {
     if(frame.type == "h264") {
-      return videoDecoder.decode(frame, (err, frame) => {
-        return x264Encoder.encode(frame, (err, frame) => {
+      return videoDecoder.decode(frame, (frame) => {
+        return x264Encoder.encode(frame, (frame) => {
           frame.id = 9;
           frames.push(frame.clone());
           return true;
@@ -75,17 +75,17 @@ nc.connect("rtmp://rtmpTestServer.com/live");
 // ファイルに書き出す場合の処理
 
 var writeFrame = (frame) => {
-  return writer.writeFrame(frame, (err, data) => {
+  return writer.writeFrame(frame, (data) => {
     writableStream.write(data);
     return true;
   });
 }
 
 readableStream.on("data", (data) => {
-  if(!reader.readFrame(data, (err, frame) => {
+  if(!reader.readFrame(data, (frame) => {
     if(frame.type == "h264") {
-      return videoDecoder.decode(frame, (err, frame) => {
-        return x264Encoder.encode(frame, (err, frame) => {
+      return videoDecoder.decode(frame, (frame) => {
+        return x264Encoder.encode(frame, (frame) => {
           frame.id = 9;
           return writeFrame(frame);
         });

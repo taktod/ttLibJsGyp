@@ -34,8 +34,8 @@ var readableStream = fs.createReadStream(process.env.HOME + "/tools/data/source/
 
 /*
 readableStream.on("data", (data) => {
-  if(!reader.readFrame(data, (err, frame) => {
-    return writer.writeFrame(frame, (err, data) => {
+  if(!reader.readFrame(data, (frame) => {
+    return writer.writeFrame(frame, (data) => {
       return true;
     });
   })) {
@@ -89,34 +89,34 @@ var vtEncoder = new tt.encoder.VtCompressSessionEncoder(
 );
 
 readableStream.on("data", (data) => {
-  if(!reader.readFrame(data, (err, frame) => {
+  if(!reader.readFrame(data, (frame) => {
     if(frame.type == "h264") {
-      return videoDecoder.decode(frame, (err, frame) => {
-/*        return openh264Encoder.encode(frame, (err, frame) => {
+      return videoDecoder.decode(frame, (frame) => {
+/*        return openh264Encoder.encode(frame, (frame) => {
           console.log(frame);
           return true;
         });*/
-/*        return x264Encoder.encode(frame, (err, frame) => {
+/*        return x264Encoder.encode(frame, (frame) => {
           console.log(frame);
           return true;
         });*/
-/*        return x265Encoder.encode(frame, (err, frame) => {
+/*        return x265Encoder.encode(frame, (frame) => {
           console.log(frame);
           return true;
         });*/
-/*        return theoraEncoder.encode(frame, (err, frame) => {
+/*        return theoraEncoder.encode(frame, (frame) => {
           console.log(frame);
           return true;
         });*/
-/*        return imageResampler.resample(frame, (err, frame) => {
+/*        return imageResampler.resample(frame, (frame) => {
           console.log(frame);
           return true;
         });*/
-/*        return jpegEncoder.encode(frame, (err, frame) => {
+/*        return jpegEncoder.encode(frame, (frame) => {
           console.log(frame);
           return true;
         });*/
-        return vtEncoder.encode(frame, (err, frame) => {
+        return vtEncoder.encode(frame, (frame) => {
           console.log(frame);
           return true;
         });

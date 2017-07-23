@@ -13,10 +13,9 @@ nc.on("onStatusEvent", (event) => {
     ns.on("onStatusEvent", (event) => {
       console.log(event);
     });
-    ns.on("onFrameCallback", (err, frame) => {
-      if(frame.type == "aac") {
-        console.log(frame.type + " " + frame.pts);
-      }
+    ns.on("onFrameCallback", (frame) => {
+      console.log(err);
+      console.log(frame);
     });
     ns.play("test");
     break;
@@ -52,7 +51,7 @@ nc.on("onStatusEvent", (event) => {
           }
         }, 1000);
         readableStream.on("data", (data) => {
-          reader.readFrame(data, (err, frame) => {
+          reader.readFrame(data, (frame) => {
             frames.push(frame.clone());
             return true;
           });

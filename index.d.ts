@@ -1,5 +1,5 @@
 /// <reference types="node"/>
-declare module 'ttlibjsgyp2' {
+declare module 'ttlibjsgyp' {
   /**
    * Frame object
    */
@@ -51,6 +51,8 @@ declare module 'ttlibjsgyp2' {
     subType?:string;
     /** flv1 h264 h265用 該当フレームが破棄可能かフラグ */
     isDisposable?:boolean;
+    /** binaryデータ 設定用 */
+    binary?:Buffer|DataView|ArrayBuffer;
     /**
      * frameのbinaryデータを参照する
      * @return Buffer
@@ -59,8 +61,15 @@ declare module 'ttlibjsgyp2' {
     /**
      * frameのcloneを作成する。
      * @return Frame
+     * @deprecated
      */
     clone():Frame;
+    /**
+     * 他のフレームをコピーする
+     * @param src コピー元フレーム
+     * @return true:成功時 false:失敗時
+     */
+    copy(src:Frame):boolean;
     /**
      * binaryデータからframeを復元する。
      * @param prevFrame
