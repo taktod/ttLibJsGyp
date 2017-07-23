@@ -312,6 +312,14 @@ declare module 'ttlibjsgyp' {
       ):boolean;
       static enabled:boolean;
     }
+    export class JpegDecoder{
+      constructor();
+      decode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
+      static enabled:boolean;
+    }
   }
   export namespace encoder {
     /**

@@ -3,6 +3,7 @@
 #include "frame.h"
 
 #include "decoder/avcodec.h"
+#include "decoder/jpeg.h"
 
 #include <string>
 
@@ -40,6 +41,11 @@ NAN_METHOD(Decoder::CheckAvailable) {
       result = true;
 #endif
     }
+    else if(type == "jpeg") {
+#ifdef __ENABLE_JPEG__
+      result = true;
+#endif
+    }
   }
   info.GetReturnValue().Set(result);
 }
@@ -50,6 +56,9 @@ NAN_METHOD(Decoder::New) {
     Decoder *decoder = NULL;
     if(type == "avcodec") {
       decoder = new AvcodecDecoder(info[1]->ToObject());
+    }
+    else if(type == "jpeg") {
+      decoder = new JpegDecoder(info[1]->ToObject());
     }
     else {
       printf("%sは未定義です。\n", type.c_str());

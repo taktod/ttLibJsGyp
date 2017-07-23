@@ -53,6 +53,14 @@ module.exports = {
       decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
       return decoder;
     })(),
+    JpegDecoder: (function() {
+      var name = "jpeg";
+      var decoder = function() {
+        return ttLibJsGyp.Decoder.apply(null, [name, {}]);
+      }
+      decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
+      return decoder;
+    })(),
   },
   encoder: {
     AudioConverterEncoder: (function() {
