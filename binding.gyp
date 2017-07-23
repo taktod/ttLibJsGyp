@@ -167,6 +167,7 @@
         "csrc/decoder/speex.cpp",
         "csrc/decoder/theora.cpp",
         "csrc/decoder/vorbis.cpp",
+        "csrc/decoder/vtDecompressSession.cpp",
         "csrc/encoder.cpp",
         "csrc/encoder/audioConverter.cpp",
         "csrc/encoder/faac.cpp",

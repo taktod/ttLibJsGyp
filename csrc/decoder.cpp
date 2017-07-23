@@ -11,6 +11,7 @@
 #include "decoder/speex.h"
 #include "decoder/theora.h"
 #include "decoder/vorbis.h"
+#include "decoder/vtDecompressSession.h"
 
 #include <string>
 
@@ -88,6 +89,11 @@ NAN_METHOD(Decoder::CheckAvailable) {
       result = true;
 #endif
     }
+    else if(type == "vtDecompressSession") {
+#ifdef __ENABLE_APPLE__
+      result = true;
+#endif
+    }
   }
   info.GetReturnValue().Set(result);
 }
@@ -122,6 +128,9 @@ NAN_METHOD(Decoder::New) {
     }
     else if(type == "vorbis") {
       decoder = new VorbisDecoder(info[1]->ToObject());
+    }
+    else if(type == "vtDecompressSession") {
+      decoder = new VtDecompressSessionDecoder(info[1]->ToObject());
     }
     else {
       printf("%sは未定義です。\n", type.c_str());

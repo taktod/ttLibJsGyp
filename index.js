@@ -117,6 +117,14 @@ module.exports = {
       decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
       return decoder;
     })(),
+    VtDecompressSession: (function() {
+      var name = "vtDecompressSession";
+      var decoder = function(type) {
+        return ttLibJsGyp.Decoder.apply(null, [name, {type: type}]);
+      }
+      decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
+      return decoder;
+    })(),
   },
   encoder: {
     AudioConverterEncoder: (function() {
