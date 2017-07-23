@@ -61,6 +61,14 @@ module.exports = {
       decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
       return decoder;
     })(),
+    Mp3lameDecoder: (function() {
+      var name = "mp3lame";
+      var decoder = function() {
+        return ttLibJsGyp.Decoder.apply(null, [name, {}]);
+      }
+      decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
+      return decoder;
+    })(),
   },
   encoder: {
     AudioConverterEncoder: (function() {

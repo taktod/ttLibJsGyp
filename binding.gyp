@@ -158,6 +158,7 @@
         "csrc/decoder.cpp",
         "csrc/decoder/avcodec.cpp",
         "csrc/decoder/jpeg.cpp",
+        "csrc/decoder/mp3lame.cpp",
         "csrc/encoder.cpp",
         "csrc/encoder/audioConverter.cpp",
         "csrc/encoder/faac.cpp",

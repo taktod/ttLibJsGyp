@@ -4,6 +4,7 @@
 
 #include "decoder/avcodec.h"
 #include "decoder/jpeg.h"
+#include "decoder/mp3lame.h"
 
 #include <string>
 
@@ -46,6 +47,11 @@ NAN_METHOD(Decoder::CheckAvailable) {
       result = true;
 #endif
     }
+    else if(type == "mp3lame") {
+#ifdef __ENABLE_MP3LAME_DECODE__
+      result = true;
+#endif
+    }
   }
   info.GetReturnValue().Set(result);
 }
@@ -59,6 +65,9 @@ NAN_METHOD(Decoder::New) {
     }
     else if(type == "jpeg") {
       decoder = new JpegDecoder(info[1]->ToObject());
+    }
+    else if(type == "mp3lame") {
+      decoder = new Mp3lameDecoder(info[1]->ToObject());
     }
     else {
       printf("%sは未定義です。\n", type.c_str());

@@ -320,6 +320,14 @@ declare module 'ttlibjsgyp' {
       ):boolean;
       static enabled:boolean;
     }
+    export class Mp3lameDecoder{
+      constructor();
+      decode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
+      static enabled:boolean;
+    }
   }
   export namespace encoder {
     /**
