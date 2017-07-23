@@ -229,6 +229,16 @@ module.exports = {
       resampler["enabled"] = ttLibJsGyp.Resampler.check(name);
       return resampler;
     })(),
+    SwscaleResampler: (function() {
+      var name = "swscale";
+      var resampler = function(inType, inSubType, inWidth, inHeight,
+        outType, outSubType, outWidth, outHeight, mode) {
+        return ttLibJsGyp.Resampler.apply(null, [name, {inType: inType, inSubType: inSubType, inWidth: inWidth, inHeight: inHeight,
+          outType: outType, outSubType: outSubType, outWidth: outWidth, outHeight: outHeight, mode: mode}]);
+      }
+      resampler["enabled"] = ttLibJsGyp.Resampler.check(name);
+      return resampler;
+    })(),
   },
   MsSetup: ttLibJsGyp.MsSetup,
   MsLoopback: ttLibJsGyp.MsLoopback,

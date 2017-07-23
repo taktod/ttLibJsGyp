@@ -490,6 +490,16 @@ declare module 'ttlibjsgyp' {
       ):boolean;
       static enabled:boolean;
     }
+    export class SwscaleResampler {
+      constructor(inType:string, inSubType: string, inWidth:number, inHeight:number,
+        outType:string, outSubType: string, outWidth:number, outHeight:number,
+        mode: string);
+      resample(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
+      static enabled:boolean;
+    }
 /*
     export class ImageResizer {
 

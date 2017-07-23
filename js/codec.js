@@ -87,6 +87,9 @@ var jpegEncoder = new tt.encoder.JpegEncoder(
 var vtEncoder = new tt.encoder.VtCompressSessionEncoder(
   "h264", 640, 360
 );
+var swscaleResampler = new tt.resampler.SwscaleResampler(
+  "yuv", "planar", 640, 360, "bgr", "bgr", 320, 240
+);
 
 readableStream.on("data", (data) => {
   if(!reader.readFrame(data, (frame) => {
@@ -116,7 +119,11 @@ readableStream.on("data", (data) => {
           console.log(frame);
           return true;
         });*/
-        return vtEncoder.encode(frame, (frame) => {
+/*        return vtEncoder.encode(frame, (frame) => {
+          console.log(frame);
+          return true;
+        });*/
+        return swscaleResampler.resample(frame, (frame) => {
           console.log(frame);
           return true;
         });

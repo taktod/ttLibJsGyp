@@ -7,6 +7,7 @@
 #include "resampler/soundtouch.h"
 #include "resampler/speexdsp.h"
 #include "resampler/swresample.h"
+#include "resampler/swscale.h"
 
 #include <string>
 
@@ -66,6 +67,11 @@ NAN_METHOD(Resampler::CheckAvailable) {
       result = true;
 #endif
     }
+    else if(type == "swscale") {
+#ifdef __ENABLE_SWSCALE__
+      result = true;
+#endif
+    }
   }
   info.GetReturnValue().Set(result);
 }
@@ -88,6 +94,9 @@ NAN_METHOD(Resampler::New) {
     }
     else if(type == "swresample") {
       resampler = new SwresampleResampler(info[1]->ToObject());
+    }
+    else if(type == "swscale") {
+      resampler = new SwscaleResampler(info[1]->ToObject());
     }
     else {
       printf("%sは未定義です。\n", type.c_str());
