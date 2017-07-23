@@ -69,6 +69,14 @@ module.exports = {
       decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
       return decoder;
     })(),
+    Openh264Decoder: (function() {
+      var name = "openh264";
+      var decoder = function() {
+        return ttLibJsGyp.Decoder.apply(null, [name, {}]);
+      }
+      decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
+      return decoder;
+    })(),
   },
   encoder: {
     AudioConverterEncoder: (function() {

@@ -5,6 +5,7 @@
 #include "decoder/avcodec.h"
 #include "decoder/jpeg.h"
 #include "decoder/mp3lame.h"
+#include "decoder/openh264.h"
 
 #include <string>
 
@@ -52,6 +53,11 @@ NAN_METHOD(Decoder::CheckAvailable) {
       result = true;
 #endif
     }
+    else if(type == "openh264") {
+#ifdef __ENABLE_OPENH264__
+      result = true;
+#endif
+    }
   }
   info.GetReturnValue().Set(result);
 }
@@ -68,6 +74,9 @@ NAN_METHOD(Decoder::New) {
     }
     else if(type == "mp3lame") {
       decoder = new Mp3lameDecoder(info[1]->ToObject());
+    }
+    else if(type == "openh264") {
+      decoder = new Openh264Decoder(info[1]->ToObject());
     }
     else {
       printf("%sは未定義です。\n", type.c_str());

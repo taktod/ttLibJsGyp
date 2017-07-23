@@ -3,13 +3,13 @@
 
 JpegDecoder::JpegDecoder(Local<Object> params) : Decoder() {
   type_ = gdt_jpeg;
-#ifdef __ENABLE_AVCODEC__
+#ifdef __ENABLE_JPEG__
   decoder_ = ttLibC_JpegDecoder_make();
 #endif
 }
 
 JpegDecoder::~JpegDecoder() {
-#ifdef __ENABLE_AVCODEC__
+#ifdef __ENABLE_JPEG__
   ttLibC_JpegDecoder_close(&decoder_);
 #endif
 }
@@ -33,7 +33,7 @@ bool JpegDecoder::decodeCallback(void *ptr, ttLibC_Yuv420 *yuv) {
 }
 
 bool JpegDecoder::decode(ttLibC_Frame *frame) {
-#ifdef __ENABLE_AVCODEC__
+#ifdef __ENABLE_JPEG__
   if(decoder_ == NULL) {
     return false;
   }
