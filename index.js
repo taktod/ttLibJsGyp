@@ -111,10 +111,26 @@ module.exports = {
       encoder["enabled"] = ttLibJsGyp.Encoder.check(name);
       return encoder;
     })(),
+    SpeexEncoder: (function() {
+      var name = "speex";
+      var encoder = function(sampleRate, channelNum, quality) {
+        return ttLibJsGyp.Encoder.apply(null, [name, {sampleRate: sampleRate, channelNum: channelNum, quality: quality}]);
+      }
+      encoder["enabled"] = ttLibJsGyp.Encoder.check(name);
+      return encoder;
+    })(),
     TheoraEncoder: (function() {
       var name = "theora";
       var encoder = function(width, height, quality, bitrate, keyFrameInterval) {
         return ttLibJsGyp.Encoder.apply(null, [name, {width: width, height: height, quality: quality, bitrate: bitrate, keyFrameInterval: keyFrameInterval}]);
+      }
+      encoder["enabled"] = ttLibJsGyp.Encoder.check(name);
+      return encoder;
+    })(),
+    VorbisEncoder: (function() {
+      var name = "vorbis";
+      var encoder = function(sampleRate, channelNum) {
+        return ttLibJsGyp.Encoder.apply(null, [name, {sampleRate: sampleRate, channelNum: channelNum}]);
       }
       encoder["enabled"] = ttLibJsGyp.Encoder.check(name);
       return encoder;

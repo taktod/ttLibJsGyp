@@ -390,7 +390,33 @@ function setupSoundtouch() {
 }
 
 function setupSpeex() {
-
+  // これ・・・speexをoffにしてspeexdspをonにするいい方法ないね。
+  if(setting["disable"].indexOf("speex") != -1) {
+    return;
+  }
+  switch(setting["os"]) {
+  case "darwin":
+  case "linux":
+    if(exec("pkg-config --exists speex && echo yes || echo no").toString().trim() == "yes") {
+      // pkg-configで存在してる。
+      switch(target) {
+      case "defs":
+        console.log("__ENABLE_SPEEX__");
+        break;
+      case "libs":
+        console.log(exec("pkg-config --libs speex").toString().trim());
+        break;
+      case "includes":
+        console.log(exec("pkg-config --cflags-only-I speex | sed -e 's/\-I//g'").toString().trim());
+        break;
+      }
+    }
+    break;
+  case "windows":
+  case "windows_nt":
+  default:
+    break;
+  }
 }
 
 function setupSpeexdsp() {
@@ -423,7 +449,32 @@ function setupSpeexdsp() {
 }
 
 function setupVorbis() {
-
+  if(setting["disable"].indexOf("vorbis") != -1) {
+    return;
+  }
+  switch(setting["os"]) {
+  case "darwin":
+  case "linux":
+    if(exec("pkg-config --exists vorbisenc vorbis && echo yes || echo no").toString().trim() == "yes") {
+      // pkg-configで存在してる。
+      switch(target) {
+      case "defs":
+        console.log("__ENABLE_VORBIS_ENCODE__ __ENABLE_VORBIS_DECODE__");
+        break;
+      case "libs":
+        console.log(exec("pkg-config --libs vorbisenc vorbis").toString().trim());
+        break;
+      case "includes":
+        console.log(exec("pkg-config --cflags-only-I vorbisenc vorbis | sed -e 's/\-I//g'").toString().trim());
+        break;
+      }
+    }
+    break;
+  case "windows":
+  case "windows_nt":
+  default:
+    break;
+  }
 }
 
 function setupX264() {

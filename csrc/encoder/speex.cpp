@@ -1,0 +1,56 @@
+#include "speex.h"
+#include "../frame.h"
+
+SpeexEncoder::SpeexEncoder(Local<Object> params) : Encoder() {
+  type_ = get_opus;
+#ifdef __ENABLE_SPEEX__
+  uint32_t sampleRate    = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t channelNum    = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t quality = Nan::Get(params, Nan::New("quality").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  encoder_ = ttLibC_SpeexEncoder_make(sampleRate, channelNum, quality);
+#endif
+}
+
+SpeexEncoder::~SpeexEncoder() {
+#ifdef __ENABLE_SPEEX__
+  ttLibC_SpeexEncoder_close(&encoder_);
+#endif
+}
+
+bool SpeexEncoder::encodeCallback(void *ptr, ttLibC_Speex *speex) {
+  SpeexEncoder *encoder = (SpeexEncoder *)ptr;
+  Nan::Callback callback(encoder->callback_.As<Function>());
+  Local<Object> jsFrame = Nan::New(encoder->jsFrame_);
+  Frame::setFrame(jsFrame, (ttLibC_Frame *)speex);
+  Local<Value> args[] = {
+    jsFrame
+  };
+  Local<Value> result = callback.Call(1, args);
+  if(result->IsTrue()) {
+    return true;
+  }
+  if(result->IsUndefined()) {
+    puts("応答が設定されていません。");
+  }
+  return false;
+}
+
+bool SpeexEncoder::encode(ttLibC_Frame *frame) {
+#ifdef __ENABLE_SPEEX__
+  if(encoder_ == NULL) {
+    puts("encoderが準備されていません。");
+    return false;
+  }
+  if(frame->type != frameType_pcmS16) {
+    puts("pcmS16のみ処理可能です。");
+    return false;
+  }
+  return ttLibC_SpeexEncoder_encode(
+    encoder_,
+    (ttLibC_PcmS16 *)frame,
+    encodeCallback,
+    this);
+#else
+  return false;
+#endif
+}

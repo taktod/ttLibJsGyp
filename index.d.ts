@@ -373,8 +373,24 @@ declare module 'ttlibjsgyp' {
       ):boolean;
       static enabled:boolean;
     }
+    export class SpeexEncoder {
+      constructor(sampleRate:number, channelNum:number, quality:number);
+      encode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
+      static enabled:boolean;
+    }
     export class TheoraEncoder {
       constructor(width:number, height:number, quality:number, bitrate:number, keyFrameInterval:number);
+      encode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
+      static enabled:boolean;
+    }
+    export class VorbisEncoder {
+      constructor(sampleRate:number, channelNum:number);
       encode(
         frame:Frame,
         func:{(frame:Frame):boolean}

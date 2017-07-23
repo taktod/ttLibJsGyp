@@ -9,7 +9,9 @@
 #include "encoder/jpeg.h"
 #include "encoder/openh264.h"
 #include "encoder/opus.h"
+#include "encoder/speex.h"
 #include "encoder/theora.h"
+#include "encoder/vorbis.h"
 #include "encoder/vtCompressSession.h"
 #include "encoder/x264.h"
 #include "encoder/x265.h"
@@ -99,8 +101,18 @@ NAN_METHOD(Encoder::CheckAvailable) {
       result = true;
 #endif
     }
+    else if(type == "speex") {
+#ifdef __ENABLE_SPEEX__
+      result = true;
+#endif
+    }
     else if(type == "theora") {
 #ifdef __ENABLE_THEORA__
+      result = true;
+#endif
+    }
+    else if(type == "vorbis") {
+#ifdef __ENABLE_VORBIS_ENCODE__
       result = true;
 #endif
     }
@@ -155,8 +167,14 @@ NAN_METHOD(Encoder::New) {
     else if(type == "opus") {
       encoder = new OpusEncoder(info[1]->ToObject());
     }
+    else if(type == "speex") {
+      encoder = new SpeexEncoder(info[1]->ToObject());
+    }
     else if(type == "theora") {
       encoder = new TheoraEncoder(info[1]->ToObject());
+    }
+    else if(type == "vorbis") {
+      encoder = new VorbisEncoder(info[1]->ToObject());
     }
     else if(type == "vtCompressSession") {
       encoder = new VtCompressSessionEncoder(info[1]->ToObject());

@@ -51,26 +51,28 @@ var audioResampler = new tt.resampler.AudioResampler("pcmS16", "littleEndian");
 var mp3lameEncoder = new tt.encoder.Mp3lameEncoder(44100, 2, 5);
 var faacEncoder = new tt.encoder.FaacEncoder("Low", 44100, 2, 96000);
 */
-var fdkaacEncoder = new tt.encoder.FaacEncoder("AOT_AAC_LC", 44100, 2, 96000);
-//var speexdspResampler = new tt.resampler.SpeexdspResampler(2, 44100, 48000, 8);
+//var fdkaacEncoder = new tt.encoder.FaacEncoder("AOT_AAC_LC", 44100, 2, 96000);
+var speexdspResampler = new tt.resampler.SpeexdspResampler(2, 44100, 32000, 8);
 //var opusEncoder = new tt.encoder.OpusEncoder(48000, 2, 480);
 //var acEncoder = new tt.encoder.AudioConverterEncoder("aac", 44100, 2, 96000);
+//var vorbisEncoder = new tt.encoder.VorbisEncoder(44100, 2);
+var speexEncoder = new tt.encoder.SpeexEncoder(32000, 1);
 
 readableStream.on("data", (data) => {
   if(!reader.readFrame(data, (frame) => {
     if(frame.type == "aac") {
       return audioDecoder.decode(frame, (frame) => {
         return audioResampler.resample(frame, (frame) => {
-          return fdkaacEncoder.encode(frame, (frame) => {
+/*          return vorbisEncoder.encode(frame, (frame) => {
             console.log(frame);
             return true;
-          });
-/*          return speexdspResampler.resample(frame, (frame) => {
-            return opusEncoder.encode(frame, (frame) => {
+          });*/
+          return speexdspResampler.resample(frame, (frame) => {
+            return speexEncoder.encode(frame, (frame) => {
               console.log(frame);
               return true;
             })
-          });*/
+          });
         });
       });
     }
