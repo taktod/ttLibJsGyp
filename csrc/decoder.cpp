@@ -7,6 +7,9 @@
 #include "decoder/mp3lame.h"
 #include "decoder/openh264.h"
 #include "decoder/opus.h"
+#include "decoder/speex.h"
+#include "decoder/theora.h"
+#include "decoder/vorbis.h"
 
 #include <string>
 
@@ -64,6 +67,21 @@ NAN_METHOD(Decoder::CheckAvailable) {
       result = true;
 #endif
     }
+    else if(type == "speex") {
+#ifdef __ENABLE_SPEEX__
+      result = true;
+#endif
+    }
+    else if(type == "theora") {
+#ifdef __ENABLE_THEORA__
+      result = true;
+#endif
+    }
+    else if(type == "vorbis") {
+#ifdef __ENABLE_VORBIS_DECODE__
+      result = true;
+#endif
+    }
   }
   info.GetReturnValue().Set(result);
 }
@@ -86,6 +104,15 @@ NAN_METHOD(Decoder::New) {
     }
     else if(type == "opus") {
       decoder = new OpusDecoder(info[1]->ToObject());
+    }
+    else if(type == "speex") {
+      decoder = new SpeexDecoder(info[1]->ToObject());
+    }
+    else if(type == "theora") {
+      decoder = new TheoraDecoder(info[1]->ToObject());
+    }
+    else if(type == "vorbis") {
+      decoder = new VorbisDecoder(info[1]->ToObject());
     }
     else {
       printf("%sは未定義です。\n", type.c_str());

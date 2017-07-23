@@ -85,6 +85,30 @@ module.exports = {
       decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
       return decoder;
     })(),
+    SpeexDecoder: (function() {
+      var name = "speex";
+      var decoder = function(sampleRate, channelNum) {
+        return ttLibJsGyp.Decoder.apply(null, [name, {sampleRate: sampleRate, channelNum: channelNum}]);
+      }
+      decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
+      return decoder;
+    })(),
+    TheoraDecoder: (function() {
+      var name = "theora";
+      var decoder = function() {
+        return ttLibJsGyp.Decoder.apply(null, [name, {}]);
+      }
+      decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
+      return decoder;
+    })(),
+    VorbisDecoder: (function() {
+      var name = "vorbis";
+      var decoder = function() {
+        return ttLibJsGyp.Decoder.apply(null, [name, {}]);
+      }
+      decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
+      return decoder;
+    })(),
   },
   encoder: {
     AudioConverterEncoder: (function() {
