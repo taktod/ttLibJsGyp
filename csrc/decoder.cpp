@@ -6,6 +6,7 @@
 #include "decoder/jpeg.h"
 #include "decoder/mp3lame.h"
 #include "decoder/openh264.h"
+#include "decoder/opus.h"
 
 #include <string>
 
@@ -58,6 +59,11 @@ NAN_METHOD(Decoder::CheckAvailable) {
       result = true;
 #endif
     }
+    else if(type == "opus") {
+#ifdef __ENABLE_OPUS__
+      result = true;
+#endif
+    }
   }
   info.GetReturnValue().Set(result);
 }
@@ -77,6 +83,9 @@ NAN_METHOD(Decoder::New) {
     }
     else if(type == "openh264") {
       decoder = new Openh264Decoder(info[1]->ToObject());
+    }
+    else if(type == "opus") {
+      decoder = new OpusDecoder(info[1]->ToObject());
     }
     else {
       printf("%sは未定義です。\n", type.c_str());

@@ -77,6 +77,14 @@ module.exports = {
       decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
       return decoder;
     })(),
+    OpusDecoder: (function() {
+      var name = "opus";
+      var decoder = function(sampleRate, channelNum) {
+        return ttLibJsGyp.Decoder.apply(null, [name, {sampleRate: sampleRate, channelNum: channelNum}]);
+      }
+      decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
+      return decoder;
+    })(),
   },
   encoder: {
     AudioConverterEncoder: (function() {

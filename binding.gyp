@@ -160,6 +160,7 @@
         "csrc/decoder/jpeg.cpp",
         "csrc/decoder/mp3lame.cpp",
         "csrc/decoder/openh264.cpp",
+        "csrc/decoder/opus.cpp",
         "csrc/encoder.cpp",
         "csrc/encoder/audioConverter.cpp",
         "csrc/encoder/faac.cpp",
