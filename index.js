@@ -206,7 +206,7 @@ module.exports = {
     SoundtouchResampler: (function() {
       var name = "soundtouch";
       var resampler = function(sampleRate, channelNum) {
-        return ttLibJsGyp.Resampler.apply(null, ["soundtouch", {sampleRate: sampleRate, channelNum: channelNum}]);
+        return ttLibJsGyp.Resampler.apply(null, [name, {sampleRate: sampleRate, channelNum: channelNum}]);
       }
       resampler["enabled"] = ttLibJsGyp.Resampler.check(name);
       return resampler;
@@ -214,7 +214,17 @@ module.exports = {
     SpeexdspResampler: (function() {
       var name = "speexdsp";
       var resampler = function(channelNum, inSampleRate, outSampleRate, quality) {
-        return ttLibJsGyp.Resampler.apply(null, ["speexdsp", {channelNum: channelNum, inSampleRate: inSampleRate, outSampleRate: outSampleRate, quality: quality}]);
+        return ttLibJsGyp.Resampler.apply(null, [name, {channelNum: channelNum, inSampleRate: inSampleRate, outSampleRate: outSampleRate, quality: quality}]);
+      }
+      resampler["enabled"] = ttLibJsGyp.Resampler.check(name);
+      return resampler;
+    })(),
+    SwresampleResampler: (function() {
+      var name = "swresample";
+      var resampler = function(inType, inSubType, inSampleRate, inChannelNum,
+        outType, outSubType, outSampleRate, outChannelNum) {
+        return ttLibJsGyp.Resampler.apply(null, [name, {inType: inType, inSubType: inSubType, inSampleRate: inSampleRate, inChannelNum: inChannelNum,
+          outType: outType, outSubType: outSubType, outSampleRate: outSampleRate, outChannelNum: outChannelNum}]);
       }
       resampler["enabled"] = ttLibJsGyp.Resampler.check(name);
       return resampler;

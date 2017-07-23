@@ -30,6 +30,8 @@ opus       any                pkgconfig
 faad       gpl                無視
 vorbis     any                pkgconfig
 avcodec    lgpl               pkgconfig
+swscale    lgpl               pkgconfig
+swresample lgpl               pkgconfig
 apple      darwin only        darwin or not
 webrtc     any?               無視(electronで攻めるので、必要ないはず)
 soundtouch lgpl               pkgconfig
@@ -49,6 +51,8 @@ setupTheora();
 setupSoundtouch();
 setupSpeex();
 setupSpeexdsp();
+setupSwresample();
+setupSwscale();
 setupVorbis();
 setupX264();
 setupX265();
@@ -437,6 +441,70 @@ function setupSpeexdsp() {
         break;
       case "includes":
         console.log(exec("pkg-config --cflags-only-I speexdsp | sed -e 's/\-I//g'").toString().trim());
+        break;
+      }
+    }
+    break;
+  case "windows":
+  case "windows_nt":
+  default:
+    break;
+  }
+}
+
+function setupSwresample() {
+  if(setting["disable"].indexOf("swresample") != -1) {
+    return;
+  }
+  if(setting["targetValue"] == 0) {
+    return;
+  }
+  switch(setting["os"]) {
+  case "darwin":
+  case "linux":
+    if(exec("pkg-config --exists libswresample && echo yes || echo no").toString().trim() == "yes") {
+      // pkg-configで存在してる。
+      switch(target) {
+      case "defs":
+        console.log("__ENABLE_SWRESAMPLE__");
+        break;
+      case "libs":
+        console.log(exec("pkg-config --libs libswresample").toString().trim());
+        break;
+      case "includes":
+        console.log(exec("pkg-config --cflags-only-I libswresample | sed -e 's/\-I//g'").toString().trim());
+        break;
+      }
+    }
+    break;
+  case "windows":
+  case "windows_nt":
+  default:
+    break;
+  }
+}
+
+function setupSwscale() {
+  if(setting["disable"].indexOf("swscale") != -1) {
+    return;
+  }
+  if(setting["targetValue"] == 0) {
+    return;
+  }
+  switch(setting["os"]) {
+  case "darwin":
+  case "linux":
+    if(exec("pkg-config --exists libswscale && echo yes || echo no").toString().trim() == "yes") {
+      // pkg-configで存在してる。
+      switch(target) {
+      case "defs":
+        console.log("__ENABLE_SWSCALE__");
+        break;
+      case "libs":
+        console.log(exec("pkg-config --libs libswscale").toString().trim());
+        break;
+      case "includes":
+        console.log(exec("pkg-config --cflags-only-I libswscale | sed -e 's/\-I//g'").toString().trim());
         break;
       }
     }

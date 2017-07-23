@@ -107,6 +107,8 @@
         "ttLibC/ttLibC/resampler/imageResizer.c",
         "ttLibC/ttLibC/resampler/soundtouchResampler.cpp",
         "ttLibC/ttLibC/resampler/speexdspResampler.c",
+        "ttLibC/ttLibC/resampler/swresampleResampler.c",
+        "ttLibC/ttLibC/resampler/swscaleResampler.c",
         "ttLibC/ttLibC/util/amfUtil.c",
         "ttLibC/ttLibC/util/beepUtil.c",
         "ttLibC/ttLibC/util/byteUtil.c",
@@ -169,6 +171,8 @@
         "csrc/resampler/image.cpp",
         "csrc/resampler/soundtouch.cpp",
         "csrc/resampler/speexdsp.cpp",
+        "csrc/resampler/swresample.cpp",
+        "csrc/resampler/swscale.cpp",
         "csrc/msLoopback.cpp",
         "csrc/msSetup.cpp"
       ],

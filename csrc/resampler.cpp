@@ -6,6 +6,7 @@
 #include "resampler/image.h"
 #include "resampler/soundtouch.h"
 #include "resampler/speexdsp.h"
+#include "resampler/swresample.h"
 
 #include <string>
 
@@ -60,6 +61,11 @@ NAN_METHOD(Resampler::CheckAvailable) {
       result = true;
 #endif
     }
+    else if(type == "swresample") {
+#ifdef __ENABLE_SWRESAMPLE__
+      result = true;
+#endif
+    }
   }
   info.GetReturnValue().Set(result);
 }
@@ -79,6 +85,9 @@ NAN_METHOD(Resampler::New) {
     }
     else if(type == "speexdsp") {
       resampler = new SpeexdspResampler(info[1]->ToObject());
+    }
+    else if(type == "swresample") {
+      resampler = new SwresampleResampler(info[1]->ToObject());
     }
     else {
       printf("%sは未定義です。\n", type.c_str());

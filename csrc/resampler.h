@@ -10,8 +10,12 @@ typedef enum gypResamplerType_e {
   grt_audio,
   grt_image,
   grt_imageResizer,
+  grt_libyuv,
+  grt_libyuvrotate,
   grt_soundtouch,
-  grt_speexdsp
+  grt_speexdsp,
+  grt_swresample,
+  grt_swscale,
 } gypResamplerType_e;
 
 class Resampler : public Nan::ObjectWrap {
