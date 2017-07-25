@@ -1,5 +1,5 @@
 ﻿#include "../predef.h"
-#include "msH264.h"
+#include "msH264Encoder.h"
 #include "../frame.h"
 #include <ttLibC/frame/video/yuv420.h>
 

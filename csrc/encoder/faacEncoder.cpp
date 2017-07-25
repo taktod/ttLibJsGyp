@@ -1,4 +1,4 @@
-﻿#include "faac.h"
+﻿#include "faacEncoder.h"
 #include "../frame.h"
 
 FaacEncoder::FaacEncoder(Local<Object> params) : Encoder() {

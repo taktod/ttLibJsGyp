@@ -1,4 +1,4 @@
-﻿#include "mp3lame.h"
+﻿#include "mp3lameDecoder.h"
 #include "../frame.h"
 
 Mp3lameDecoder::Mp3lameDecoder(Local<Object> params) : Decoder() {

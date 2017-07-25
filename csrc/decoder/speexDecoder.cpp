@@ -1,4 +1,4 @@
-﻿#include "speex.h"
+﻿#include "speexDecoder.h"
 #include "../frame.h"
 
 SpeexDecoder::SpeexDecoder(Local<Object> params) : Decoder() {

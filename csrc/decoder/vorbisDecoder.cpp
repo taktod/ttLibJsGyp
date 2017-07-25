@@ -1,4 +1,4 @@
-﻿#include "vorbis.h"
+﻿#include "vorbisDecoder.h"
 #include "../frame.h"
 
 VorbisDecoder::VorbisDecoder(Local<Object> params) : Decoder() {

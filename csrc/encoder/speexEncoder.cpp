@@ -1,27 +1,27 @@
-﻿#include "opus.h"
+﻿#include "speexEncoder.h"
 #include "../frame.h"
 
-OpusEncoder::OpusEncoder(Local<Object> params) : Encoder() {
+SpeexEncoder::SpeexEncoder(Local<Object> params) : Encoder() {
   type_ = get_opus;
-#ifdef __ENABLE_OPUS__
+#ifdef __ENABLE_SPEEX__
   uint32_t sampleRate    = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
   uint32_t channelNum    = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t unitSampleNum = Nan::Get(params, Nan::New("unitSampleNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  encoder_ = ttLibC_OpusEncoder_make(sampleRate, channelNum, unitSampleNum);
+  uint32_t quality = Nan::Get(params, Nan::New("quality").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  encoder_ = ttLibC_SpeexEncoder_make(sampleRate, channelNum, quality);
 #endif
 }
 
-OpusEncoder::~OpusEncoder() {
-#ifdef __ENABLE_OPUS__
-  ttLibC_OpusEncoder_close(&encoder_);
+SpeexEncoder::~SpeexEncoder() {
+#ifdef __ENABLE_SPEEX__
+  ttLibC_SpeexEncoder_close(&encoder_);
 #endif
 }
 
-bool OpusEncoder::encodeCallback(void *ptr, ttLibC_Opus *opus) {
-  OpusEncoder *encoder = (OpusEncoder *)ptr;
+bool SpeexEncoder::encodeCallback(void *ptr, ttLibC_Speex *speex) {
+  SpeexEncoder *encoder = (SpeexEncoder *)ptr;
   Nan::Callback callback(encoder->callback_.As<Function>());
   Local<Object> jsFrame = Nan::New(encoder->jsFrame_);
-  Frame::setFrame(jsFrame, (ttLibC_Frame *)opus);
+  Frame::setFrame(jsFrame, (ttLibC_Frame *)speex);
   Local<Value> args[] = {
     jsFrame
   };
@@ -35,8 +35,8 @@ bool OpusEncoder::encodeCallback(void *ptr, ttLibC_Opus *opus) {
   return false;
 }
 
-bool OpusEncoder::encode(ttLibC_Frame *frame) {
-#ifdef __ENABLE_OPUS__
+bool SpeexEncoder::encode(ttLibC_Frame *frame) {
+#ifdef __ENABLE_SPEEX__
   if(encoder_ == NULL) {
     puts("encoderが準備されていません。");
     return false;
@@ -45,7 +45,7 @@ bool OpusEncoder::encode(ttLibC_Frame *frame) {
     puts("pcmS16のみ処理可能です。");
     return false;
   }
-  return ttLibC_OpusEncoder_encode(
+  return ttLibC_SpeexEncoder_encode(
     encoder_,
     (ttLibC_PcmS16 *)frame,
     encodeCallback,

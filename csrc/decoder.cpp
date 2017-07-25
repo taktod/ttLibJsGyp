@@ -2,16 +2,16 @@
 #include "decoder.h"
 #include "frame.h"
 
-#include "decoder/audioConverter.h"
-#include "decoder/avcodec.h"
-#include "decoder/jpeg.h"
-#include "decoder/mp3lame.h"
-#include "decoder/openh264.h"
-#include "decoder/opus.h"
-#include "decoder/speex.h"
-#include "decoder/theora.h"
-#include "decoder/vorbis.h"
-#include "decoder/vtDecompressSession.h"
+#include "decoder/audioConverterDecoder.h"
+#include "decoder/avcodecDecoder.h"
+#include "decoder/jpegDecoder.h"
+#include "decoder/mp3lameDecoder.h"
+#include "decoder/openh264Decoder.h"
+#include "decoder/opusDecoder.h"
+#include "decoder/speexDecoder.h"
+#include "decoder/theoraDecoder.h"
+#include "decoder/vorbisDecoder.h"
+#include "decoder/vtDecompressSessionDecoder.h"
 
 #include <string>
 

@@ -1,14 +1,21 @@
-﻿#include "vtDecompressSession.h"
+﻿#include "vtCompressSessionEncoder.h"
 #include "../frame.h"
+#include <ttLibC/frame/video/h264.h>
 
-VtDecompressSessionDecoder::VtDecompressSessionDecoder(Local<Object> params) : Decoder() {
-  type_ = gdt_vtDecompressSession;
+VtCompressSessionEncoder::VtCompressSessionEncoder(Local<Object> params) : Encoder() {
+  type_ = get_vtCompressSession;
 #ifdef __ENABLE_APPLE__
   ttLibC_Frame_Type frameType = Frame::getFrameType(
     std::string(*String::Utf8Value(
       Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked()->ToString()))
   );
-  decoder_ = ttLibC_VtDecoder_make(frameType);
+  uint32_t width   = Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t height  = Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t fps     = Nan::Get(params, Nan::New("fps").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t bitrate = Nan::Get(params, Nan::New("bitrate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  bool isBaseline  = Nan::Get(params, Nan::New("isBaseline").ToLocalChecked()).ToLocalChecked()->IsTrue();
+  encoder_ = ttLibC_VtEncoder_make_ex(width, height, fps, bitrate, isBaseline, frameType);
+
   frameStack_ = ttLibC_StlList_make();
   pthread_mutex_init(&frameMutex_, NULL);
 #endif
@@ -22,25 +29,27 @@ static bool clearFrameStack(void *ptr, void *item) {
   return true;
 }
 
-VtDecompressSessionDecoder::~VtDecompressSessionDecoder() {
+VtCompressSessionEncoder::~VtCompressSessionEncoder() {
 #ifdef __ENABLE_APPLE__
-  ttLibC_VtDecoder_close(&decoder_);
+  ttLibC_VtEncoder_close(&encoder_);
   pthread_mutex_destroy(&frameMutex_);
   ttLibC_StlList_forEach(frameStack_, clearFrameStack, NULL);
   ttLibC_StlList_close(&frameStack_);
 #endif
 }
 
-bool VtDecompressSessionDecoder::decodeCallback(void *ptr, ttLibC_Yuv420 *yuv) {
+bool VtCompressSessionEncoder::encodeCallback(void *ptr, ttLibC_Video *video) {
 #ifdef __ENABLE_APPLE__
-  VtDecompressSessionDecoder *decoder = (VtDecompressSessionDecoder *)ptr;
-  int r = pthread_mutex_lock(&decoder->frameMutex_);
+  VtCompressSessionEncoder *encoder = (VtCompressSessionEncoder *)ptr;
+  // ここからcallするとsegfaultが発生するの？どういうこと？
+  // ということは、こうじゃなくて、AsyncWorkerのスレッドでvtCompressSessionとか呼び出しを実施するように改良しないとだめだな。
+  int r = pthread_mutex_lock(&encoder->frameMutex_);
   if(r != 0) {
     puts("lockエラー");
   }
-  ttLibC_StlList_addLast(decoder->frameStack_, ttLibC_Frame_clone(NULL, (ttLibC_Frame *)yuv));
+  ttLibC_StlList_addLast(encoder->frameStack_, ttLibC_Frame_clone(NULL, (ttLibC_Frame *)video));
   // なんか処理する。
-  r = pthread_mutex_unlock(&decoder->frameMutex_);
+  r = pthread_mutex_unlock(&encoder->frameMutex_);
   if(r != 0) {
     puts("unlockエラー");
   }
@@ -48,22 +57,20 @@ bool VtDecompressSessionDecoder::decodeCallback(void *ptr, ttLibC_Yuv420 *yuv) {
   return true;
 }
 
-bool VtDecompressSessionDecoder::decode(ttLibC_Frame *frame) {
+bool VtCompressSessionEncoder::encode(ttLibC_Frame *frame) {
 #ifdef __ENABLE_APPLE__
-  if(decoder_ == NULL) {
+  if(encoder_ == NULL) {
+    puts("encoderが準備されていません。");
     return false;
   }
-  if(frame == NULL) {
-    return true;
-  }
-  if(frame->type != decoder_->frame_type) {
-    puts("指定したフレームのみ処理可能です。");
+  if(frame->type != frameType_yuv420) {
+    puts("yuv420のみ処理可能です。");
     return false;
   }
-  ttLibC_VtDecoder_decode(
-    decoder_,
-    (ttLibC_Video *)frame,
-    decodeCallback,
+  ttLibC_VtEncoder_encode(
+    encoder_,
+    (ttLibC_Yuv420 *)frame,
+    encodeCallback,
     this);
   int r = pthread_mutex_lock(&frameMutex_);
   if(r != 0) {

@@ -1,35 +1,30 @@
-﻿#include "audioConverter.h"
+﻿#include "msAacEncoder.h"
 #include "../frame.h"
 
-AudioConverterEncoder::AudioConverterEncoder(Local<Object> params) : Encoder() {
-  type_ = get_audioConverter;
-#ifdef __ENABLE_APPLE__
-  ttLibC_Frame_Type frameType = Frame::getFrameType(
-    std::string(*String::Utf8Value(
-      Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked()->ToString()))
-  );
+MSAacEncoder::MSAacEncoder(Local<Object> params) : Encoder() {
+  type_ = get_msAac;
+#ifdef __ENABLE_WIN32__
   uint32_t sampleRate = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
   uint32_t channelNum = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
   uint32_t bitrate = Nan::Get(params, Nan::New("bitrate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  encoder_ = ttLibC_AcEncoder_make(
+  encoder_ = ttLibC_MsAacEncoder_make(
     sampleRate,
     channelNum,
-    bitrate,
-    frameType);
+    bitrate);
 #endif
 }
 
-AudioConverterEncoder::~AudioConverterEncoder() {
-#ifdef __ENABLE_APPLE__
-  ttLibC_AcEncoder_close(&encoder_);
+MSAacEncoder::~MSAacEncoder() {
+#ifdef __ENABLE_WIN32__
+  ttLibC_MsAacEncoder_close(&encoder_);
 #endif
 }
 
-bool AudioConverterEncoder::encodeCallback(void *ptr, ttLibC_Audio *audio) {
-  AudioConverterEncoder *encoder = (AudioConverterEncoder *)ptr;
+bool MSAacEncoder::encodeCallback(void *ptr, ttLibC_Aac *aac) {
+  MSAacEncoder *encoder = (MSAacEncoder *)ptr;
   Nan::Callback callback(encoder->callback_.As<Function>());
   Local<Object> jsFrame = Nan::New(encoder->jsFrame_);
-  Frame::setFrame(jsFrame, (ttLibC_Frame *)audio);
+  Frame::setFrame(jsFrame, (ttLibC_Frame *)aac);
   Local<Value> args[] = {
     jsFrame
   };
@@ -43,8 +38,8 @@ bool AudioConverterEncoder::encodeCallback(void *ptr, ttLibC_Audio *audio) {
   return false;
 }
 
-bool AudioConverterEncoder::encode(ttLibC_Frame *frame) {
-#ifdef __ENABLE_APPLE__
+bool MSAacEncoder::encode(ttLibC_Frame *frame) {
+#ifdef __ENABLE_WIN32__
   if(encoder_ == NULL) {
     puts("encoderが準備されていません。");
     return false;
@@ -53,7 +48,7 @@ bool AudioConverterEncoder::encode(ttLibC_Frame *frame) {
     puts("pcmS16のみ処理可能です。");
     return false;
   }
-  return ttLibC_AcEncoder_encode(
+  return ttLibC_MsAacEncoder_encode(
     encoder_,
     (ttLibC_PcmS16 *)frame,
     encodeCallback,

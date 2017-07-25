@@ -1,26 +1,27 @@
-﻿#include "vorbis.h"
+﻿#include "opusEncoder.h"
 #include "../frame.h"
 
-VorbisEncoder::VorbisEncoder(Local<Object> params) : Encoder() {
+OpusEncoder::OpusEncoder(Local<Object> params) : Encoder() {
   type_ = get_opus;
-#ifdef __ENABLE_VORBIS_ENCODE__
+#ifdef __ENABLE_OPUS__
   uint32_t sampleRate    = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
   uint32_t channelNum    = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  encoder_ = ttLibC_VorbisEncoder_make(sampleRate, channelNum);
+  uint32_t unitSampleNum = Nan::Get(params, Nan::New("unitSampleNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  encoder_ = ttLibC_OpusEncoder_make(sampleRate, channelNum, unitSampleNum);
 #endif
 }
 
-VorbisEncoder::~VorbisEncoder() {
-#ifdef __ENABLE_VORBIS_ENCODE__
-  ttLibC_VorbisEncoder_close(&encoder_);
+OpusEncoder::~OpusEncoder() {
+#ifdef __ENABLE_OPUS__
+  ttLibC_OpusEncoder_close(&encoder_);
 #endif
 }
 
-bool VorbisEncoder::encodeCallback(void *ptr, ttLibC_Vorbis *vorbis) {
-  VorbisEncoder *encoder = (VorbisEncoder *)ptr;
+bool OpusEncoder::encodeCallback(void *ptr, ttLibC_Opus *opus) {
+  OpusEncoder *encoder = (OpusEncoder *)ptr;
   Nan::Callback callback(encoder->callback_.As<Function>());
   Local<Object> jsFrame = Nan::New(encoder->jsFrame_);
-  Frame::setFrame(jsFrame, (ttLibC_Frame *)vorbis);
+  Frame::setFrame(jsFrame, (ttLibC_Frame *)opus);
   Local<Value> args[] = {
     jsFrame
   };
@@ -34,20 +35,19 @@ bool VorbisEncoder::encodeCallback(void *ptr, ttLibC_Vorbis *vorbis) {
   return false;
 }
 
-bool VorbisEncoder::encode(ttLibC_Frame *frame) {
-#ifdef __ENABLE_VORBIS_ENCODE__
+bool OpusEncoder::encode(ttLibC_Frame *frame) {
+#ifdef __ENABLE_OPUS__
   if(encoder_ == NULL) {
     puts("encoderが準備されていません。");
     return false;
   }
-  if(frame->type != frameType_pcmS16
-  && frame->type != frameType_pcmF32) {
-    puts("pcmのみ処理可能です。");
+  if(frame->type != frameType_pcmS16) {
+    puts("pcmS16のみ処理可能です。");
     return false;
   }
-  return ttLibC_VorbisEncoder_encode(
+  return ttLibC_OpusEncoder_encode(
     encoder_,
-    (ttLibC_Audio *)frame,
+    (ttLibC_PcmS16 *)frame,
     encodeCallback,
     this);
 #else

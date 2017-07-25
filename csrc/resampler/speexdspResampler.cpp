@@ -1,4 +1,4 @@
-﻿#include "speexdsp.h"
+﻿#include "speexdspResampler.h"
 #include "../frame.h"
 
 #include <string>

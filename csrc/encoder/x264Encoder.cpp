@@ -1,4 +1,4 @@
-﻿#include "x264.h"
+﻿#include "x264Encoder.h"
 #include "../frame.h"
 #ifdef __ENABLE_X264__
 # include <x264.h>

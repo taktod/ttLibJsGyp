@@ -2,12 +2,12 @@
 #include "resampler.h"
 #include "frame.h"
 
-#include "resampler/audio.h"
-#include "resampler/image.h"
-#include "resampler/soundtouch.h"
-#include "resampler/speexdsp.h"
-#include "resampler/swresample.h"
-#include "resampler/swscale.h"
+#include "resampler/audioResampler.h"
+#include "resampler/imageResampler.h"
+#include "resampler/soundtouchResampler.h"
+#include "resampler/speexdspResampler.h"
+#include "resampler/swresampleResampler.h"
+#include "resampler/swscaleResampler.h"
 
 #include <string>
 

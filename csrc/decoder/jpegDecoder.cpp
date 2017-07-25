@@ -1,4 +1,4 @@
-﻿#include "jpeg.h"
+﻿#include "jpegDecoder.h"
 #include "../frame.h"
 
 JpegDecoder::JpegDecoder(Local<Object> params) : Decoder() {

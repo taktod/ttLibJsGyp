@@ -1,27 +1,26 @@
-﻿#include "speex.h"
+﻿#include "vorbisEncoder.h"
 #include "../frame.h"
 
-SpeexEncoder::SpeexEncoder(Local<Object> params) : Encoder() {
+VorbisEncoder::VorbisEncoder(Local<Object> params) : Encoder() {
   type_ = get_opus;
-#ifdef __ENABLE_SPEEX__
+#ifdef __ENABLE_VORBIS_ENCODE__
   uint32_t sampleRate    = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
   uint32_t channelNum    = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t quality = Nan::Get(params, Nan::New("quality").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  encoder_ = ttLibC_SpeexEncoder_make(sampleRate, channelNum, quality);
+  encoder_ = ttLibC_VorbisEncoder_make(sampleRate, channelNum);
 #endif
 }
 
-SpeexEncoder::~SpeexEncoder() {
-#ifdef __ENABLE_SPEEX__
-  ttLibC_SpeexEncoder_close(&encoder_);
+VorbisEncoder::~VorbisEncoder() {
+#ifdef __ENABLE_VORBIS_ENCODE__
+  ttLibC_VorbisEncoder_close(&encoder_);
 #endif
 }
 
-bool SpeexEncoder::encodeCallback(void *ptr, ttLibC_Speex *speex) {
-  SpeexEncoder *encoder = (SpeexEncoder *)ptr;
+bool VorbisEncoder::encodeCallback(void *ptr, ttLibC_Vorbis *vorbis) {
+  VorbisEncoder *encoder = (VorbisEncoder *)ptr;
   Nan::Callback callback(encoder->callback_.As<Function>());
   Local<Object> jsFrame = Nan::New(encoder->jsFrame_);
-  Frame::setFrame(jsFrame, (ttLibC_Frame *)speex);
+  Frame::setFrame(jsFrame, (ttLibC_Frame *)vorbis);
   Local<Value> args[] = {
     jsFrame
   };
@@ -35,19 +34,20 @@ bool SpeexEncoder::encodeCallback(void *ptr, ttLibC_Speex *speex) {
   return false;
 }
 
-bool SpeexEncoder::encode(ttLibC_Frame *frame) {
-#ifdef __ENABLE_SPEEX__
+bool VorbisEncoder::encode(ttLibC_Frame *frame) {
+#ifdef __ENABLE_VORBIS_ENCODE__
   if(encoder_ == NULL) {
     puts("encoderが準備されていません。");
     return false;
   }
-  if(frame->type != frameType_pcmS16) {
-    puts("pcmS16のみ処理可能です。");
+  if(frame->type != frameType_pcmS16
+  && frame->type != frameType_pcmF32) {
+    puts("pcmのみ処理可能です。");
     return false;
   }
-  return ttLibC_SpeexEncoder_encode(
+  return ttLibC_VorbisEncoder_encode(
     encoder_,
-    (ttLibC_PcmS16 *)frame,
+    (ttLibC_Audio *)frame,
     encodeCallback,
     this);
 #else
