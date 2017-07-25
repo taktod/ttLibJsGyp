@@ -599,7 +599,7 @@ declare module 'ttlibjsgyp' {
   }
   export class MsLoopback {
     constructor(locale?:string, targetDevice?:string);
-    querySring(func:{(frame:Frame):boolean}):boolean;
+    queryFrame(func:{(frame:Frame):boolean}):boolean;
     static listDevices(func:{(encoder:string):boolean}):boolean;
   }
   export namespace rtmp {
