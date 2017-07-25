@@ -1,4 +1,4 @@
-#include "openh264.h"
+﻿#include "openh264.h"
 #include "../frame.h"
 
 Openh264Decoder::Openh264Decoder(Local<Object> params) : Decoder() {

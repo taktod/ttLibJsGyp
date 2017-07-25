@@ -1,4 +1,4 @@
-#ifndef CSRC_LOG_H
+﻿#ifndef CSRC_LOG_H
 #define CSRC_LOG_H
 
 #include <stdio.h>

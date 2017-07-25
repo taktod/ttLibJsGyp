@@ -1,4 +1,4 @@
-#ifndef CSRC_DECODER_MP3LAME_H
+﻿#ifndef CSRC_DECODER_MP3LAME_H
 #define CSRC_DECODER_MP3LAME_H
 
 #include "../decoder.h"

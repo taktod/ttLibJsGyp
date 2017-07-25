@@ -1,4 +1,4 @@
-#ifndef CSRC_DECODER_OPUS_H
+﻿#ifndef CSRC_DECODER_OPUS_H
 #define CSRC_DECODER_OPUS_H
 
 #include "../decoder.h"

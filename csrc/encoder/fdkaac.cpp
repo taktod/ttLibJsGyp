@@ -1,4 +1,4 @@
-#include "fdkaac.h"
+﻿#include "fdkaac.h"
 #include "../frame.h"
 #include <ttLibC/allocator.h>
 

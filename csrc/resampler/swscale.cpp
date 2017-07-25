@@ -1,4 +1,4 @@
-#include "swscale.h"
+﻿#include "swscale.h"
 #include "../frame.h"
 
 SwscaleResampler::SwscaleResampler(Local<Object> params) : Resampler() {

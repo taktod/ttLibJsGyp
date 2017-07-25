@@ -1,4 +1,4 @@
-#include "opus.h"
+﻿#include "opus.h"
 #include "../frame.h"
 
 OpusDecoder::OpusDecoder(Local<Object> params) : Decoder() {

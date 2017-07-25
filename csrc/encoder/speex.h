@@ -1,4 +1,4 @@
-#ifndef CSRC_ENCODER_SPEEX_H
+﻿#ifndef CSRC_ENCODER_SPEEX_H
 #define CSRC_ENCODER_SPEEX_H
 
 #include "../encoder.h"

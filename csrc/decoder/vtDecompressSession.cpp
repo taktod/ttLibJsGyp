@@ -1,4 +1,4 @@
-#include "vtDecompressSession.h"
+﻿#include "vtDecompressSession.h"
 #include "../frame.h"
 
 VtDecompressSessionDecoder::VtDecompressSessionDecoder(Local<Object> params) : Decoder() {

@@ -1,4 +1,4 @@
-#include "speex.h"
+﻿#include "speex.h"
 #include "../frame.h"
 
 SpeexEncoder::SpeexEncoder(Local<Object> params) : Encoder() {

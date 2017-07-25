@@ -1,4 +1,4 @@
-#ifndef CSRC_ENCODER_VORBIS_H
+﻿#ifndef CSRC_ENCODER_VORBIS_H
 #define CSRC_ENCODER_VORBIS_H
 
 #include "../encoder.h"

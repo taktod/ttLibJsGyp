@@ -1,4 +1,4 @@
-#include "audioConverter.h"
+﻿#include "audioConverter.h"
 #include "../frame.h"
 
 AudioConverterDecoder::AudioConverterDecoder(Local<Object> params) : Decoder() {

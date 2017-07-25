@@ -1,4 +1,4 @@
-#include "swresample.h"
+﻿#include "swresample.h"
 #include "../frame.h"
 
 SwresampleResampler::SwresampleResampler(Local<Object> params) : Resampler() {

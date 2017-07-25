@@ -1,4 +1,4 @@
-#ifndef CSRC_DECODER_JPEG_H
+﻿#ifndef CSRC_DECODER_JPEG_H
 #define CSRC_DECODER_JPEG_H
 
 #include "../decoder.h"

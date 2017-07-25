@@ -1,4 +1,4 @@
-#ifndef CSRC_RESAMPLE_SWRESAMPLE_H
+﻿#ifndef CSRC_RESAMPLE_SWRESAMPLE_H
 #define CSRC_RESAMPLE_SWRESAMPLE_H
 
 #include "../resampler.h"
