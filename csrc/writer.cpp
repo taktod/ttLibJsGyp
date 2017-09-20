@@ -127,7 +127,7 @@ NAN_METHOD(Writer::SetMode) {
       info.GetReturnValue().Set(false);
       return;
     }
-    writer->writer_->mode = info[1]->Uint32Value();
+    writer->writer_->mode = info[0]->Uint32Value();
   }
   info.GetReturnValue().Set(false);
 }
