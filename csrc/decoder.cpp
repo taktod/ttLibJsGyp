@@ -102,7 +102,7 @@ NAN_METHOD(Decoder::New) {
     // ここでどのcodecの動作であるか判定しなければいけないな。
     std::string type(*String::Utf8Value(info[0]->ToString()));
     Decoder *decoder = NULL;
-    if(type == "avcodec") {
+    if(type == "audioConverter") {
       decoder = new AudioConverterDecoder(info[1]->ToObject());
     }
     else if(type == "avcodec") {
