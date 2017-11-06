@@ -2,7 +2,7 @@
 #define CSRC_DECODER_VORBIS_H
 
 #include "../decoder.h"
-#include <ttLibC/frame/audio/pcmF32.h>
+#include <ttLibC/frame/audio/pcmf32.h>
 #ifdef __ENABLE_VORBIS_DECODE__
 # include <ttLibC/decoder/vorbisDecoder.h>
 #endif

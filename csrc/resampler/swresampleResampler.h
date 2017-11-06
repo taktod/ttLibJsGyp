@@ -2,8 +2,8 @@
 #define CSRC_RESAMPLE_SWRESAMPLE_H
 
 #include "../resampler.h"
-#include <ttLibC/frame/audio/pcmS16.h>
-#include <ttLibC/frame/audio/pcmF32.h>
+#include <ttLibC/frame/audio/pcms16.h>
+#include <ttLibC/frame/audio/pcmf32.h>
 #ifdef __ENABLE_SWRESAMPLE__
 # include <ttLibC/resampler/swresampleResampler.h>
 #endif

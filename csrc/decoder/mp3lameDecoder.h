@@ -2,7 +2,7 @@
 #define CSRC_DECODER_MP3LAME_H
 
 #include "../decoder.h"
-#include <ttLibC/frame/audio/pcmS16.h>
+#include <ttLibC/frame/audio/pcms16.h>
 #ifdef __ENABLE_MP3LAME_DECODE__
 # include <ttLibC/decoder/mp3lameDecoder.h>
 #endif

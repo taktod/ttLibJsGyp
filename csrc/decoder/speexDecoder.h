@@ -2,7 +2,7 @@
 #define CSRC_DECODER_SPEEX_H
 
 #include "../decoder.h"
-#include <ttLibC/frame/audio/pcmS16.h>
+#include <ttLibC/frame/audio/pcms16.h>
 #ifdef __ENABLE_SPEEX__
 # include <ttLibC/decoder/speexDecoder.h>
 #endif

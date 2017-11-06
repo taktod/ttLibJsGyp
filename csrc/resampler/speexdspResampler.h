@@ -2,7 +2,7 @@
 #define CSRC_RESAMPLER_SPEEXDSP_H
 
 #include "../resampler.h"
-#include <ttLibC/frame/audio/pcmS16.h>
+#include <ttLibC/frame/audio/pcms16.h>
 #ifdef __ENABLE_SPEEXDSP__
 # include <ttLibC/resampler/speexdspResampler.h>
 #endif

@@ -2,7 +2,7 @@
 #define CSRC_DECODER_OPUS_H
 
 #include "../decoder.h"
-#include <ttLibC/frame/audio/pcmS16.h>
+#include <ttLibC/frame/audio/pcms16.h>
 #ifdef __ENABLE_OPUS__
 # include <ttLibC/decoder/opusDecoder.h>
 #endif

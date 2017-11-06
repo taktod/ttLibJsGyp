@@ -2,7 +2,7 @@
 #define CSRC_DECODER_AUDIOCONVERTER_H
 
 #include "../decoder.h"
-#include <ttLibC/frame/audio/pcmS16.h>
+#include <ttLibC/frame/audio/pcms16.h>
 #ifdef __ENABLE_APPLE__
 # include <ttLibC/decoder/audioConverterDecoder.h>
 #endif
