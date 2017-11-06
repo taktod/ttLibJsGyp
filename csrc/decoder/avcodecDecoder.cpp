@@ -8,23 +8,15 @@ AvcodecDecoder::AvcodecDecoder(Local<Object> params) : Decoder() {
     std::string(*String::Utf8Value(
       Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked()->ToString()))
   );
-  switch(frameType) {
-  case frameType_h264:
-    {
-      Local<Value> width  = Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked();
-      Local<Value> height = Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked();
-      decoder_ = ttLibC_AvcodecVideoDecoder_make(frameType, width->Uint32Value(), height->Uint32Value());
-    }
-    break;
-  case frameType_aac:
-    {
-      Local<Value> sampleRate = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked();
-      Local<Value> channelNum = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked();
-      decoder_ = ttLibC_AvcodecAudioDecoder_make(frameType, sampleRate->Uint32Value(), channelNum->Uint32Value());
-    }
-    break;
-  default:
-    break;
+  if(ttLibC_isVideo(frameType)) {
+    Local<Value> width  = Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked();
+    Local<Value> height = Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked();
+    decoder_ = ttLibC_AvcodecVideoDecoder_make(frameType, width->Uint32Value(), height->Uint32Value());
+  }
+  else if(ttLibC_isAudio(frameType)) {
+    Local<Value> sampleRate = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked();
+    Local<Value> channelNum = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked();
+    decoder_ = ttLibC_AvcodecAudioDecoder_make(frameType, sampleRate->Uint32Value(), channelNum->Uint32Value());
   }
 #endif
 }
