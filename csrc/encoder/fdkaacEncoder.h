@@ -12,6 +12,7 @@ class FdkaacEncoder : public Encoder {
 public:
   FdkaacEncoder(Local<Object> params);
   bool encode(ttLibC_Frame *frame);
+  bool setBitrate(uint32_t value);
 private:
   bool encodeCallback(ttLibC_Aac *frame);
   ~FdkaacEncoder();

@@ -11,6 +11,8 @@ class OpusEncoder : public Encoder {
 public:
   OpusEncoder(Local<Object> params);
   bool encode(ttLibC_Frame *frame);
+  bool setBitrate(uint32_t value);
+  bool setComplexity(uint32_t value);
 private:
   static bool encodeCallback(void *ptr, ttLibC_Opus *frame);
   ~OpusEncoder();

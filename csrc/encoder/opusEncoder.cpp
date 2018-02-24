@@ -54,3 +54,27 @@ bool OpusEncoder::encode(ttLibC_Frame *frame) {
   return false;
 #endif
 }
+
+bool OpusEncoder::setBitrate(uint32_t value) {
+#ifdef __ENABLE_OPUS__
+  if(encoder_ == NULL) {
+    puts("encoderが準備されていません。");
+    return false;
+  }
+  return ttLibC_OpusEncoder_setBitrate(encoder_, value);
+#else
+  return false;
+#endif
+}
+
+bool OpusEncoder::setComplexity(uint32_t value) {
+#ifdef __ENABLE_OPUS__
+  if(encoder_ == NULL) {
+    puts("encoderが準備されていません。");
+    return false;
+  }
+  return ttLibC_OpusEncoder_setComplexity(encoder_, value);
+#else
+  return false;
+#endif
+}

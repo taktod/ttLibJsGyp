@@ -54,3 +54,15 @@ bool JpegEncoder::encode(ttLibC_Frame *frame) {
   return false;
 #endif
 }
+
+bool JpegEncoder::setQuality(uint32_t quality) {
+#ifdef __ENABLE_JPEG__
+  if(encoder_ == NULL) {
+    puts("encoderが準備されていません。");
+    return false;
+  }
+  return ttLibC_JpegEncoder_setQuality(encoder_, quality);
+#else
+  return false;
+#endif
+}

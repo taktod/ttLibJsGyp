@@ -11,6 +11,7 @@ class JpegEncoder : public Encoder {
 public:
   JpegEncoder(Local<Object> params);
   bool encode(ttLibC_Frame *frame);
+  bool setQuality(uint32_t quality);
 private:
   static bool encodeCallback(void *ptr, ttLibC_Jpeg *frame);
   ~JpegEncoder();

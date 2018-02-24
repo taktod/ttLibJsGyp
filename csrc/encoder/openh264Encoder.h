@@ -11,6 +11,9 @@ class Openh264Encoder : public Encoder {
 public:
   Openh264Encoder(Local<Object> params);
   bool encode(ttLibC_Frame *frame);
+  bool setRCMode(std::string mode);
+  bool setIDRInterval(uint32_t value);
+  bool forceNextKeyFrame();
 private:
   static bool encodeCallback(void *ptr, ttLibC_H264 *frame);
   ~Openh264Encoder();

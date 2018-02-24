@@ -36,6 +36,7 @@ void TTLIBJSGYP_CDECL Encoder::classInit(Local<Object> target) {
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   SetPrototypeMethod(tpl, "encode",             Encode);
   SetPrototypeMethod(tpl, "forceNextFrameType", ForceNextFrameType);
+  SetPrototypeMethod(tpl, "setQuality",         SetQuality);
   SetPrototypeMethod(tpl, "setRCMode",          SetRCMode);
   SetPrototypeMethod(tpl, "setIDRInterval",     SetIDRInterval);
   SetPrototypeMethod(tpl, "forceNextKeyFrame",  ForceNextKeyFrame);
@@ -221,30 +222,143 @@ NAN_METHOD(Encoder::Encode) {
     );
     return;
   }
+  info.GetReturnValue().Set(false);
 }
 
 NAN_METHOD(Encoder::ForceNextFrameType) {
+  if(info.Length() == 1) {
+    Encoder *encoder = Nan::ObjectWrap::Unwrap<Encoder>(info.Holder());
+    if(encoder == NULL) {
+      puts("encoderがありません。");
+      info.GetReturnValue().Set(false);
+      return;
+    }
+    switch(encoder->type_) {
+    case get_x264:
+      {
+        X264Encoder *x264Encoder = (X264Encoder *)encoder;
+        info.GetReturnValue().Set(x264Encoder->forceNextFrameType(*String::Utf8Value(info[0]->ToString())));
+      }
+      return;
+    case get_x265:
+      {
+        X265Encoder *x265Encoder = (X265Encoder *)encoder;
+        info.GetReturnValue().Set(x265Encoder->forceNextFrameType(*String::Utf8Value(info[0]->ToString())));
+      }
+      return;
+    default:
+      break;
+    }
+  }
+  info.GetReturnValue().Set(false);
+}
 
+NAN_METHOD(Encoder::SetQuality) {
+  if(info.Length() == 1) {
+    Encoder *encoder = Nan::ObjectWrap::Unwrap<Encoder>(info.Holder());
+    if(encoder == NULL) {
+      puts("encoderがありません。");
+      info.GetReturnValue().Set(false);
+      return;
+    }
+    if(encoder->type_ == get_jpeg) {
+      JpegEncoder *jpegEncoder = (JpegEncoder *)encoder;
+      info.GetReturnValue().Set(jpegEncoder->setQuality(info[0]->Uint32Value()));
+    }
+  }
+  info.GetReturnValue().Set(false);
 }
 
 NAN_METHOD(Encoder::SetRCMode) {
-
+  if(info.Length() == 1) {
+    Encoder *encoder = Nan::ObjectWrap::Unwrap<Encoder>(info.Holder());
+    if(encoder == NULL) {
+      puts("encoderがありません。");
+      info.GetReturnValue().Set(false);
+      return;
+    }
+    if(encoder->type_ == get_openh264) {
+      Openh264Encoder *openh264Encoder = (Openh264Encoder *)encoder;
+      info.GetReturnValue().Set(openh264Encoder->setRCMode(*String::Utf8Value(info[0]->ToString())));
+    }
+  }
+  info.GetReturnValue().Set(false);
 }
 
 NAN_METHOD(Encoder::SetIDRInterval) {
-
+  if(info.Length() == 1) {
+    Encoder *encoder = Nan::ObjectWrap::Unwrap<Encoder>(info.Holder());
+    if(encoder == NULL) {
+      puts("encoderがありません。");
+      info.GetReturnValue().Set(false);
+      return;
+    }
+    if(encoder->type_ == get_openh264) {
+      Openh264Encoder *openh264Encoder = (Openh264Encoder *)encoder;
+      info.GetReturnValue().Set(openh264Encoder->setIDRInterval(info[0]->Uint32Value()));
+    }
+  }
+  info.GetReturnValue().Set(false);
 }
 
 NAN_METHOD(Encoder::ForceNextKeyFrame) {
-
+  if(info.Length() == 0) {
+    Encoder *encoder = Nan::ObjectWrap::Unwrap<Encoder>(info.Holder());
+    if(encoder == NULL) {
+      puts("encoderがありません。");
+      info.GetReturnValue().Set(false);
+      return;
+    }
+    if(encoder->type_ == get_openh264) {
+      Openh264Encoder *openh264Encoder = (Openh264Encoder *)encoder;
+      info.GetReturnValue().Set(openh264Encoder->forceNextKeyFrame());
+    }
+  }
+  info.GetReturnValue().Set(false);
 }
 
 NAN_METHOD(Encoder::SetBitrate) {
-
+  if(info.Length() == 1) {
+    Encoder *encoder = Nan::ObjectWrap::Unwrap<Encoder>(info.Holder());
+    if(encoder == NULL) {
+      puts("encoderがありません。");
+      info.GetReturnValue().Set(false);
+      return;
+    }
+    switch(encoder->type_) {
+    case get_opus:
+      {
+        OpusEncoder *opusEncoder = (OpusEncoder *)encoder;
+        info.GetReturnValue().Set(opusEncoder->setBitrate(info[0]->Uint32Value()));
+      }
+      return;
+    case get_fdkaac:
+      {
+        FdkaacEncoder *fdkaacEncoder = (FdkaacEncoder *)encoder;
+        info.GetReturnValue().Set(fdkaacEncoder->setBitrate(info[0]->Uint32Value()));
+      }
+      return;
+    default:
+      break;
+    }
+  }
+  info.GetReturnValue().Set(false);
 }
 
 NAN_METHOD(Encoder::SetComplexity) {
-
+  if(info.Length() == 1) {
+    Encoder *encoder = Nan::ObjectWrap::Unwrap<Encoder>(info.Holder());
+    if(encoder == NULL) {
+      puts("encoderがありません。");
+      info.GetReturnValue().Set(false);
+      return;
+    }
+    if(encoder->type_ == get_opus) {
+      OpusEncoder *opusEncoder = (OpusEncoder *)encoder;
+      info.GetReturnValue().Set(opusEncoder->setComplexity(info[0]->Uint32Value()));
+    }
+  }
+  info.GetReturnValue().Set(false);
 }
 
 NAN_METHOD(Encoder::SetCodecControl) {

@@ -11,6 +11,7 @@ class X265Encoder : public Encoder {
 public:
   X265Encoder(Local<Object> params);
   bool encode(ttLibC_Frame *frame);
+  bool forceNextFrameType(std::string type);
 private:
   static bool encodeCallback(void *ptr, ttLibC_H265 *frame);
   ~X265Encoder();

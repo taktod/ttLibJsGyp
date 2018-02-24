@@ -11,6 +11,7 @@ class X264Encoder : public Encoder {
 public:
   X264Encoder(Local<Object> params);
   bool encode(ttLibC_Frame *frame);
+  bool forceNextFrameType(std::string type);
 private:
   static bool encodeCallback(void *ptr, ttLibC_H264 *frame);
   ~X264Encoder();

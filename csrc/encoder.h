@@ -34,6 +34,7 @@ private:
   static NAN_METHOD(New);
   static NAN_METHOD(Encode);
   static NAN_METHOD(ForceNextFrameType);
+  static NAN_METHOD(SetQuality);
   static NAN_METHOD(SetRCMode);
   static NAN_METHOD(SetIDRInterval);
   static NAN_METHOD(ForceNextKeyFrame);

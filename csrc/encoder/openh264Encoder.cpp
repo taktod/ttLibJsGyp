@@ -93,3 +93,61 @@ bool Openh264Encoder::encode(ttLibC_Frame *frame) {
   return false;
 #endif
 }
+
+bool Openh264Encoder::setRCMode(std::string mode) {
+#ifdef __ENABLE_OPENH264__
+  if(encoder_ == NULL) {
+    puts("encoderが準備されていません。");
+    return false;
+  }
+  ttLibC_Openh264Encoder_RCType type;
+	if(mode == "QualityMode") {
+		type = Openh264EncoderRCType_QualityMode;
+	}
+	else if(mode == "BitrateMode") {
+		type = Openh264EncoderRCType_BitrateMode;
+	}
+	else if(mode == "BufferbasedMode") {
+		type = Openh264EncoderRCType_BufferbasedMode;
+	}
+	else if(mode == "TimestampMode") {
+		type = Openh264EncoderRCType_TimestampMode;
+	}
+	else if(mode == "BitrateModePostSkip") {
+		type = Openh264EncoderRCType_BitrateModePostSkip;
+	}
+	else if(mode == "OffMode") {
+		type = Openh264EncoderRCType_OffMode;
+	}
+	else {
+		return false;
+	}
+	return ttLibC_Openh264Encoder_setRCMode(encoder_, type);
+#else
+  return false;
+#endif
+}
+
+bool Openh264Encoder::setIDRInterval(uint32_t value) {
+#ifdef __ENABLE_OPENH264__
+  if(encoder_ == NULL) {
+    puts("encoderが準備されていません。");
+    return false;
+  }
+	return ttLibC_Openh264Encoder_setIDRInterval(encoder_, value);
+#else
+  return false;
+#endif
+}
+
+bool Openh264Encoder::forceNextKeyFrame() {
+#ifdef __ENABLE_OPENH264__
+  if(encoder_ == NULL) {
+    puts("encoderが準備されていません。");
+    return false;
+  }
+	return ttLibC_Openh264Encoder_forceNextKeyFrame(encoder_);
+#else
+  return false;
+#endif
+}

@@ -85,3 +85,40 @@ bool X264Encoder::encode(ttLibC_Frame *frame) {
   return false;
 #endif
 }
+
+bool X264Encoder::forceNextFrameType(std::string type) {
+#ifdef __ENABLE_X264__
+  if(encoder_ == NULL) {
+    puts("encoderが準備されていません。");
+    return false;
+  }
+  ttLibC_X264Encoder_FrameType frameType = X264FrameType_Auto;
+  if(type == "I") {
+    frameType = X264FrameType_I;
+  }
+  else if(type == "P") {
+    frameType = X264FrameType_P;
+  }
+  else if(type == "B") {
+    frameType = X264FrameType_B;
+  }
+  else if(type == "IDR") {
+    frameType = X264FrameType_IDR;
+  }
+  else if(type == "Auto") {
+    frameType = X264FrameType_Auto;
+  }
+  else if(type == "Bref") {
+    frameType = X264FrameType_Bref;
+  }
+  else if(type == "KeyFrame") {
+    frameType = X264FrameType_KeyFrame;
+  }
+  else {
+    return false;
+  }
+  return ttLibC_X264Encoder_forceNextFrameType(encoder_, frameType);
+#else
+  return false;
+#endif
+}

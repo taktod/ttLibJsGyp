@@ -357,3 +357,14 @@ bool FdkaacEncoder::encode(ttLibC_Frame *frame) {
 #endif
 }
 
+bool FdkaacEncoder::setBitrate(uint32_t value) {
+#ifdef __ENABLE_FDKAAC_ENCODE__
+  if(handle_ == NULL) {
+    puts("handleが準備されていません。");
+    return false;
+  }
+	return aacEncoder_SetParam(handle_, AACENC_BITRATE, value);
+#else
+  return false;
+#endif
+}

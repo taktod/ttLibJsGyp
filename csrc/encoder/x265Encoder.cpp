@@ -82,3 +82,38 @@ bool X265Encoder::encode(ttLibC_Frame *frame) {
   return false;
 #endif
 }
+
+bool X265Encoder::forceNextFrameType(std::string type) {
+#ifdef __ENABLE_X265__
+  if(encoder_ == NULL) {
+    puts("encoderが準備されていません。");
+    return false;
+  }
+  ttLibC_X265Encoder_FrameType frameType = X265FrameType_Auto;
+  if(type == "I") {
+    frameType = X265FrameType_I;
+  }
+  else if(type == "P") {
+    frameType = X265FrameType_P;
+  }
+  else if(type == "B") {
+    frameType = X265FrameType_B;
+  }
+  else if(type == "IDR") {
+    frameType = X265FrameType_IDR;
+  }
+  else if(type == "Auto") {
+    frameType = X265FrameType_Auto;
+  }
+  else if(type == "Bref") {
+    frameType = X265FrameType_Bref;
+  }
+  else {
+    return false;
+  }
+  return ttLibC_X265Encoder_forceNextFrameType(encoder_, frameType);
+#else
+  return false;
+#endif
+  return true;
+}
