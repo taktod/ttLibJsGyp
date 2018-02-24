@@ -4,6 +4,8 @@
 
 #include "resampler/audioResampler.h"
 #include "resampler/imageResampler.h"
+#include "resampler/libyuvRotateResampler.h"
+#include "resampler/libyuvScaleResampler.h"
 #include "resampler/soundtouchResampler.h"
 #include "resampler/speexdspResampler.h"
 #include "resampler/swresampleResampler.h"
@@ -52,6 +54,16 @@ NAN_METHOD(Resampler::CheckAvailable) {
     else if(type == "image") {
       result = true;
     }
+    else if(type == "libyuvscale") {
+#ifdef __ENABLE_LIBYUV__
+      result = true;
+#endif
+    }
+    else if(type == "libyuvrotate") {
+#ifdef __ENABLE_LIBYUV__
+      result = true;
+#endif
+    }
     else if(type == "soundtouch") {
 #ifdef __ENABLE_SOUNDTOUCH__
       result = true;
@@ -85,6 +97,12 @@ NAN_METHOD(Resampler::New) {
     }
     else if(type == "image") {
       resampler = new ImageResampler(info[1]->ToObject());
+    }
+    else if(type == "libyuvrotate") {
+      resampler = new LibyuvRotateResampler(info[1]->ToObject());
+    }
+    else if(type == "libyuvscale") {
+      resampler = new LibyuvScaleResampler(info[1]->ToObject());
     }
     else if(type == "soundtouch") {
       resampler = new SoundtouchResampler(info[1]->ToObject());

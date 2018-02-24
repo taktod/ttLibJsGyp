@@ -537,6 +537,22 @@ declare module 'ttlibjsgyp' {
       ):boolean;
       static enabled:boolean;
     }
+    export class LibyuvRotateResampler {
+      constructor(degree:number);
+      resample(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
+      static enabled:boolean;
+    }
+    export class LibyuvScaleResampler {
+      constructor(width:number, height:number, ymode:string, umode:string, vmode:string);
+      resample(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
+      static enabled:boolean;
+    }
     export class SoundtouchResampler {
       constructor(sampleRate:number, channelNum:number);
       resample(

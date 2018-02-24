@@ -36,6 +36,7 @@ apple      darwin only        darwin or not
 webrtc     any?               無視(electronで攻めるので、必要ないはず)
 soundtouch lgpl               pkgconfig
 fdkaac     lgpl               
+libyuv     any                libyuv.h libyuv.a
 こんなところか・・・
  */
 
@@ -59,6 +60,7 @@ setupX265();
 //setupDaala();
 //setupFaad();
 setupWin32();
+setupLibYuv();
 
 function setupAvcodec() {
   if(setting["targetValue"] < 1) {
@@ -199,7 +201,7 @@ function setupJpeg() {
     if(checkFile("jpeglib.h")
     && checkFile("libjpeg.a")
     && (checkFile("libjpeg.so") || checkFile("libjpeg.dylib"))) {
-      // mp3lameが使える
+      // jpegが使える
       switch(target) {
       case "defs":
         console.log("__ENABLE_JPEG__");
@@ -598,6 +600,44 @@ function setupX265() {
         break;
       case "includes":
         console.log(exec("pkg-config --cflags-only-I x265 | sed -e 's/\-I//g'").toString().trim());
+        break;
+      }
+    }
+    break;
+  case "windows":
+  case "windows_nt":
+  default:
+    break;
+  }
+}
+
+function setupLibYuv() {
+  if(setting["disable"].indexOf("libyuv") != -1) {
+    return;
+  }
+  switch(setting["os"]) {
+  case "darwin":
+  case "linux":
+    if(checkFile("libyuv.h")
+    && checkFile("libyuv.a")
+    && (checkFile("libyuv.so") || checkFile("libyuv.dylib"))) {
+      // libyuvが使える
+      switch(target) {
+      case "defs":
+        console.log("__ENABLE_LIBYUV__");
+        break;
+      case "libs":
+        setting["searchPath"].forEach(function(path) {
+          console.log("-L" + path);
+        });
+        console.log("-lyuv");
+        break;
+      case "includes":
+        setting["searchPath"].forEach(function(path) {
+          console.log(path);
+        });
+        break;
+      default:
         break;
       }
     }

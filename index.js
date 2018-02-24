@@ -275,6 +275,22 @@ module.exports = {
 /*  // imageResizerは放置しておく。とりあえずelectronで使う予定だったら、webGLでresize処理は済むし・・・
     ImageResizer: function(){
     },*/
+    LibyuvRotateResampler: (function() {
+      var name = "libyuvrotate";
+      var resampler = function(degree) {
+        return ttLibJsGyp.Resampler.apply(null, [name, {degree: degree}]);
+      }
+      resampler["enabled"] = ttLibJsGyp.Resampler.check(name);
+      return resampler;
+    })(),
+    LibyuvScaleResampler: (function() {
+      var name = "libyuvscale";
+      var resampler = function(width, height, ymode = "Linear", umode = "Linear", vmode = "Linear") {
+        return ttLibJsGyp.Resampler.apply(null, [name, {width: width, height: height, yMode: ymode, uMode: umode, vMode: vmode}]);
+      }
+      resampler["enabled"] = ttLibJsGyp.Resampler.check(name);
+      return resampler;
+    })(),
     SoundtouchResampler: (function() {
       var name = "soundtouch";
       var resampler = function(sampleRate, channelNum) {

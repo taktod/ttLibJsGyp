@@ -10,7 +10,7 @@ typedef enum gypResamplerType_e {
   grt_audio,
   grt_image,
   grt_imageResizer,
-  grt_libyuv,
+  grt_libyuvscale,
   grt_libyuvrotate,
   grt_soundtouch,
   grt_speexdsp,
