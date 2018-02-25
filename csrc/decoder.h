@@ -35,7 +35,9 @@ private:
   }
 protected:
   Decoder();
-  virtual ~Decoder() {};
+  ~Decoder() {
+    jsFrame_.Reset();
+  };
   virtual bool decode(ttLibC_Frame *frame) = 0;
   gypDecoderType_e        type_;
   Nan::Persistent<Object> jsFrame_;
