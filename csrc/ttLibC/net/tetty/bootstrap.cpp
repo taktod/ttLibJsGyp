@@ -271,7 +271,7 @@ static bool TettyBootstrap_channelEach_flush_callback(void *ptr, void *item) {
           (char *)ttLibC_DynamicBuffer_refData(write_buffer),
           ttLibC_DynamicBuffer_refSize(write_buffer)).ToLocalChecked()
       };
-      Nan::Call(writeCall, Nan::New<v8::Object>(), 1, args);
+      writeCall.Call(1, args);
       ttLibC_DynamicBuffer_empty(write_buffer);
     }
   }

@@ -191,7 +191,7 @@ bool Writer::writeCallback(
   Local<Value>  args[]   = {
     binary
   };
-  Local<Value> result = Nan::Call(callback, Nan::New<v8::Object>(), 1, args).ToLocalChecked();
+  Local<Value> result = callback.Call(1, args);
   if(result->IsTrue()) {
     return true;
   }

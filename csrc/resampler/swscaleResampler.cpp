@@ -113,7 +113,7 @@ bool SwscaleResampler::resampleCallback(void *ptr, ttLibC_Frame *video) {
   Local<Value> args[] = {
     jsFrame
   };
-	Local<Value> result = Nan::Call(callback, Nan::New<v8::Object>(), 1, args).ToLocalChecked();
+  Local<Value> result = callback.Call(1, args);
   if(result->IsTrue()) {
     return true;
   }

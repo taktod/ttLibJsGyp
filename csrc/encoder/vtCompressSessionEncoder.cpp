@@ -87,7 +87,7 @@ bool VtCompressSessionEncoder::encode(ttLibC_Frame *frame) {
       Local<Value> args[] = {
         jsFrame
       };
-      Local<Value> jsResult = Nan::Call(callback, Nan::New<v8::Object>(), 1, args).ToLocalChecked();
+      Local<Value> jsResult = callback.Call(1, args);
       if(!jsResult->IsTrue()) {
         if(jsResult->IsUndefined()) {
           puts("応答が設定されていません。");
