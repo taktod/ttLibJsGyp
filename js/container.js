@@ -48,6 +48,7 @@ readableStream.on("data", (data) => {
 readableStream.on("data", (data) => {
   if(!reader.readFrame(data, (frame) => {
     return writer.writeFrame(frame, (data) => {
+      console.log(writer);
       return true;
     });
   })) {

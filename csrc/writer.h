@@ -31,6 +31,7 @@ private:
   
   ttLibC_ContainerWriter *writer_;
   Local<Value> callback_;
+  Nan::Persistent<Object> jsWriter_;
 };
 
 #endif

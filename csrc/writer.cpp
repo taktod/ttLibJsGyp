@@ -23,6 +23,8 @@ NAN_METHOD(Writer::New) {
     Writer *writer = new Writer(info);
     writer->Wrap(info.This());
     info.GetReturnValue().Set(info.This());
+    Nan::Set(info.This(), Nan::New("mode").ToLocalChecked(), Nan::New(writer->writer_->mode));
+    writer->jsWriter_.Reset(info.This());
   }
   else {
     Local<Value> *argv = new Local<Value>[info.Length()];
@@ -43,6 +45,7 @@ NAN_METHOD(Writer::WriteFrame) {
       info.GetReturnValue().Set(false);
       return;
     }
+    writer->writer_->mode = Nan::Get(info.Holder(), Nan::New("mode").ToLocalChecked()).ToLocalChecked()->Uint32Value();
     writer->callback_ = info[1];
     switch(writer->writer_->type) {
     case containerType_flv:
@@ -180,6 +183,9 @@ bool Writer::writeCallback(
     size_t data_size) {
   // あとはこのデータをcallbackで応答すればよい。
   Writer       *writer   = (Writer *)ptr;
+  Local<Object> jsWriter = Nan::New(writer->jsWriter_);
+  Nan::Set(jsWriter, Nan::New("pts").ToLocalChecked(), Nan::New((double)writer->writer_->pts));
+  Nan::Set(jsWriter, Nan::New("timebase").ToLocalChecked(), Nan::New(writer->writer_->timebase));
   Nan::Callback callback(writer->callback_.As<Function>());
   Local<Object> binary   = Nan::CopyBuffer((char *)data, data_size).ToLocalChecked();
   Local<Value>  args[]   = {
