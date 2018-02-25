@@ -47,7 +47,7 @@ bool MSLoopback::getDeviceCallback(void *ptr, const char *name) {
   Local<Value> args[] = {
     Nan::New(name).ToLocalChecked()
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = Nan::Call(callback, Nan::New<v8::Object>(), 1, args).ToLocalChecked();
   if(result->IsTrue()) {
     return true;
   }
@@ -96,7 +96,7 @@ bool MSLoopback::captureCallback(void *ptr, ttLibC_PcmS16 *pcm) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = Nan::Call(callback, Nan::New<v8::Object>(), 1, args).ToLocalChecked();
   if(result->IsTrue()) {
     return true;
   }

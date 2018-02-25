@@ -147,7 +147,7 @@ bool Reader::frameCallback(
   Local<Value> args[] = {
     jsFrame // あとはここにframe情報をうまく折り込めばOKの予定だが・・・
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = Nan::Call(callback, Nan::New<v8::Object>(), 1, args).ToLocalChecked();
   if(result->IsTrue()) {
     return true;
   }
