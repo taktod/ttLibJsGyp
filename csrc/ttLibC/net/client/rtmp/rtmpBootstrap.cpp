@@ -59,7 +59,7 @@ void RtmpBootstrap::recvAmf0Command(ttLibC_Amf0Command *command) {
       Nan::New(command->inherit_super.header->stream_id),
       jsObject
     };
-    callback.Call(2, args);
+    Nan::Call(callback, Nan::New<v8::Object>(), 2, args);
   }
   else {
     // onStatus以外のイベント
@@ -83,7 +83,7 @@ void RtmpBootstrap::recvAmf0Result(
       Nan::New(-1),
       jsObject
     };
-    callback.Call(2, args);
+    Nan::Call(callback, Nan::New<v8::Object>(), 2, args);
   }
   else if(target_command == "createStream") {
     // createStreamを発動した場合の応答動作
@@ -92,7 +92,7 @@ void RtmpBootstrap::recvAmf0Result(
     Local<Value> args[] = {
       Nan::New((uint32_t)(*((double *)result->obj2->object)))
     };
-    callback->Call(1, args);
+    Nan::Call(*callback, Nan::New<v8::Object>(), 1, args);
     delete callback;
   }
   else {
@@ -112,7 +112,7 @@ bool RtmpBootstrap::playFrameCallback(uint32_t streamId, ttLibC_Frame *frame) {
     Nan::New(streamId),
     jsFrame
   };
-  callback.Call(2, args);
+  Nan::Call(callback, Nan::New<v8::Object>(), 2, args);
   return true;
 }
 

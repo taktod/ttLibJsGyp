@@ -25,7 +25,7 @@ bool OpusEncoder::encodeCallback(void *ptr, ttLibC_Opus *opus) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = Nan::Call(callback, Nan::New<v8::Object>(), 1, args).ToLocalChecked();
   if(result->IsTrue()) {
     return true;
   }
