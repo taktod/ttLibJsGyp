@@ -304,7 +304,7 @@ bool FdkaacEncoder::encode(ttLibC_Frame *frame) {
 			}
 			aac_ = aac;
 			pts_ += 1024;
-      if(encodeCallback(aac_)) {
+      if(!encodeCallback(aac_)) {
         return false;
       }
 		}
@@ -344,7 +344,7 @@ bool FdkaacEncoder::encode(ttLibC_Frame *frame) {
 			}
 			aac_ = aac;
 			pts_ += 1024;
-      if(encodeCallback(aac_)) {
+      if(!encodeCallback(aac_)) {
         return false;
       }
 		}
