@@ -6,8 +6,9 @@ var target = process.argv[2];
 /*
 {
   "target": "bsd" | "lgpl" | "gpl", // 動作モード指定
-  "disable": ["jpeg", "faac" ...], // 除外するライブラリ指定
-  "searchPath": ["c:¥¥hogehoge¥¥"] // 検索に追加するパス
+  "disable": ["jpeg", "faac" ...],  // 除外するライブラリ指定
+  "searchPath": ["c:¥¥hogehoge¥¥"], // 検索に追加するパス
+  "debug": true // debug出力するかどうか
 }
  */
 var setting = loadSetting();
@@ -40,6 +41,7 @@ libyuv     any                libyuv.h libyuv.a
 こんなところか・・・
  */
 
+checkDebug();
 setupAvcodec();
 setupApple();
 setupFaac();
@@ -62,6 +64,17 @@ setupX265();
 setupWin32();
 setupLibYuv();
 
+function checkDebug() {
+  switch(target) {
+  case "defs":
+    if(setting["debug"]) {
+      console.log("__DEBUG_FLAG__=1");
+    }
+    break;
+  default:
+    break;
+  }
+}
 function setupAvcodec() {
   if(setting["targetValue"] < 1) {
     // lgpl以上じゃないと動作させない
