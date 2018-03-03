@@ -58,6 +58,7 @@ bool OpusDecoder_::decode(ttLibC_Frame *frame) {
 }
 
 int OpusDecoder_::codecControl(std::string control, int value) {
+#ifdef __ENABLE_OPUS__
   if(decoder_ == NULL) {
     puts("decoderが準備されていません。");
     return -1;
@@ -97,4 +98,7 @@ int OpusDecoder_::codecControl(std::string control, int value) {
 #undef OpusGetCtl
 #undef OpusGetUCtl
   return OPUS_OK;
+#else
+  return -1;
+#endif
 }
