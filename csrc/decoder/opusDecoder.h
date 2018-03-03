@@ -7,13 +7,14 @@
 # include <ttLibC/decoder/opusDecoder.h>
 #endif
 
-class OpusDecoder : public Decoder {
+class OpusDecoder_ : public Decoder {
 public:
-  OpusDecoder(Local<Object> params);
+  OpusDecoder_(Local<Object> params);
   bool decode(ttLibC_Frame *frame);
+  int  codecControl(std::string control, int value);
 private:
   static bool decodeCallback(void *ptr, ttLibC_PcmS16 *pcm);
-  ~OpusDecoder();
+  ~OpusDecoder_();
 #ifdef __ENABLE_OPUS__
   ttLibC_OpusDecoder *decoder_;
 #endif

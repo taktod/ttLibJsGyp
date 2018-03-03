@@ -41,6 +41,7 @@ private:
   static NAN_METHOD(SetBitrate);
   static NAN_METHOD(SetComplexity);
   static NAN_METHOD(SetCodecControl);
+  static NAN_METHOD(GetCodecControl);
 
   static inline Nan::Persistent<Function> & constructor() {
     static Nan::Persistent<Function> my_constructor;

@@ -43,6 +43,7 @@ void TTLIBJSGYP_CDECL Encoder::classInit(Local<Object> target) {
   SetPrototypeMethod(tpl, "setBitrate",         SetBitrate);
   SetPrototypeMethod(tpl, "setComplexity",      SetComplexity);
   SetPrototypeMethod(tpl, "setCodecControl",    SetCodecControl);
+  SetPrototypeMethod(tpl, "getCodecControl",    GetCodecControl);
   Local<Function> func = Nan::GetFunction(tpl).ToLocalChecked();
   constructor().Reset(func);
   Nan::Set(func, Nan::New("check").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(CheckAvailable)).ToLocalChecked());
@@ -166,7 +167,7 @@ NAN_METHOD(Encoder::New) {
       encoder = new Openh264Encoder(info[1]->ToObject());
     }
     else if(type == "opus") {
-      encoder = new OpusEncoder(info[1]->ToObject());
+      encoder = new OpusEncoder_(info[1]->ToObject());
     }
     else if(type == "speex") {
       encoder = new SpeexEncoder(info[1]->ToObject());
@@ -328,7 +329,7 @@ NAN_METHOD(Encoder::SetBitrate) {
     switch(encoder->type_) {
     case get_opus:
       {
-        OpusEncoder *opusEncoder = (OpusEncoder *)encoder;
+        OpusEncoder_ *opusEncoder = (OpusEncoder_ *)encoder;
         info.GetReturnValue().Set(opusEncoder->setBitrate(info[0]->Uint32Value()));
       }
       return;
@@ -354,15 +355,50 @@ NAN_METHOD(Encoder::SetComplexity) {
       return;
     }
     if(encoder->type_ == get_opus) {
-      OpusEncoder *opusEncoder = (OpusEncoder *)encoder;
+      OpusEncoder_ *opusEncoder = (OpusEncoder_ *)encoder;
       info.GetReturnValue().Set(opusEncoder->setComplexity(info[0]->Uint32Value()));
+      return;
     }
   }
   info.GetReturnValue().Set(false);
 }
 
 NAN_METHOD(Encoder::SetCodecControl) {
+  if(info.Length() == 2) {
+    Encoder *encoder = Nan::ObjectWrap::Unwrap<Encoder>(info.Holder());
+    if(encoder == NULL) {
+      puts("encoderがありません。");
+      info.GetReturnValue().Set(false);
+      return;
+    }
+    if(encoder->type_ == get_opus) {
+      OpusEncoder_ *opusEncoder = (OpusEncoder_ *)encoder;
+      info.GetReturnValue().Set(opusEncoder->codecControl(
+        std::string(*String::Utf8Value(info[0]->ToString())),
+        info[1]->Uint32Value()));
+      return;
+    }
+  }
+  info.GetReturnValue().Set(false);
+}
 
+NAN_METHOD(Encoder::GetCodecControl) {
+  if(info.Length() == 1) {
+    Encoder *encoder = Nan::ObjectWrap::Unwrap<Encoder>(info.Holder());
+    if(encoder == NULL) {
+      puts("encoderがありません。");
+      info.GetReturnValue().Set(false);
+      return;
+    }
+    if(encoder->type_ == get_opus) {
+      OpusEncoder_ *opusEncoder = (OpusEncoder_ *)encoder;
+      info.GetReturnValue().Set(opusEncoder->codecControl(
+        std::string(*String::Utf8Value(info[0]->ToString())),
+        0));
+      return;
+    }
+  }
+  info.GetReturnValue().Set(false);
 }
 
 Encoder::Encoder() {

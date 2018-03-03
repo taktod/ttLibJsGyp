@@ -28,6 +28,7 @@ private:
   static NAN_METHOD(New);
   static NAN_METHOD(Decode);
   static NAN_METHOD(SetCodecControl);
+  static NAN_METHOD(GetCodecControl);
 
   static inline Nan::Persistent<Function> & constructor() {
     static Nan::Persistent<Function> my_constructor;

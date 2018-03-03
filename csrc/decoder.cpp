@@ -31,6 +31,7 @@ void TTLIBJSGYP_CDECL Decoder::classInit(Local<Object> target) {
   tpl->InstanceTemplate()->SetInternalFieldCount(1);
   SetPrototypeMethod(tpl, "decode",          Decode);
   SetPrototypeMethod(tpl, "setCodecControl", SetCodecControl);
+  SetPrototypeMethod(tpl, "getCodecControl", GetCodecControl);
   Local<Function> func = Nan::GetFunction(tpl).ToLocalChecked();
   constructor().Reset(func);
   Nan::Set(func, Nan::New("check").ToLocalChecked(), Nan::GetFunction(Nan::New<FunctionTemplate>(CheckAvailable)).ToLocalChecked());
@@ -118,7 +119,7 @@ NAN_METHOD(Decoder::New) {
       decoder = new Openh264Decoder(info[1]->ToObject());
     }
     else if(type == "opus") {
-      decoder = new OpusDecoder(info[1]->ToObject());
+      decoder = new OpusDecoder_(info[1]->ToObject());
     }
     else if(type == "speex") {
       decoder = new SpeexDecoder(info[1]->ToObject());
@@ -170,7 +171,41 @@ NAN_METHOD(Decoder::Decode) {
 }
 
 NAN_METHOD(Decoder::SetCodecControl) {
+  if(info.Length() == 2) {
+    Decoder *decoder = Nan::ObjectWrap::Unwrap<Decoder>(info.Holder());
+    if(decoder == NULL) {
+      puts("decoderがありません。");
+      info.GetReturnValue().Set(false);
+      return;
+    }
+    if(decoder->type_ == gdt_opus) {
+      OpusDecoder_ *opusDecoder = (OpusDecoder_ *)decoder;
+      info.GetReturnValue().Set(opusDecoder->codecControl(
+        std::string(*String::Utf8Value(info[0]->ToString())),
+        info[1]->Uint32Value()));
+      return;
+    }
+  }
+  info.GetReturnValue().Set(false);
+}
 
+NAN_METHOD(Decoder::GetCodecControl) {
+  if(info.Length() == 1) {
+    Decoder *decoder = Nan::ObjectWrap::Unwrap<Decoder>(info.Holder());
+    if(decoder == NULL) {
+      puts("decoderがありません。");
+      info.GetReturnValue().Set(false);
+      return;
+    }
+    if(decoder->type_ == gdt_opus) {
+      OpusDecoder_ *opusDecoder = (OpusDecoder_ *)decoder;
+      info.GetReturnValue().Set(opusDecoder->codecControl(
+        std::string(*String::Utf8Value(info[0]->ToString())),
+        0));
+      return;
+    }
+  }
+  info.GetReturnValue().Set(false);
 }
 
 Decoder::Decoder() {

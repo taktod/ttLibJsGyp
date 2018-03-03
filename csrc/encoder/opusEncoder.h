@@ -7,15 +7,16 @@
 # include <ttLibC/encoder/opusEncoder.h>
 #endif
 
-class OpusEncoder : public Encoder {
+class OpusEncoder_ : public Encoder {
 public:
-  OpusEncoder(Local<Object> params);
+  OpusEncoder_(Local<Object> params);
   bool encode(ttLibC_Frame *frame);
   bool setBitrate(uint32_t value);
   bool setComplexity(uint32_t value);
+  int  codecControl(std::string control, int value);
 private:
   static bool encodeCallback(void *ptr, ttLibC_Opus *frame);
-  ~OpusEncoder();
+  ~OpusEncoder_();
 #ifdef __ENABLE_OPUS__
   ttLibC_OpusEncoder *encoder_;
 #endif
