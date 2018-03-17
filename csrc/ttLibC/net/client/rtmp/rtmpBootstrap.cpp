@@ -296,8 +296,8 @@ NAN_METHOD(RtmpBootstrap::QueueFrame) {
         return;
       }
       if(h264->type == H264Type_configData) {
-        frame->pts = 0;
-        frame->dts = 0;
+//        frame->pts = 0;
+        frame->dts = frame->pts;
       }
     }
     /* no break */
