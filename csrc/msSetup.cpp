@@ -15,24 +15,32 @@ static NAN_METHOD(CoInitialize) {
     }
   }
   info.GetReturnValue().Set(ttLibC_MsGlobal_CoInitialize(type));
+#else
+  Nan::ThrowError(Nan::New("CoInitialize is for Win32 only.").ToLocalChecked());
 #endif
 }
 
 static NAN_METHOD(CoUninitialize) {
 #ifdef __ENABLE_WIN32__
   ttLibC_MsGlobal_CoUninitialize();
+#else
+  Nan::ThrowError(Nan::New("CoUninitialize is for Win32 only.").ToLocalChecked());
 #endif
 }
 
 static NAN_METHOD(MFStartup) {
 #ifdef __ENABLE_WIN32__
   info.GetReturnValue().Set(ttLibC_MsGlobal_MFStartup());
+#else
+  Nan::ThrowError(Nan::New("MFStartup is for Win32 only.").ToLocalChecked());
 #endif
 }
 
 static NAN_METHOD(MFShutdown) {
 #ifdef __ENABLE_WIN32__
   ttLibC_MsGlobal_MFShutdown();
+#else
+  Nan::ThrowError(Nan::New("MFShutdown is for Win32 only.").ToLocalChecked());
 #endif
 }
 
@@ -44,6 +52,8 @@ static NAN_METHOD(setlocale) {
     return;
   }
   info.GetReturnValue().Set(ttLibC_MsGlobal_setlocale(*String::Utf8Value(info[0]->ToString())));
+#else
+  Nan::ThrowError(Nan::New("setlocale is for Win32 only.").ToLocalChecked());
 #endif
 }
 

@@ -44,53 +44,63 @@ void TTLIBJSGYP_CDECL Resampler::classInit(Local<Object> target) {
     func);
 }
 
+static bool checkAvailable(std::string type) {
+  bool result = false;
+  if(type == "audio") {
+    result = true;
+  }
+  else if(type == "image") {
+    result = true;
+  }
+  else if(type == "libyuvscale") {
+#ifdef __ENABLE_LIBYUV__
+    result = true;
+#endif
+  }
+  else if(type == "libyuvrotate") {
+#ifdef __ENABLE_LIBYUV__
+    result = true;
+#endif
+  }
+  else if(type == "soundtouch") {
+#ifdef __ENABLE_SOUNDTOUCH__
+    result = true;
+#endif
+  }
+  else if(type == "speexdsp") {
+#ifdef __ENABLE_SPEEXDSP__
+    result = true;
+#endif
+  }
+  else if(type == "swresample") {
+#ifdef __ENABLE_SWRESAMPLE__
+    result = true;
+#endif
+  }
+  else if(type == "swscale") {
+#ifdef __ENABLE_SWSCALE__
+    result = true;
+#endif
+  }
+  return result;
+}
+
 NAN_METHOD(Resampler::CheckAvailable) {
   bool result = false;
   if(info.Length() > 0) {
     std::string type(*String::Utf8Value(info[0]->ToString()));
-    if(type == "audio") {
-      result = true;
-    }
-    else if(type == "image") {
-      result = true;
-    }
-    else if(type == "libyuvscale") {
-#ifdef __ENABLE_LIBYUV__
-      result = true;
-#endif
-    }
-    else if(type == "libyuvrotate") {
-#ifdef __ENABLE_LIBYUV__
-      result = true;
-#endif
-    }
-    else if(type == "soundtouch") {
-#ifdef __ENABLE_SOUNDTOUCH__
-      result = true;
-#endif
-    }
-    else if(type == "speexdsp") {
-#ifdef __ENABLE_SPEEXDSP__
-      result = true;
-#endif
-    }
-    else if(type == "swresample") {
-#ifdef __ENABLE_SWRESAMPLE__
-      result = true;
-#endif
-    }
-    else if(type == "swscale") {
-#ifdef __ENABLE_SWSCALE__
-      result = true;
-#endif
-    }
+    result = checkAvailable(type);
   }
   info.GetReturnValue().Set(result);
 }
 NAN_METHOD(Resampler::New) {
+  std::string type(*String::Utf8Value(info[0]->ToString()));
+  if(!checkAvailable(type)) {
+    Nan::ThrowError(Nan::New(type + " resampler is not available.").ToLocalChecked());
+    return;
+  }
   if(info.IsConstructCall()) {
     // ここでどのcodecの動作であるか判定しなければいけないな。
-    std::string type(*String::Utf8Value(info[0]->ToString()));
     Resampler *resampler = NULL;
     if(type == "audio") {
       resampler = new AudioResampler(info[1]->ToObject());

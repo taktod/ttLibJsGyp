@@ -54,93 +54,103 @@ void TTLIBJSGYP_CDECL Encoder::classInit(Local<Object> target) {
   MSH264Encoder::classInit(target);
 }
 
+static bool checkAvailable(std::string type) {
+  bool result = false;
+  if(type == "audioConverter") {
+#ifdef __ENABLE_APPLE__
+    result = true;
+#endif
+  }
+  else if(type == "faac") {
+#ifdef __ENABLE_FAAC_ENCODE__
+    result = true;
+#endif
+  }
+  else if(type == "fdkaac") {
+#ifdef __ENABLE_FDKAAC_ENCODE__
+    result = true;
+#endif
+  }
+  else if(type == "jpeg") {
+#ifdef __ENABLE_JPEG__
+    result = true;
+#endif
+  }
+  else if(type == "mp3lame") {
+#ifdef __ENABLE_MP3LAME_ENCODE__
+    result = true;
+#endif
+  }
+  else if(type == "msAac") {
+#ifdef __ENABLE_WIN32__
+    result = true;
+#endif
+  }
+  else if(type == "msH264") {
+#ifdef __ENABLE_WIN32__
+    result = true;
+#endif
+  }
+  else if(type == "openh264") {
+#ifdef __ENABLE_OPENH264__
+    result = true;
+#endif
+  }
+  else if(type == "opus") {
+#ifdef __ENABLE_OPUS__
+    result = true;
+#endif
+  }
+  else if(type == "speex") {
+#ifdef __ENABLE_SPEEX__
+    result = true;
+#endif
+  }
+  else if(type == "theora") {
+#ifdef __ENABLE_THEORA__
+    result = true;
+#endif
+  }
+  else if(type == "vorbis") {
+#ifdef __ENABLE_VORBIS_ENCODE__
+    result = true;
+#endif
+  }
+  else if(type == "vtCompressSession") {
+#ifdef __ENABLE_APPLE__
+    result = true;
+#endif
+  }
+  else if(type == "x264") {
+#ifdef __ENABLE_X264__
+    result = true;
+#endif
+  }
+  else if(type == "x265") {
+#ifdef __ENABLE_X265__
+    result = true;
+#endif
+  }
+  return result;
+}
+
 NAN_METHOD(Encoder::CheckAvailable) {
   bool result = false;
   if(info.Length() > 0) {
     std::string type(*String::Utf8Value(info[0]->ToString()));
-    if(type == "audioConverter") {
-#ifdef __ENABLE_APPLE__
-      result = true;
-#endif
-    }
-    else if(type == "faac") {
-#ifdef __ENABLE_FAAC_ENCODE__
-      result = true;
-#endif
-    }
-    else if(type == "fdkaac") {
-#ifdef __ENABLE_FDKAAC_ENCODE__
-      result = true;
-#endif
-    }
-    else if(type == "jpeg") {
-#ifdef __ENABLE_JPEG__
-      result = true;
-#endif
-    }
-    else if(type == "mp3lame") {
-#ifdef __ENABLE_MP3LAME_ENCODE__
-      result = true;
-#endif
-    }
-    else if(type == "msAac") {
-#ifdef __ENABLE_WIN32__
-      result = true;
-#endif
-    }
-    else if(type == "msH264") {
-#ifdef __ENABLE_WIN32__
-      result = true;
-#endif
-    }
-    else if(type == "openh264") {
-#ifdef __ENABLE_OPENH264__
-      result = true;
-#endif
-    }
-    else if(type == "opus") {
-#ifdef __ENABLE_OPUS__
-      result = true;
-#endif
-    }
-    else if(type == "speex") {
-#ifdef __ENABLE_SPEEX__
-      result = true;
-#endif
-    }
-    else if(type == "theora") {
-#ifdef __ENABLE_THEORA__
-      result = true;
-#endif
-    }
-    else if(type == "vorbis") {
-#ifdef __ENABLE_VORBIS_ENCODE__
-      result = true;
-#endif
-    }
-    else if(type == "vtCompressSession") {
-#ifdef __ENABLE_APPLE__
-      result = true;
-#endif
-    }
-    else if(type == "x264") {
-#ifdef __ENABLE_X264__
-      result = true;
-#endif
-    }
-    else if(type == "x265") {
-#ifdef __ENABLE_X265__
-      result = true;
-#endif
-    }
+    result = checkAvailable(type);
   }
   info.GetReturnValue().Set(result);
 }
 
 NAN_METHOD(Encoder::New) {
+  std::string type(*String::Utf8Value(info[0]->ToString()));
+  if(!checkAvailable(type)) {
+    Nan::ThrowError(Nan::New(type + " encoder is not available.").ToLocalChecked());
+    return;
+  }
   if(info.IsConstructCall()) {
     // ここでどのcodecの動作であるか判定しなければいけないな。
-    std::string type(*String::Utf8Value(info[0]->ToString()));
     Encoder *encoder = NULL;
     if(type == "audioConverter") {
       encoder = new AudioConverterEncoder(info[1]->ToObject());
