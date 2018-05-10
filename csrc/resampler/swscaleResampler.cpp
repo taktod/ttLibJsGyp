@@ -90,6 +90,15 @@ uint32_t SwscaleResampler::getSubType(
 			else if(subType == "abgr") {
 				return BgrType_abgr;
 			}
+			else if(subType == "rgb") {
+				return BgrType_rgb;
+			}
+			else if(subType == "rgba") {
+				return BgrType_rgba;
+			}
+			else if(subType == "argb") {
+				return BgrType_argb;
+			}
 		}
 		break;
 	default:

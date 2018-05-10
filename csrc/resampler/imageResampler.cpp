@@ -21,6 +21,15 @@ ImageResampler::ImageResampler(Local<Object> params) {
     else if(subType == "abgr") {
       subType_ = BgrType_abgr;
     }
+    else if(subType == "rgb") {
+      subType_ = BgrType_rgb;
+    }
+    else if(subType == "rgba") {
+      subType_ = BgrType_rgba;
+    }
+    else if(subType == "argb") {
+      subType_ = BgrType_argb;
+    }
     break;
   case frameType_yuv420:
     if(subType == "planar") {

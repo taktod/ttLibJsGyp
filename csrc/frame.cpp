@@ -298,6 +298,15 @@ bool Frame::setFrame(Local<Object> jsFrame, ttLibC_Frame *ttFrame) {
         case BgrType_bgra:
           SetPropertyChecked(subType, "bgra");
           break;
+        case BgrType_argb:
+          SetPropertyChecked(subType, "argb");
+          break;
+        case BgrType_rgb:
+          SetPropertyChecked(subType, "rgb");
+          break;
+        case BgrType_rgba:
+          SetPropertyChecked(subType, "rgba");
+          break;
         default:
           break;
         }
@@ -1189,6 +1198,20 @@ NAN_METHOD(Frame::Restore) {
         GetParamInt(stride);
         frameSubType = BgrType_abgr;
       }
+      else if(subType == "rgb") {
+        GetParamInt(stride);
+        frameSubType = BgrType_rgb;
+      }
+      else if(subType == "rgba") {
+        stride = width * 4;
+        GetParamInt(stride);
+        frameSubType = BgrType_rgba;
+      }
+      else if(subType == "argb") {
+        stride = width * 4;
+        GetParamInt(stride);
+        frameSubType = BgrType_argb;
+      }
       ttFrame = (ttLibC_Frame *)ttLibC_Bgr_make(
           (ttLibC_Bgr *)prevFrame,
           frameSubType,
@@ -1896,6 +1919,20 @@ NAN_METHOD(Frame::FromBinaryBuffer) {
         stride = width * 4;
         GetParamInt(stride);
         frameSubType = BgrType_abgr;
+      }
+      else if(subType == "rgb") {
+        GetParamInt(stride);
+        frameSubType = BgrType_rgb;
+      }
+      else if(subType == "rgba") {
+        stride = width * 4;
+        GetParamInt(stride);
+        frameSubType = BgrType_rgba;
+      }
+      else if(subType == "argb") {
+        stride = width * 4;
+        GetParamInt(stride);
+        frameSubType = BgrType_argb;
       }
       frame = (ttLibC_Frame *)ttLibC_Bgr_make(
           (ttLibC_Bgr *)prevFrame,
