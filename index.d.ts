@@ -376,7 +376,7 @@ declare module 'ttlibjsgyp' {
       ):boolean;
       static enabled:boolean;
     }
-    export class VtDecompressSession{
+    export class VtDecompressSessionDecoder{
       constructor(type:string);
       decode(
         frame:Frame,

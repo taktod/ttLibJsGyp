@@ -117,7 +117,7 @@ module.exports = {
       decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
       return decoder;
     })(),
-    VtDecompressSession: (function() {
+    VtDecompressSessionDecoder: (function() {
       var name = "vtDecompressSession";
       var decoder = function(type) {
         return ttLibJsGyp.Decoder.apply(null, [name, {type: type}]);
