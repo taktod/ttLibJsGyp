@@ -25,6 +25,7 @@
 #include <ttLibC/frame/video/h264.h>
 #include <ttLibC/frame/video/h265.h>
 #include <ttLibC/frame/video/jpeg.h>
+#include <ttLibC/frame/video/png.h>
 #include <ttLibC/frame/video/theora.h>
 #include <ttLibC/frame/video/vp6.h>
 #include <ttLibC/frame/video/vp8.h>
@@ -409,6 +410,9 @@ bool Frame::setFrame(Local<Object> jsFrame, ttLibC_Frame *ttFrame) {
     case frameType_jpeg:
       SetPropertyChecked(type, "jpeg");
       break;
+    case frameType_png:
+      SetPropertyChecked(type, "png");
+      break;
     case frameType_theora:
       {
         ttLibC_Theora *theora = (ttLibC_Theora *)video;
@@ -570,6 +574,9 @@ ttLibC_Frame_Type Frame::getFrameType(std::string name) {
   else if(name == "jpeg") {
     return frameType_jpeg;
   }
+  else if(name == "png") {
+    return frameType_png;
+  }
   else if(name == "theora") {
     return frameType_theora;
   }
@@ -695,6 +702,7 @@ ttLibC_Frame *Frame::refFrame(Local<Value> jsVFrame) {
 //  case frameType_h264:
 //  case frameType_h265:
 //  case frameType_jpeg:
+//  case frameType_png:
 //  case frameType_theora:
   case frameType_vp6:
 //  case frameType_vp8:
@@ -1262,6 +1270,17 @@ NAN_METHOD(Frame::Restore) {
     {
       ttFrame = (ttLibC_Frame *)ttLibC_Jpeg_getFrame(
           (ttLibC_Jpeg *)prevFrame,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_png:
+    {
+      ttFrame = (ttLibC_Frame *)ttLibC_Png_getFrame(
+          (ttLibC_Png *)prevFrame,
           data,
           data_size,
           false,
@@ -1984,6 +2003,17 @@ NAN_METHOD(Frame::FromBinaryBuffer) {
     {
       frame = (ttLibC_Frame *)ttLibC_Jpeg_getFrame(
           (ttLibC_Jpeg *)prevFrame,
+          data,
+          data_size,
+          false,
+          pts,
+          timebase);
+    }
+    break;
+  case frameType_png:
+    {
+      frame = (ttLibC_Frame *)ttLibC_Png_getFrame(
+          (ttLibC_Png *)prevFrame,
           data,
           data_size,
           false,

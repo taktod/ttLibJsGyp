@@ -85,6 +85,7 @@
         "ttLibC/ttLibC/frame/video/h264.c",
         "ttLibC/ttLibC/frame/video/h265.c",
         "ttLibC/ttLibC/frame/video/jpeg.c",
+        "ttLibC/ttLibC/frame/video/png.c",
         "ttLibC/ttLibC/frame/video/theora.c",
         "ttLibC/ttLibC/frame/video/video.c",
         "ttLibC/ttLibC/frame/video/vp6.c",
