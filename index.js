@@ -93,6 +93,14 @@ module.exports = {
       decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
       return decoder;
     })(),
+    PngDecoder: (function() {
+      var name = "png";
+      var decoder = function() {
+        return ttLibJsGyp.Decoder.apply(null, [name, {}]);
+      }
+      decoder["enabled"] = ttLibJsGyp.Decoder.check(name);
+      return decoder;
+    })(),
     SpeexDecoder: (function() {
       var name = "speex";
       var decoder = function(sampleRate, channelNum) {

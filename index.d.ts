@@ -352,6 +352,14 @@ declare module 'ttlibjsgyp' {
       ):boolean;
       static enabled:boolean;
     }
+    export class PngDecoder{
+      constructor();
+      decode(
+        frame:Frame,
+        func:{(frame:Frame):boolean}
+      ):boolean;
+      static enabled:boolean;
+    }
     export class SpeexDecoder{
       constructor(sampleRate: number, channelNum: number);
       decode(

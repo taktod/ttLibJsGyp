@@ -13,6 +13,7 @@ typedef enum gypDecoderType_e {
   gdt_mp3lame,
   gdt_openh264,
   gdt_opus,
+  gdt_png,
   gdt_speex,
   gdt_theora,
   gdt_vorbis,

@@ -38,6 +38,7 @@ webrtc     any?               無視(electronで攻めるので、必要ない�
 soundtouch lgpl               pkgconfig
 fdkaac     lgpl               
 libyuv     any                libyuv.h libyuv.a
+libpng     any                pkgconfig
 こんなところか・・・
  */
 
@@ -63,6 +64,7 @@ setupX265();
 //setupFaad();
 setupWin32();
 setupLibYuv();
+setupLibPng();
 
 function checkDebug() {
   switch(target) {
@@ -651,6 +653,36 @@ function setupLibYuv() {
         });
         break;
       default:
+        break;
+      }
+    }
+    break;
+  case "windows":
+  case "windows_nt":
+  default:
+    break;
+  }
+}
+
+function setupLibPng() {
+  if(setting["disable"].indexOf("libpng") != -1) {
+    // libpngは無効になってる
+    return;
+  }
+  switch(setting["os"]) {
+  case "darwin":
+  case "linux":
+    if(exec("pkg-config --exists libpng && echo yes || echo no").toString().trim() == "yes") {
+      // pkg-configで存在してる。
+      switch(target) {
+      case "defs":
+        console.log("__ENABLE_LIBPNG__");
+        break;
+      case "libs":
+        console.log(exec("pkg-config --libs libpng").toString().trim());
+        break;
+      case "includes":
+        console.log(exec("pkg-config --cflags-only-I libpng | sed -e 's/\-I//g'").toString().trim());
         break;
       }
     }

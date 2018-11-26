@@ -47,4 +47,27 @@ describe("imageCheck", () => {
       });
     });
   });
+  it("libpng", (done) => {
+    var frame = new tt.Frame();
+    frame.binary = fs.readFileSync("./target.png");
+    frame.type = "png";
+    frame.timebase = 1000;
+    frame.pts = 0;
+    frame.restore();
+    var decoder = new tt.decoder.PngDecoder(frame.type, frame.width, frame.height);
+    decoder.decode(frame, (frame) => {
+      var resampler = new tt.resampler.SwscaleResampler(
+        frame.type, frame.subType, frame.width, frame.height,
+        "yuv", "planar", frame.width, frame.height,
+        "bilinear");
+      return resampler.resample(frame, (frame) => {
+        var encoder = new tt.encoder.JpegEncoder(frame.width, frame.height, 90);
+        return encoder.encode(frame, (frame) => {
+          fs.writeFileSync("output_libpng.jpeg", frame.getBinaryBuffer());
+          done();
+          return true;
+        });
+      });
+    });
+  });
 });

@@ -8,6 +8,7 @@
 #include "decoder/mp3lameDecoder.h"
 #include "decoder/openh264Decoder.h"
 #include "decoder/opusDecoder.h"
+#include "decoder/pngDecoder.h"
 #include "decoder/speexDecoder.h"
 #include "decoder/theoraDecoder.h"
 #include "decoder/vorbisDecoder.h"
@@ -73,6 +74,11 @@ static bool checkAvailable(std::string type) {
     result = true;
 #endif
   }
+  else if(type == "png") {
+#ifdef __ENABLE_LIBPNG__
+    result = true;
+#endif
+  }
   else if(type == "speex") {
 #ifdef __ENABLE_SPEEX__
     result = true;
@@ -130,6 +136,9 @@ NAN_METHOD(Decoder::New) {
     }
     else if(type == "opus") {
       decoder = new OpusDecoder_(info[1]->ToObject());
+    }
+    else if(type == "png") {
+      decoder = new PngDecoder(info[1]->ToObject());
     }
     else if(type == "speex") {
       decoder = new SpeexDecoder(info[1]->ToObject());
