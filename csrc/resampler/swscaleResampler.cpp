@@ -138,6 +138,9 @@ bool SwscaleResampler::resample(ttLibC_Frame *frame) {
     puts("resamplerが準備されていません。");
     return false;
   }
+  if(frame == NULL) {
+    return true;
+  }
   switch(frame->type) {
   case frameType_bgr:
   case frameType_yuv420:

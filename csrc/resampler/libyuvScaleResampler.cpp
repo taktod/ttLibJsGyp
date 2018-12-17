@@ -55,6 +55,9 @@ LibyuvScaleResampler::~LibyuvScaleResampler() {
 
 bool LibyuvScaleResampler::resample(ttLibC_Frame *ttFrame) {
 #ifdef __ENABLE_LIBYUV__
+  if(ttFrame == NULL) {
+    return true;
+  }
   switch(ttFrame->type) {
   case frameType_yuv420:
     break;

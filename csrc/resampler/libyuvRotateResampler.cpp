@@ -31,6 +31,9 @@ LibyuvRotateResampler::~LibyuvRotateResampler() {
 
 bool LibyuvRotateResampler::resample(ttLibC_Frame *ttFrame) {
 #ifdef __ENABLE_LIBYUV__
+  if(ttFrame == NULL) {
+    return true;
+  }
   switch(ttFrame->type) {
   case frameType_yuv420:
     break;

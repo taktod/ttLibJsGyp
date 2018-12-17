@@ -40,6 +40,9 @@ bool VorbisEncoder::encode(ttLibC_Frame *frame) {
     puts("encoderが準備されていません。");
     return false;
   }
+  if(frame == NULL) {
+    return true;
+  }
   if(frame->type != frameType_pcmS16
   && frame->type != frameType_pcmF32) {
     puts("pcmのみ処理可能です。");

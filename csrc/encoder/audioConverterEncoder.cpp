@@ -49,6 +49,9 @@ bool AudioConverterEncoder::encode(ttLibC_Frame *frame) {
     puts("encoderが準備されていません。");
     return false;
   }
+  if(frame == NULL) {
+    return true;
+  }
   if(frame->type != frameType_pcmS16) {
     puts("pcmS16のみ処理可能です。");
     return false;

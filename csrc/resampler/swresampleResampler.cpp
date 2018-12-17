@@ -95,6 +95,9 @@ bool SwresampleResampler::resample(ttLibC_Frame *frame) {
     puts("resamplerが準備されていません。");
     return false;
   }
+  if(frame == NULL) {
+    return true;
+  }
   switch(frame->type) {
   case frameType_pcmS16:
   case frameType_pcmF32:

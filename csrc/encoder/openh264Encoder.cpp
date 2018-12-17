@@ -80,6 +80,9 @@ bool Openh264Encoder::encode(ttLibC_Frame *frame) {
     puts("encoderが準備されていません。");
     return false;
   }
+  if(frame == NULL) {
+    return true;
+  }
   if(frame->type != frameType_yuv420) {
     puts("yuv420のみ処理可能です。");
     return false;
