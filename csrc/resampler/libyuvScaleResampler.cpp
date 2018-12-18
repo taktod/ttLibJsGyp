@@ -7,9 +7,9 @@ LibyuvScaleResampler::LibyuvScaleResampler(Local<Object> params) {
 #ifdef __ENABLE_LIBYUV__
   width_  = Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked()->Uint32Value();
   height_ = Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  std::string yModeStr(*String::Utf8Value(Nan::Get(params, Nan::New("yMode").ToLocalChecked()).ToLocalChecked()->ToString()));
-  std::string uModeStr(*String::Utf8Value(Nan::Get(params, Nan::New("uMode").ToLocalChecked()).ToLocalChecked()->ToString()));
-  std::string vModeStr(*String::Utf8Value(Nan::Get(params, Nan::New("vMode").ToLocalChecked()).ToLocalChecked()->ToString()));
+  std::string yModeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("yMode").ToLocalChecked()).ToLocalChecked()->ToString()));
+  std::string uModeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("uMode").ToLocalChecked()).ToLocalChecked()->ToString()));
+  std::string vModeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("vMode").ToLocalChecked()).ToLocalChecked()->ToString()));
   if(yModeStr == "Linear") {
     yMode_ = LibyuvFilter_Linear;
   }

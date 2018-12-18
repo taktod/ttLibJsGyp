@@ -4,14 +4,14 @@
 SwresampleResampler::SwresampleResampler(Local<Object> params) : Resampler() {
   type_ = grt_swresample;
 #ifdef __ENABLE_SWRESAMPLE__
-  std::string inTypeStr(*String::Utf8Value(Nan::Get(params, Nan::New("inType").ToLocalChecked()).ToLocalChecked()->ToString()));
-  std::string inSubTypeStr(*String::Utf8Value(Nan::Get(params, Nan::New("inSubType").ToLocalChecked()).ToLocalChecked()->ToString()));
+  std::string inTypeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("inType").ToLocalChecked()).ToLocalChecked()->ToString()));
+  std::string inSubTypeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("inSubType").ToLocalChecked()).ToLocalChecked()->ToString()));
   ttLibC_Frame_Type inType = Frame::getFrameType(inTypeStr);
   uint32_t inSubType = getSubType(inType, inSubTypeStr);
   uint32_t inSampleRate = Nan::Get(params, Nan::New("inSampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
   uint32_t inChannelNum = Nan::Get(params, Nan::New("inChannelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  std::string outTypeStr(*String::Utf8Value(Nan::Get(params, Nan::New("outType").ToLocalChecked()).ToLocalChecked()->ToString()));
-  std::string outSubTypeStr(*String::Utf8Value(Nan::Get(params, Nan::New("outSubType").ToLocalChecked()).ToLocalChecked()->ToString()));
+  std::string outTypeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("outType").ToLocalChecked()).ToLocalChecked()->ToString()));
+  std::string outSubTypeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("outSubType").ToLocalChecked()).ToLocalChecked()->ToString()));
   ttLibC_Frame_Type outType = Frame::getFrameType(outTypeStr);
   uint32_t outSubType = getSubType(outType, outSubTypeStr);
   uint32_t outSampleRate = Nan::Get(params, Nan::New("outSampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();

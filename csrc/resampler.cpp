@@ -88,13 +88,13 @@ static bool checkAvailable(std::string type) {
 NAN_METHOD(Resampler::CheckAvailable) {
   bool result = false;
   if(info.Length() > 0) {
-    std::string type(*String::Utf8Value(info[0]->ToString()));
+    std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
     result = checkAvailable(type);
   }
   info.GetReturnValue().Set(result);
 }
 NAN_METHOD(Resampler::New) {
-  std::string type(*String::Utf8Value(info[0]->ToString()));
+  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
   if(!checkAvailable(type)) {
     Nan::ThrowError(Nan::New(type + " resampler is not available.").ToLocalChecked());
     return;

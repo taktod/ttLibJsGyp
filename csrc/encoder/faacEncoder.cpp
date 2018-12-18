@@ -5,7 +5,7 @@ FaacEncoder::FaacEncoder(Local<Object> params) : Encoder() {
   type_ = get_faac;
 #ifdef __ENABLE_FAAC_ENCODE__
   // type sampleRate channelNum bitrate(bit/sec)
-  std::string type(*String::Utf8Value(Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked()->ToString()));
+  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked()->ToString()));
   uint32_t sampleRate = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
   uint32_t channelNum = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
   uint32_t bitrate = Nan::Get(params, Nan::New("bitrate").ToLocalChecked()).ToLocalChecked()->Uint32Value();

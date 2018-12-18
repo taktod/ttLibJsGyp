@@ -5,7 +5,7 @@ AudioConverterEncoder::AudioConverterEncoder(Local<Object> params) : Encoder() {
   type_ = get_audioConverter;
 #ifdef __ENABLE_APPLE__
   ttLibC_Frame_Type frameType = Frame::getFrameType(
-    std::string(*String::Utf8Value(
+    std::string(*String::Utf8Value(v8::Isolate::GetCurrent(),
       Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked()->ToString()))
   );
   uint32_t sampleRate = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();

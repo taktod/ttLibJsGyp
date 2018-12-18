@@ -5,7 +5,7 @@ AvcodecDecoder::AvcodecDecoder(Local<Object> params) : Decoder() {
   type_ = gdt_avcodec;
 #ifdef __ENABLE_AVCODEC__
   ttLibC_Frame_Type frameType = Frame::getFrameType(
-    std::string(*String::Utf8Value(
+    std::string(*String::Utf8Value(v8::Isolate::GetCurrent(),
       Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked()->ToString()))
   );
   if(ttLibC_isVideo(frameType)) {

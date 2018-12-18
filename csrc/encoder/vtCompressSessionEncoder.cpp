@@ -6,7 +6,7 @@ VtCompressSessionEncoder::VtCompressSessionEncoder(Local<Object> params) : Encod
   type_ = get_vtCompressSession;
 #ifdef __ENABLE_APPLE__
   ttLibC_Frame_Type frameType = Frame::getFrameType(
-    std::string(*String::Utf8Value(
+    std::string(*String::Utf8Value(v8::Isolate::GetCurrent(),
       Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked()->ToString()))
   );
   uint32_t width   = Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked()->Uint32Value();

@@ -105,13 +105,13 @@ static bool checkAvailable(std::string type) {
 NAN_METHOD(Decoder::CheckAvailable) {
   bool result = false;
   if(info.Length() > 0) {
-    std::string type(*String::Utf8Value(info[0]->ToString()));
+    std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
     result = checkAvailable(type);
   }
   info.GetReturnValue().Set(result);
 }
 NAN_METHOD(Decoder::New) {
-  std::string type(*String::Utf8Value(info[0]->ToString()));
+  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
   if(!checkAvailable(type)) {
     Nan::ThrowError(Nan::New(type + " decoder is not available.").ToLocalChecked());
     return;
@@ -200,7 +200,7 @@ NAN_METHOD(Decoder::SetCodecControl) {
     if(decoder->type_ == gdt_opus) {
       OpusDecoder_ *opusDecoder = (OpusDecoder_ *)decoder;
       info.GetReturnValue().Set(opusDecoder->codecControl(
-        std::string(*String::Utf8Value(info[0]->ToString())),
+        std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString())),
         info[1]->Uint32Value()));
       return;
     }
@@ -219,7 +219,7 @@ NAN_METHOD(Decoder::GetCodecControl) {
     if(decoder->type_ == gdt_opus) {
       OpusDecoder_ *opusDecoder = (OpusDecoder_ *)decoder;
       info.GetReturnValue().Set(opusDecoder->codecControl(
-        std::string(*String::Utf8Value(info[0]->ToString())),
+        std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString())),
         0));
       return;
     }

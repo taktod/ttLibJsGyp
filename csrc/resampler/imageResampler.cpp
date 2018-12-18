@@ -6,10 +6,10 @@
 ImageResampler::ImageResampler(Local<Object> params) {
   type_ = grt_image;
   frameType_ = Frame::getFrameType(
-    std::string(*String::Utf8Value(
+    std::string(*String::Utf8Value(v8::Isolate::GetCurrent(),
       Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked()->ToString()))
   );
-  std::string subType(*String::Utf8Value(Nan::Get(params, Nan::New("subType").ToLocalChecked()).ToLocalChecked()->ToString()));
+  std::string subType(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("subType").ToLocalChecked()).ToLocalChecked()->ToString()));
   switch(frameType_) {
   case frameType_bgr:
     if(subType == "bgr") {

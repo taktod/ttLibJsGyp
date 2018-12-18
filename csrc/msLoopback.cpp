@@ -111,11 +111,11 @@ MSLoopback::MSLoopback(Nan::NAN_METHOD_ARGS_TYPE info) {
   std::string locale("");
   std::string device("");
   if(info.Length() >= 1) {
-    locale = std::string(*String::Utf8Value(info[0]->ToString()));
+    locale = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
   }
   if(info.Length() == 2) {
     // 2の場合はdeviceの指定があるもんだとして動作する。
-    device = std::string(*String::Utf8Value(info[1]->ToString()));
+    device = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[1]->ToString()));
   }
   char *c_locale = NULL;
   char *c_device = NULL;

@@ -5,7 +5,7 @@ VtDecompressSessionDecoder::VtDecompressSessionDecoder(Local<Object> params) : D
   type_ = gdt_vtDecompressSession;
 #ifdef __ENABLE_APPLE__
   ttLibC_Frame_Type frameType = Frame::getFrameType(
-    std::string(*String::Utf8Value(
+    std::string(*String::Utf8Value(v8::Isolate::GetCurrent(),
       Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked()->ToString()))
   );
   decoder_ = ttLibC_VtDecoder_make(frameType);

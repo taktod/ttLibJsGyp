@@ -6,11 +6,11 @@
 AudioResampler::AudioResampler(Local<Object> params) {
   type_ = grt_audio;
   frameType_ = Frame::getFrameType(
-    std::string(*String::Utf8Value(
+    std::string(*String::Utf8Value(v8::Isolate::GetCurrent(),
       Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked()->ToString()))
   );
 
-  std::string subType(*String::Utf8Value(Nan::Get(params, Nan::New("subType").ToLocalChecked()).ToLocalChecked()->ToString()));
+  std::string subType(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("subType").ToLocalChecked()).ToLocalChecked()->ToString()));
   switch(frameType_) {
   case frameType_pcmS16:
     if(subType == "bigEndian") {

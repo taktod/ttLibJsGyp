@@ -139,11 +139,11 @@ Writer::Writer(Nan::NAN_METHOD_ARGS_TYPE info) {
   writer_ = NULL;
   // 基本このデータはtype length codec...となっている。
   // flvだけ例外でtype videoCodec audioCodecとなっている。
-  std::string type(*String::Utf8Value(info[0]->ToString()));
+  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
   if(type == "flv") {
     writer_ = (ttLibC_ContainerWriter *)ttLibC_FlvWriter_make(
-        Frame::getFrameType(std::string(*String::Utf8Value(info[1]->ToString()))),
-        Frame::getFrameType(std::string(*String::Utf8Value(info[2]->ToString()))));
+        Frame::getFrameType(std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[1]->ToString()))),
+        Frame::getFrameType(std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[2]->ToString()))));
   }
   else {
     int unitDuration = info[1]->Uint32Value();
@@ -151,7 +151,7 @@ Writer::Writer(Nan::NAN_METHOD_ARGS_TYPE info) {
     int num = codecs->Length();
     ttLibC_Frame_Type *types = new ttLibC_Frame_Type[num];
     for(int i = 0;i < num;++ i) {
-      types[i] = Frame::getFrameType(std::string(*String::Utf8Value(codecs->Get(i)->ToString())));
+      types[i] = Frame::getFrameType(std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), codecs->Get(i)->ToString())));
     }
     if(type == "mkv") {
       writer_ = ttLibC_MkvWriter_make_ex(types, num, unitDuration);

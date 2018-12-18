@@ -137,14 +137,14 @@ static bool checkAvailable(std::string type) {
 NAN_METHOD(Encoder::CheckAvailable) {
   bool result = false;
   if(info.Length() > 0) {
-    std::string type(*String::Utf8Value(info[0]->ToString()));
+    std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
     result = checkAvailable(type);
   }
   info.GetReturnValue().Set(result);
 }
 
 NAN_METHOD(Encoder::New) {
-  std::string type(*String::Utf8Value(info[0]->ToString()));
+  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
   if(!checkAvailable(type)) {
     Nan::ThrowError(Nan::New(type + " encoder is not available.").ToLocalChecked());
     return;
@@ -248,13 +248,13 @@ NAN_METHOD(Encoder::ForceNextFrameType) {
     case get_x264:
       {
         X264Encoder *x264Encoder = (X264Encoder *)encoder;
-        info.GetReturnValue().Set(x264Encoder->forceNextFrameType(*String::Utf8Value(info[0]->ToString())));
+        info.GetReturnValue().Set(x264Encoder->forceNextFrameType(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString())));
       }
       return;
     case get_x265:
       {
         X265Encoder *x265Encoder = (X265Encoder *)encoder;
-        info.GetReturnValue().Set(x265Encoder->forceNextFrameType(*String::Utf8Value(info[0]->ToString())));
+        info.GetReturnValue().Set(x265Encoder->forceNextFrameType(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString())));
       }
       return;
     default:
@@ -290,7 +290,7 @@ NAN_METHOD(Encoder::SetRCMode) {
     }
     if(encoder->type_ == get_openh264) {
       Openh264Encoder *openh264Encoder = (Openh264Encoder *)encoder;
-      info.GetReturnValue().Set(openh264Encoder->setRCMode(*String::Utf8Value(info[0]->ToString())));
+      info.GetReturnValue().Set(openh264Encoder->setRCMode(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString())));
     }
   }
   info.GetReturnValue().Set(false);
@@ -384,7 +384,7 @@ NAN_METHOD(Encoder::SetCodecControl) {
     if(encoder->type_ == get_opus) {
       OpusEncoder_ *opusEncoder = (OpusEncoder_ *)encoder;
       info.GetReturnValue().Set(opusEncoder->codecControl(
-        std::string(*String::Utf8Value(info[0]->ToString())),
+        std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString())),
         info[1]->Uint32Value()));
       return;
     }
@@ -403,7 +403,7 @@ NAN_METHOD(Encoder::GetCodecControl) {
     if(encoder->type_ == get_opus) {
       OpusEncoder_ *opusEncoder = (OpusEncoder_ *)encoder;
       info.GetReturnValue().Set(opusEncoder->codecControl(
-        std::string(*String::Utf8Value(info[0]->ToString())),
+        std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString())),
         0));
       return;
     }

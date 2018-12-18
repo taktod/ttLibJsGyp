@@ -46,7 +46,7 @@ MSH264Encoder::MSH264Encoder(Local<Object> params) : Encoder() {
   uint32_t width   = Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked()->Uint32Value();
   uint32_t height  = Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked()->Uint32Value();
   uint32_t bitrate = Nan::Get(params, Nan::New("bitrate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  std::string name(*String::Utf8Value(Nan::Get(params, Nan::New("encoder").ToLocalChecked()).ToLocalChecked()->ToString()));
+  std::string name(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("encoder").ToLocalChecked()).ToLocalChecked()->ToString()));
   // とりあえずEnumで必要なデータの取得はできたので、このまま進める。
   // こんな感じかな。該当エンコーダーをここで指定して、そこに対してencodeを実施する的な感じで
   encoder_ = ttLibC_MsH264Encoder_make(name.c_str(), width, height, bitrate);

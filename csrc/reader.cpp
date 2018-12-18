@@ -105,7 +105,7 @@ NAN_METHOD(Reader::ReadFrame) {
 }
 
 Reader::Reader(Nan::NAN_METHOD_ARGS_TYPE info) {
-  std::string type(*String::Utf8Value(info[0]->ToString()));
+  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
   if(type == "flv") {
     reader_ = (ttLibC_ContainerReader *)ttLibC_FlvReader_make();
   }

@@ -196,7 +196,7 @@ NAN_METHOD(RtmpBootstrap::Play) {
     info.GetReturnValue().Set(false);
   }
   uint32_t streamId = info[0]->Uint32Value();
-  std::string name(*String::Utf8Value(info[1]->ToString()));
+  std::string name(*String::Utf8Value(v8::Isolate::GetCurrent(), info[1]->ToString()));
   bool acceptVideo = info[2]->IsTrue();
   bool acceptAudio = info[3]->IsTrue();
   // receiveAudioを送る
@@ -227,7 +227,7 @@ NAN_METHOD(RtmpBootstrap::Publish) {
     info.GetReturnValue().Set(false);
   }
   uint32_t streamId = info[0]->Uint32Value();
-  std::string name(*String::Utf8Value(info[1]->ToString()));
+  std::string name(*String::Utf8Value(v8::Isolate::GetCurrent(), info[1]->ToString()));
   ttLibC_Amf0Command *publish = ttLibC_Amf0Command_publish(streamId, name.c_str());
   ttLibC_TettyBootstrap_channels_write(bootstrap->bootstrap_, publish, sizeof(ttLibC_Amf0Command));
   ttLibC_TettyBootstrap_channels_flush(bootstrap->bootstrap_);
@@ -520,8 +520,8 @@ bool RtmpBootstrap::frameGroupCloseCallback(void *ptr, void *key, void *item) {
 }
 
 RtmpBootstrap::RtmpBootstrap(Local<Value> address, Local<Value> app) : Bootstrap() {
-  address_ = std::string(*String::Utf8Value(address->ToString()));
-  app_ = std::string(*String::Utf8Value(app->ToString()));
+  address_ = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), address->ToString()));
+  app_ = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), app->ToString()));
 
   // ここでbootstrapの調整を実施する。
   ttLibC_TettyBootstrap_channel(bootstrap_, ChannelType_Tcp);
