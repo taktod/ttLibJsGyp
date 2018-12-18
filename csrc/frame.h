@@ -15,6 +15,10 @@ public:
   static ttLibC_Frame_Type getFrameType(std::string name);
   static ttLibC_Frame     *refFrame(Local<Value> jsFrame); // このrefFrameが必要な情報を復元する動作みたいですね。
 private:
+  static ttLibC_Frame *restoreTtLibCFrame(
+      ttLibC_Frame  *prev_frame,
+      Local<Value>   binary,
+      Local<Object>  params);
   static NAN_METHOD(New);
   static NAN_METHOD(GetBinaryBuffer);
   // このfromBinaryBufferの動作はbufferにstaticで実行するより、該当フレームから復元する方がしっくりきそう。
