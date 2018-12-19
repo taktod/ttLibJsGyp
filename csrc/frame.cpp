@@ -820,6 +820,7 @@ ttLibC_Frame *Frame::restoreTtLibCFrame(
   data_size = node::Buffer::Length(binary->ToObject());
   GetParamString(type);
   if(type != "") {
+    frameType = getFrameType(type);
   }
   ttLibC_Frame *ttFrame = NULL;
   switch(frameType) {
@@ -1460,12 +1461,90 @@ NAN_METHOD(Frame::New) {
 }
 
 NAN_METHOD(Frame::GetBinaryBuffer) {
+  typedef struct {
+    void *data;
+    size_t data_size;
+  } memHolder_t;
+
   Frame *frame = Nan::ObjectWrap::Unwrap<Frame>(info.Holder());
   if(frame->frame_ == NULL) {
     info.GetReturnValue().Set(Nan::Null());
     return;
   }
-  info.GetReturnValue().Set(Nan::CopyBuffer((char *)frame->frame_->data, frame->frame_->buffer_size).ToLocalChecked());
+  switch(frame->frame_->type) {
+  case frameType_bgr:
+    {
+      memHolder_t pt;
+      pt.data = nullptr;
+      ttLibC_Bgr_getMinimumBinaryBuffer(
+          (ttLibC_Bgr *)frame->frame_,
+          [](void *ptr, void *data, size_t data_size){
+            memHolder_t *pt = (memHolder_t *)ptr;
+            pt->data = ttLibC_malloc(data_size);
+            if(pt->data == nullptr) {
+              return false;
+            }
+            pt->data_size = data_size;
+            memcpy(pt->data, data, data_size);
+            return true;
+          },
+          (void *)&pt);
+      if(pt.data != nullptr) {
+        info.GetReturnValue().Set(Nan::CopyBuffer((char *)pt.data, pt.data_size).ToLocalChecked());
+        ttLibC_free(pt.data);
+      }
+      else {
+        info.GetReturnValue().Set(Nan::Null());
+      }
+    }
+    break;
+  case frameType_yuv420:
+    {
+      memHolder_t pt;
+      pt.data = nullptr;
+      ttLibC_Yuv420_getMinimumBinaryBuffer(
+          (ttLibC_Yuv420 *)frame->frame_,
+          [](void *ptr, void *data, size_t data_size){
+            memHolder_t *pt = (memHolder_t *)ptr;
+            pt->data = ttLibC_malloc(data_size);
+            if(pt->data == nullptr) {
+              return false;
+            }
+            pt->data_size = data_size;
+            memcpy(pt->data, data, data_size);
+            return true;
+          },
+          (void *)&pt);
+      if(pt.data != nullptr) {
+        info.GetReturnValue().Set(Nan::CopyBuffer((char *)pt.data, pt.data_size).ToLocalChecked());
+        ttLibC_free(pt.data);
+      }
+      else {
+        info.GetReturnValue().Set(Nan::Null());
+      }
+    }
+    break;
+  case frameType_pcmF32:
+  case frameType_pcmS16:
+    {
+      // この２つはframeのcloneをつくって応答する
+      ttLibC_Frame *cloned = ttLibC_Frame_clone(nullptr, frame->frame_);
+      if(cloned == NULL) {
+        info.GetReturnValue().Set(Nan::Null());
+        return;
+      }
+      info.GetReturnValue().Set(Nan::CopyBuffer((char *)cloned->data, cloned->buffer_size).ToLocalChecked());
+      ttLibC_Frame_close(&cloned);
+    }
+    break;
+  default:
+    if(frame->frame_->data == NULL) {
+      info.GetReturnValue().Set(Nan::Null());
+      return;
+    }
+    info.GetReturnValue().Set(Nan::CopyBuffer((char *)frame->frame_->data, frame->frame_->buffer_size).ToLocalChecked());
+    break;
+  }
 }
 
 NAN_METHOD(Frame::Restore) {
