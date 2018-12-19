@@ -311,6 +311,8 @@ bool Frame::setFrame(Local<Object> jsFrame, ttLibC_Frame *ttFrame) {
         default:
           break;
         }
+        SetProperty(data, 0);
+        SetProperty(stride, bgr->width_stride);
       }
       break;
     case frameType_flv1:
@@ -473,6 +475,12 @@ bool Frame::setFrame(Local<Object> jsFrame, ttLibC_Frame *ttFrame) {
         default:
           break;
         }
+        SetProperty(yStride, yuv->y_stride);
+        SetProperty(uStride, yuv->u_stride);
+        SetProperty(vStride, yuv->v_stride);
+        SetProperty(yData, 0);
+        SetProperty(uData, 0);
+        SetProperty(vData, 0);
       }
       break;
     default:
@@ -1626,15 +1634,19 @@ NAN_METHOD(Frame::FromBinaryBuffer) {
   info.GetReturnValue().Set(jsFrame);
 }
 
+// cloneを実施したら特例処置として、binary
 NAN_METHOD(Frame::Clone) {
   Frame *frame = Nan::ObjectWrap::Unwrap<Frame>(info.Holder());
   Local<Object> jsFrame = Frame::newInstance();
-  Frame::setFrame(jsFrame, ttLibC_Frame_clone(NULL, frame->frame_));
+  ttLibC_Frame *cloned = ttLibC_Frame_clone(NULL, frame->frame_);
+  Frame::setFrame(jsFrame, cloned);
+  Nan::Set(jsFrame, Nan::New("binary").ToLocalChecked(), Nan::CopyBuffer((char *)cloned->data, cloned->buffer_size).ToLocalChecked()); \
   Frame *newFrame = Nan::ObjectWrap::Unwrap<Frame>(jsFrame);
   newFrame->isRef_ = false;
   info.GetReturnValue().Set(jsFrame);
 }
 
+// コピーはべつのフレームの内容をコピーして自分のものにする。
 NAN_METHOD(Frame::Copy) {
   // 自身が保持しているframeデータから復元する
   if(info.Length() < 1) {

@@ -27,7 +27,7 @@ private:
   static NAN_METHOD(FromBinaryBuffer);
   static NAN_METHOD(Clone);
   static NAN_METHOD(Restore);
-  static NAN_METHOD(Copy);
+  static NAN_METHOD(Copy); // copyは基本撤去したい
 
   static inline Nan::Persistent<Function> & constructor() {
     static Nan::Persistent<Function> my_constructor;
