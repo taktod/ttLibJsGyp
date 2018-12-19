@@ -28,9 +28,15 @@ describe("frame", () => {
       frame.uStride = 6;
       frame.vStride = 6;
       frame.restore();
-      console.log(frame);
-      console.log(frame.getBinaryBuffer());
-      done();
+//      console.log(frame);
+//      console.log(frame.getBinaryBuffer());
+      if(frame.getBinaryBuffer() != null) {
+        done();
+      }
+      else {
+        console.log(frame);
+        console.log(frame.getBinaryBuffer());
+      }
     });
   });
 });
