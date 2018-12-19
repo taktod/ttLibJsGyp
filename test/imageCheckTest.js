@@ -9,7 +9,7 @@ describe("imageCheck", () => {
   it("jpeg", (done) => {
     // binaryからpngデータを復元するテスト処理
     var frame = new tt.Frame();
-    frame.binary = fs.readFileSync("./target.jpeg");
+    frame.binary = fs.readFileSync("./test/target.jpeg");
     frame.type = "jpeg";
     frame.timebase = 1000;
     frame.pts = 0;
@@ -26,7 +26,7 @@ describe("imageCheck", () => {
   });
   it("png", (done) => {
     var frame = new tt.Frame();
-    frame.binary = fs.readFileSync("./target.png");
+    frame.binary = fs.readFileSync("./test/target.png");
     frame.type = "png";
     frame.timebase = 1000;
     frame.pts = 0;
@@ -49,7 +49,7 @@ describe("imageCheck", () => {
   });
   it("libpng", (done) => {
     var frame = new tt.Frame();
-    frame.binary = fs.readFileSync("./target.png");
+    frame.binary = fs.readFileSync("./test/target.png");
     frame.type = "png";
     frame.timebase = 1000;
     frame.pts = 0;
