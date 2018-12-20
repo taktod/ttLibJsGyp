@@ -1361,53 +1361,61 @@ ttLibC_Frame *Frame::restoreTtLibCFrame(
         ERR_PRINT("widthまたはheightが未設定です。yuv420復元できません");
         return NULL;
       }
-      uint32_t yStride = width;
-      uint32_t uStride = (width >> 1);
-      uint32_t vStride = (width >> 1);
+      uint32_t half_width = ((width + 1) >> 1);
+      uint32_t half_height = ((height + 1) >> 1);
+      uint32_t yStride = 0;
+      uint32_t uStride = 0;
+      uint32_t vStride = 0;
 
       GetParamString(subType);
       ttLibC_Yuv420_Type frameSubType = Yuv420Type_planar;
-      uint8_t *newData = (uint8_t *)ttLibC_malloc(data_size);
-      if(newData == NULL) {
-        ERR_PRINT("memory alloc失敗しました。");
-        return NULL;
-      }
-      memcpy(newData, data, data_size);
-      uint8_t *yData = newData;
-      uint8_t *uData = newData;
-      uint8_t *vData = newData;
+      uint8_t *yData = nullptr;
+      uint8_t *uData = nullptr;
+      uint8_t *vData = nullptr;
       if(subType == "planar") {
+        yStride = width;
+        uStride = half_width;
+        vStride = half_width;
         GetParamInt(yStride);
         GetParamInt(uStride);
         GetParamInt(vStride);
+        yData = data;
         uData = yData + height * yStride;
-        vData = uData + (height >> 1) * uStride;
+        vData = uData + half_height * uStride;
       }
       else if(subType == "semiPlanar") {
-        uStride = width;
-        vStride = width;
+        yStride = width;
+        uStride = (half_width << 1);
+        vStride = (half_width << 1);
         GetParamInt(yStride);
         GetParamInt(uStride);
         GetParamInt(vStride);
         frameSubType = Yuv420Type_semiPlanar;
+        yData = data;
         uData = yData + height * yStride;
         vData = uData + 1;
       }
       else if(subType == "yvuPlanar") {
+        yStride = width;
+        uStride = half_width;
+        vStride = half_width;
         GetParamInt(yStride);
         GetParamInt(uStride);
         GetParamInt(vStride);
         frameSubType = Yvu420Type_planar;
+        yData = data;
         vData = yData + height * yStride;
-        uData = vData + (height >> 1) * vStride;
+        uData = vData + half_height * vStride;
       }
       else if(subType == "yvuSemiPlanar") {
-        uStride = width;
-        vStride = width;
+        yStride = width;
+        uStride = (half_width << 1);
+        vStride = (half_width << 1);
         GetParamInt(yStride);
         GetParamInt(uStride);
         GetParamInt(vStride);
         frameSubType = Yvu420Type_semiPlanar;
+        yData = data;
         vData = yData + height * yStride;
         uData = vData + 1;
       }
@@ -1420,20 +1428,17 @@ ttLibC_Frame *Frame::restoreTtLibCFrame(
           frameSubType,
           width,
           height,
-          newData,
-          data_size,
+          nullptr,
+          0,
           yData,
           yStride,
           uData,
           uStride,
           vData,
           vStride,
-          true,
+          false,
           pts,
           timebase);
-      if(ttFrame != NULL) {
-        ttFrame->is_non_copy = false;
-      }
     }
     break;
   default:
