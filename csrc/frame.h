@@ -38,7 +38,6 @@ private:
 
   ttLibC_Frame *frame_;
   bool          isRef_;
-  uint8_t      *ptr_[3];
 };
 
 #endif

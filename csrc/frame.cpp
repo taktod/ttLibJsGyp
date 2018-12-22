@@ -495,7 +495,8 @@ bool Frame::setFrame(Local<Object> jsFrame, ttLibC_Frame *ttFrame) {
   Frame *frame = Nan::ObjectWrap::Unwrap<Frame>(jsFrame);
   frame->frame_ = ttFrame;
   frame->isRef_ = true;
-  // ここでframe->ptr_[0 - 2]のデータについて、リンクをもっておく必要がある。
+  // これもう必要ない。
+/*  // ここでframe->ptr_[0 - 2]のデータについて、リンクをもっておく必要がある。
   switch(frame->frame_->type) {
   case frameType_pcmF32:
     {
@@ -527,7 +528,7 @@ bool Frame::setFrame(Local<Object> jsFrame, ttLibC_Frame *ttFrame) {
     break;
   default:
     break;
-  }
+  }*/
 #undef SetProperty
 #undef SetPropertyChecked
   return true;
@@ -674,35 +675,45 @@ ttLibC_Frame *Frame::refFrame(Local<Value> jsVFrame) {
       GetJsFrameInt(sampleRate);
       GetJsFrameInt(sampleNum);
       GetJsFrameInt(channelNum);
-      audio->sample_rate = sampleRate;
-      audio->sample_num  = sampleNum;
-      audio->channel_num = channelNum;
       switch(frame->frame_->type) {
+      default:
+        {
+          audio->sample_rate = sampleRate;
+          audio->sample_num  = sampleNum;
+          audio->channel_num = channelNum;
+        }
+        break;
       case frameType_pcmF32:
         {
           ttLibC_PcmF32 *pcm = (ttLibC_PcmF32 *)audio;
+          ttLibC_PcmF32_resetData(pcm);
+          audio->sample_rate = sampleRate;
+          audio->sample_num  = sampleNum;
+          audio->channel_num = channelNum;
           uint32_t rData = 0;
           uint32_t lData = 0;
           GetJsFrameInt(rData); // あくまでズレはbyte数としておく。
-          GetJsFrameInt(lData);
-          pcm->l_data = frame->ptr_[0] + lData;
-          pcm->r_data = frame->ptr_[1] + rData;
+          GetJsFrameInt(lData);          
+          pcm->l_data += lData;
+          pcm->r_data += rData;
           // strideも更新すべきか？(とりあえず使わないと思うので、しばし放置しておく)
         }
         break;
       case frameType_pcmS16:
         {
           ttLibC_PcmS16 *pcm = (ttLibC_PcmS16 *)audio;
+          ttLibC_PcmS16_resetData(pcm);
+          audio->sample_rate = sampleRate;
+          audio->sample_num  = sampleNum;
+          audio->channel_num = channelNum;
           uint32_t rData = 0;
           uint32_t lData = 0;
           GetJsFrameInt(rData); // あくまでズレはbyte数としておく。
           GetJsFrameInt(lData);
-          pcm->l_data = frame->ptr_[0] + lData;
-          pcm->r_data = frame->ptr_[1] + rData;
+          pcm->l_data += lData;
+          pcm->r_data += rData;
           // strideも更新すべきか？(とりあえず使わないと思うので、しばし放置しておく)
         }
-        break;
-      default:
         break;
       }
     }
@@ -729,8 +740,6 @@ ttLibC_Frame *Frame::refFrame(Local<Value> jsVFrame) {
       GetJsFrameInt(width);
       GetJsFrameInt(height);
       GetJsFrameString(videoType);
-      video->width  = width;
-      video->height = height;
       if(videoType == "key") {
         video->type = videoType_key;
       }
@@ -742,20 +751,32 @@ ttLibC_Frame *Frame::refFrame(Local<Value> jsVFrame) {
       }
       // bgr、yuvの場合はrefPointerの開始位置を変更したり、stride値を書き換えたりするかもしれない(strideは普通は変更しないか・・・)
       switch(frame->frame_->type) {
+      default:
+        {
+          video->width  = width;
+          video->height = height;
+        }
+        break;
       case frameType_bgr:
         {
           ttLibC_Bgr *bgr = (ttLibC_Bgr *)video;
+          ttLibC_Bgr_resetData(bgr);
+          video->width  = width;
+          video->height = height;
           uint32_t data   = 0;
           uint32_t stride = bgr->width_stride; // オリジナルの値に戻してやった方が幸せかね。
           GetJsFrameInt(data);
           GetJsFrameInt(stride);
-          bgr->data = frame->ptr_[0] + data;
+          bgr->data += data;
           bgr->width_stride = stride;
         }
         break;
       case frameType_yuv420:
         {
           ttLibC_Yuv420 *yuv = (ttLibC_Yuv420 *)video;
+          ttLibC_Yuv420_resetData(yuv);
+          video->width  = width;
+          video->height = height;
           uint32_t yData = 0;
           uint32_t uData = 0;
           uint32_t vData = 0;
@@ -768,15 +789,13 @@ ttLibC_Frame *Frame::refFrame(Local<Value> jsVFrame) {
           GetJsFrameInt(yStride);
           GetJsFrameInt(uStride);
           GetJsFrameInt(vStride);
-          yuv->y_data = frame->ptr_[0] + yData;
-          yuv->u_data = frame->ptr_[1] + uData;
-          yuv->v_data = frame->ptr_[2] + vData;
+          yuv->y_data += yData;
+          yuv->u_data += uData;
+          yuv->v_data += vData;
           yuv->y_stride = yStride;
           yuv->u_stride = uStride;
           yuv->v_stride = vStride;
         }
-        break;
-      default:
         break;
       }
     }
@@ -830,6 +849,7 @@ ttLibC_Frame *Frame::restoreTtLibCFrame(
   if(type != "") {
     frameType = getFrameType(type);
   }
+  // TODO ここのbinaryからフレームを復元する動作、すべてメモリーコピーでつくってあるけど、参照だけにすれば、高速化がのぞめる。1.2倍くらい？
   ttLibC_Frame *ttFrame = NULL;
   switch(frameType) {
   case frameType_aac:
@@ -1675,9 +1695,6 @@ NAN_METHOD(Frame::Copy) {
 Frame::Frame() {
   frame_ = NULL;
   isRef_ = false;
-  ptr_[0] = NULL;
-  ptr_[1] = NULL;
-  ptr_[2] = NULL;
 }
 
 Frame::~Frame() {
