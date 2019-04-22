@@ -131,8 +131,12 @@ NAN_METHOD(Writer::SetMode) {
       return;
     }
     writer->writer_->mode = info[0]->Uint32Value();
+    Nan::Set(info.Holder(), Nan::New("mode").ToLocalChecked(), Nan::New(writer->writer_->mode));
+    info.GetReturnValue().Set(true);
   }
-  info.GetReturnValue().Set(false);
+  else {
+    info.GetReturnValue().Set(false);
+  }
 }
 
 Writer::Writer(Nan::NAN_METHOD_ARGS_TYPE info) {
