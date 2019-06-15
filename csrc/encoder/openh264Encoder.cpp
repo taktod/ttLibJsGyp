@@ -22,7 +22,7 @@ Openh264Encoder::Openh264Encoder(Local<Object> params) : Encoder() {
   {
     Local<Array> keys = param->GetPropertyNames(Nan::GetCurrentContext()).ToLocalChecked();
     for(int i = 0, max = keys->Length();i < max;++ i) {
-      String::Utf8Value key(v8::Isolate::GetCurrent(), ToString(keys->Get(i)));
+      String::Utf8Value key(v8::Isolate::GetCurrent(), ToString(Nan::Get(keys, i).ToLocalChecked()));
       String::Utf8Value value(v8::Isolate::GetCurrent(), ToString(Nan::Get(param, Nan::New(*key).ToLocalChecked()).ToLocalChecked()));
       // あとはデータにアクセスして処理すればよい。
       bool result = ttLibC_Openh264Encoder_paramParse(&paramExt, *key, *value);
@@ -36,10 +36,10 @@ Openh264Encoder::Openh264Encoder(Local<Object> params) : Encoder() {
     num = 4;
   }
   for(int i = 0;i < num;++ i) {
-    Local<Object> spatialParam = ToObject(spatialParamArray->Get(i));
+    Local<Object> spatialParam = ToObject(Nan::Get(spatialParamArray, i).ToLocalChecked());
     Local<Array> keys = spatialParam->GetPropertyNames(Nan::GetCurrentContext()).ToLocalChecked();
     for(int j = 0, max = keys->Length();j < max;++ j) {
-      String::Utf8Value key(v8::Isolate::GetCurrent(), ToString(keys->Get(j)));
+      String::Utf8Value key(v8::Isolate::GetCurrent(), ToString(Nan::Get(keys, j).ToLocalChecked()));
       String::Utf8Value value(v8::Isolate::GetCurrent(), ToString(Nan::Get(spatialParam, Nan::New(*key).ToLocalChecked()).ToLocalChecked()));
       bool result = ttLibC_Openh264Encoder_spatialParamParse(&paramExt, i, *key, *value);
       if(!result) {

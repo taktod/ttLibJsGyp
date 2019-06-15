@@ -18,4 +18,4 @@ double NumberValue(Local<Value> value) {
 
 Local<String> ToString(Local<Value> value) {
   return Nan::To<v8::String>(value).ToLocalChecked();
- }
+}
