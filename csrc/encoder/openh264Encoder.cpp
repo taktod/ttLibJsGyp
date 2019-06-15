@@ -1,5 +1,6 @@
 ﻿#include "openh264Encoder.h"
 #include "../frame.h"
+#include "../util.h"
 #ifdef __ENABLE_OPENH264__
 # include <wels/codec_api.h>
 #endif
@@ -7,9 +8,9 @@
 Openh264Encoder::Openh264Encoder(Local<Object> params) : Encoder() {
   type_ = get_openh264;
 #ifdef __ENABLE_OPENH264__
-  uint32_t width  = Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t height = Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  Local<Object> param = Nan::Get(params, Nan::New("param").ToLocalChecked()).ToLocalChecked()->ToObject();
+  uint32_t width  = Uint32Value(Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked());
+  uint32_t height = Uint32Value(Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked());
+  Local<Object> param = ToObject(Nan::Get(params, Nan::New("param").ToLocalChecked()).ToLocalChecked());
   Local<Array> spatialParamArray = Local<Array>::Cast(Nan::Get(params, Nan::New("spatialParamArray").ToLocalChecked()).ToLocalChecked());
   if(width == 0 || height == 0) {
     puts("縦横入力パラメーターが不正です。");
@@ -21,8 +22,8 @@ Openh264Encoder::Openh264Encoder(Local<Object> params) : Encoder() {
   {
     Local<Array> keys = param->GetPropertyNames();
     for(int i = 0, max = keys->Length();i < max;++ i) {
-      String::Utf8Value key(v8::Isolate::GetCurrent(), keys->Get(i)->ToString());
-      String::Utf8Value value(v8::Isolate::GetCurrent(), Nan::Get(param, Nan::New(*key).ToLocalChecked()).ToLocalChecked()->ToString());
+      String::Utf8Value key(v8::Isolate::GetCurrent(), ToString(keys->Get(i)));
+      String::Utf8Value value(v8::Isolate::GetCurrent(), ToString(Nan::Get(param, Nan::New(*key).ToLocalChecked()).ToLocalChecked()));
       // あとはデータにアクセスして処理すればよい。
       bool result = ttLibC_Openh264Encoder_paramParse(&paramExt, *key, *value);
       if(!result) {
@@ -35,11 +36,11 @@ Openh264Encoder::Openh264Encoder(Local<Object> params) : Encoder() {
     num = 4;
   }
   for(int i = 0;i < num;++ i) {
-    Local<Object> spatialParam = spatialParamArray->Get(i)->ToObject();
+    Local<Object> spatialParam = ToObject(spatialParamArray->Get(i));
     Local<Array> keys = spatialParam->GetPropertyNames();
     for(int j = 0, max = keys->Length();j < max;++ j) {
-      String::Utf8Value key(v8::Isolate::GetCurrent(), keys->Get(j)->ToString());
-      String::Utf8Value value(v8::Isolate::GetCurrent(), Nan::Get(spatialParam, Nan::New(*key).ToLocalChecked()).ToLocalChecked()->ToString());
+      String::Utf8Value key(v8::Isolate::GetCurrent(), ToString(keys->Get(j)));
+      String::Utf8Value value(v8::Isolate::GetCurrent(), ToString(Nan::Get(spatialParam, Nan::New(*key).ToLocalChecked()).ToLocalChecked()));
       bool result = ttLibC_Openh264Encoder_spatialParamParse(&paramExt, i, *key, *value);
       if(!result) {
         printf("%s %s:パラメーター設定失敗しました。\n", *key, *value);
@@ -64,7 +65,7 @@ bool Openh264Encoder::encodeCallback(void *ptr, ttLibC_H264 *h264) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

@@ -1,6 +1,7 @@
 ﻿#include "predef.h"
 #include "reader.h"
 #include "frame.h"
+#include "util.h"
 
 #include <string>
 
@@ -41,8 +42,8 @@ NAN_METHOD(Reader::ReadFrame) {
     Local<Value> callback = info[1];
     if(binary->IsUint8Array()
     || binary->IsArrayBuffer()) {
-      void   *data      = (void *)node::Buffer::Data(binary->ToObject());
-      size_t  data_size = node::Buffer::Length(binary->ToObject());
+      void   *data      = (void *)node::Buffer::Data(ToObject(binary));
+      size_t  data_size = node::Buffer::Length(ToObject(binary));
       Reader *reader    = Nan::ObjectWrap::Unwrap<Reader>(info.Holder());
       if(reader == NULL || reader->reader_ == NULL) {
         puts("readerがありません。");
@@ -105,7 +106,7 @@ NAN_METHOD(Reader::ReadFrame) {
 }
 
 Reader::Reader(Nan::NAN_METHOD_ARGS_TYPE info) {
-  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
+  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0])));
   if(type == "flv") {
     reader_ = (ttLibC_ContainerReader *)ttLibC_FlvReader_make();
   }
@@ -147,7 +148,7 @@ bool Reader::frameCallback(
   Local<Value> args[] = {
     jsFrame // あとはここにframe情報をうまく折り込めばOKの予定だが・・・
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

@@ -2,6 +2,7 @@
 
 #include "../../../../predef.h"
 #include "../../../../frame.h"
+#include "../../../../util.h"
 
 #include "tetty/rtmpClientHandler.h"
 #include "tetty/rtmpCommandHandler.h"
@@ -59,7 +60,7 @@ void RtmpBootstrap::recvAmf0Command(ttLibC_Amf0Command *command) {
       Nan::New(command->inherit_super.header->stream_id),
       jsObject
     };
-    callback.Call(2, args);
+    callbackCall(callback, 2, args);
   }
   else {
     // onStatus以外のイベント
@@ -83,7 +84,7 @@ void RtmpBootstrap::recvAmf0Result(
       Nan::New(-1),
       jsObject
     };
-    callback.Call(2, args);
+    callbackCall(callback, 2, args);
   }
   else if(target_command == "createStream") {
     // createStreamを発動した場合の応答動作
@@ -92,7 +93,7 @@ void RtmpBootstrap::recvAmf0Result(
     Local<Value> args[] = {
       Nan::New((uint32_t)(*((double *)result->obj2->object)))
     };
-    callback->Call(1, args);
+    callbackCall(*callback, 1, args);
     delete callback;
   }
   else {
@@ -112,7 +113,7 @@ bool RtmpBootstrap::playFrameCallback(uint32_t streamId, ttLibC_Frame *frame) {
     Nan::New(streamId),
     jsFrame
   };
-  callback.Call(2, args);
+  callbackCall(callback, 2, args);
   return true;
 }
 
@@ -149,9 +150,9 @@ NAN_METHOD(RtmpBootstrap::Connect) {
     info.GetReturnValue().Set(false);
     return;
   }
-  bootstrap->socket_.Reset(info[0]->ToObject());
+  bootstrap->socket_.Reset(ToObject(info[0]));
   // ここでソケットオブジェクトを設定しなければならないわけだが・・・
-  ttLibC_TettyBootstrap_connectNode(bootstrap->bootstrap_, info[0]->ToObject());
+  ttLibC_TettyBootstrap_connectNode(bootstrap->bootstrap_, ToObject(info[0]));
   info.GetReturnValue().Set(true);
 }
 
@@ -161,11 +162,11 @@ NAN_METHOD(RtmpBootstrap::Data) {
     info.GetReturnValue().Set(false);
     return;
   }
-  void  *data      = (void *)node::Buffer::Data(info[1]->ToObject());
-  size_t data_size = node::Buffer::Length(info[1]->ToObject());
+  void  *data      = (void *)node::Buffer::Data(ToObject(info[1]));
+  size_t data_size = node::Buffer::Length(ToObject(info[1]));
   ttLibC_TettyBootstrap_fireChannelReadNode(
     bootstrap->bootstrap_,
-    info[0]->ToObject(),
+    ToObject(info[0]),
     data,
     data_size);
   info.GetReturnValue().Set(true);
@@ -195,8 +196,8 @@ NAN_METHOD(RtmpBootstrap::Play) {
   if(info.Length() != 4) {
     info.GetReturnValue().Set(false);
   }
-  uint32_t streamId = info[0]->Uint32Value();
-  std::string name(*String::Utf8Value(v8::Isolate::GetCurrent(), info[1]->ToString()));
+  uint32_t streamId = Uint32Value(info[0]);
+  std::string name(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[1])));
   bool acceptVideo = info[2]->IsTrue();
   bool acceptAudio = info[3]->IsTrue();
   // receiveAudioを送る
@@ -226,8 +227,8 @@ NAN_METHOD(RtmpBootstrap::Publish) {
   if(info.Length() != 2) {
     info.GetReturnValue().Set(false);
   }
-  uint32_t streamId = info[0]->Uint32Value();
-  std::string name(*String::Utf8Value(v8::Isolate::GetCurrent(), info[1]->ToString()));
+  uint32_t streamId = Uint32Value(info[0]);
+  std::string name(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[1])));
   ttLibC_Amf0Command *publish = ttLibC_Amf0Command_publish(streamId, name.c_str());
   ttLibC_TettyBootstrap_channels_write(bootstrap->bootstrap_, publish, sizeof(ttLibC_Amf0Command));
   ttLibC_TettyBootstrap_channels_flush(bootstrap->bootstrap_);
@@ -245,8 +246,8 @@ NAN_METHOD(RtmpBootstrap::SetBufferLength) {
   }
   ttLibC_UserControlMessage *clientBufferLength = ttLibC_UserControlMessage_make(
       Type_ClientBufferLength,
-      info[0]->Uint32Value(),
-      info[1]->Uint32Value() * 1000,
+      Uint32Value(info[0]),
+      Uint32Value(info[1]) * 1000,
       0); // ここにstreamのptsをいれないといけないが・・・とりあえず0いれとくか
   ttLibC_TettyBootstrap_channels_write(bootstrap->bootstrap_, clientBufferLength, sizeof(ttLibC_UserControlMessage));
   ttLibC_TettyBootstrap_channels_flush(bootstrap->bootstrap_);
@@ -262,7 +263,7 @@ NAN_METHOD(RtmpBootstrap::QueueFrame) {
   if(info.Length() != 2) {
     info.GetReturnValue().Set(false);
   }
-  uint32_t streamId = info[0]->Uint32Value();
+  uint32_t streamId = Uint32Value(info[0]);
   ttg_frameGroup *group = (ttg_frameGroup *)ttLibC_StlMap_get(bootstrap->frameGroupMap_, (void *)(long)streamId);
   if(group == NULL) {
     // groupがない場合(新規作成の場合)
@@ -438,7 +439,7 @@ NAN_METHOD(RtmpBootstrap::CloseStream) {
   if(info.Length() != 1) {
     info.GetReturnValue().Set(false);
   }
-  uint32_t streamId = info[0]->Uint32Value();
+  uint32_t streamId = Uint32Value(info[0]);
   ttLibC_Amf0Command *closeStream = ttLibC_Amf0Command_closeStream(streamId);
   ttLibC_TettyBootstrap_channels_write(bootstrap->bootstrap_, closeStream, sizeof(ttLibC_UserControlMessage));
   ttLibC_TettyBootstrap_channels_flush(bootstrap->bootstrap_);
@@ -520,8 +521,8 @@ bool RtmpBootstrap::frameGroupCloseCallback(void *ptr, void *key, void *item) {
 }
 
 RtmpBootstrap::RtmpBootstrap(Local<Value> address, Local<Value> app) : Bootstrap() {
-  address_ = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), address->ToString()));
-  app_ = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), app->ToString()));
+  address_ = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(address)));
+  app_ = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(app)));
 
   // ここでbootstrapの調整を実施する。
   ttLibC_TettyBootstrap_channel(bootstrap_, ChannelType_Tcp);

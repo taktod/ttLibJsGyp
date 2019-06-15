@@ -1,12 +1,13 @@
 ﻿#include "msAacEncoder.h"
 #include "../frame.h"
+#include "../util.h"
 
 MSAacEncoder::MSAacEncoder(Local<Object> params) : Encoder() {
   type_ = get_msAac;
 #ifdef __ENABLE_WIN32__
-  uint32_t sampleRate = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t channelNum = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t bitrate = Nan::Get(params, Nan::New("bitrate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t sampleRate = Uint32Value(Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked());
+  uint32_t channelNum = Uint32Value(Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked());
+  uint32_t bitrate = Uint32Value(Nan::Get(params, Nan::New("bitrate").ToLocalChecked()).ToLocalChecked());
   encoder_ = ttLibC_MsAacEncoder_make(
     sampleRate,
     channelNum,
@@ -28,7 +29,7 @@ bool MSAacEncoder::encodeCallback(void *ptr, ttLibC_Aac *aac) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

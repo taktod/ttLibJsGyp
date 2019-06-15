@@ -1,6 +1,7 @@
 ﻿#include "../predef.h"
 #include "msH264Encoder.h"
 #include "../frame.h"
+#include "../util.h"
 #include <ttLibC/frame/video/yuv420.h>
 
 #include <ttLibC/allocator.h>
@@ -29,7 +30,7 @@ bool MSH264Encoder::listEncoderCallback(void *ptr, const char *name) {
   Local<Value> args[] = {
     Nan::New(name).ToLocalChecked()
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }
@@ -43,10 +44,10 @@ MSH264Encoder::MSH264Encoder(Local<Object> params) : Encoder() {
   type_ = get_msH264;
 #ifdef __ENABLE_WIN32__
   // ここで初期化を適当に実施してみようと思う。
-  uint32_t width   = Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t height  = Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t bitrate = Nan::Get(params, Nan::New("bitrate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  std::string name(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("encoder").ToLocalChecked()).ToLocalChecked()->ToString()));
+  uint32_t width   = Uint32Value(Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked());
+  uint32_t height  = Uint32Value(Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked());
+  uint32_t bitrate = Uint32Value(Nan::Get(params, Nan::New("bitrate").ToLocalChecked()).ToLocalChecked());
+  std::string name(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(Nan::Get(params, Nan::New("encoder").ToLocalChecked()).ToLocalChecked())));
   // とりあえずEnumで必要なデータの取得はできたので、このまま進める。
   // こんな感じかな。該当エンコーダーをここで指定して、そこに対してencodeを実施する的な感じで
   encoder_ = ttLibC_MsH264Encoder_make(name.c_str(), width, height, bitrate);
@@ -122,7 +123,7 @@ bool MSH264Encoder::encode(ttLibC_Frame *frame) {
       Local<Value> args[] = {
         jsFrame
       };
-      Local<Value> jsResult = callback.Call(1, args);
+      Local<Value> jsResult = callbackCall(callback, 1, args);
       if(!jsResult->IsTrue()) {
         if(jsResult->IsUndefined()) {
           puts("応答が設定されていません。");

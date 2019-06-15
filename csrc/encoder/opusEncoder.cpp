@@ -1,13 +1,14 @@
 ﻿#include "opusEncoder.h"
 #include "../frame.h"
+#include "../util.h"
 #include <opus/opus.h>
 
 OpusEncoder_::OpusEncoder_(Local<Object> params) : Encoder() {
   type_ = get_opus;
 #ifdef __ENABLE_OPUS__
-  uint32_t sampleRate    = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t channelNum    = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t unitSampleNum = Nan::Get(params, Nan::New("unitSampleNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t sampleRate    = Uint32Value(Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked());
+  uint32_t channelNum    = Uint32Value(Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked());
+  uint32_t unitSampleNum = Uint32Value(Nan::Get(params, Nan::New("unitSampleNum").ToLocalChecked()).ToLocalChecked());
   encoder_ = ttLibC_OpusEncoder_make(sampleRate, channelNum, unitSampleNum);
 #endif
 }
@@ -26,7 +27,7 @@ bool OpusEncoder_::encodeCallback(void *ptr, ttLibC_Opus *opus) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

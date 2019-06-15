@@ -1,5 +1,6 @@
 ﻿#include "x264Encoder.h"
 #include "../frame.h"
+#include "../util.h"
 #ifdef __ENABLE_X264__
 # include <x264.h>
 #endif
@@ -8,12 +9,12 @@ X264Encoder::X264Encoder(Local<Object> params) : Encoder() {
   type_ = get_x264;
 #ifdef __ENABLE_X264__
   // width height preset tunr profile paramを送る
-  uint32_t width  = Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t height = Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  String::Utf8Value preset( v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("preset").ToLocalChecked()).ToLocalChecked()->ToString());
-  String::Utf8Value tune(   v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("tune").ToLocalChecked()).ToLocalChecked()->ToString());
-  String::Utf8Value profile(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("profile").ToLocalChecked()).ToLocalChecked()->ToString());
-  Local<Object> param = Nan::Get(params, Nan::New("param").ToLocalChecked()).ToLocalChecked()->ToObject();
+  uint32_t width  = Uint32Value(Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked());
+  uint32_t height = Uint32Value(Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked());
+  String::Utf8Value preset( v8::Isolate::GetCurrent(), ToString(Nan::Get(params, Nan::New("preset").ToLocalChecked()).ToLocalChecked()));
+  String::Utf8Value tune(   v8::Isolate::GetCurrent(), ToString(Nan::Get(params, Nan::New("tune").ToLocalChecked()).ToLocalChecked()));
+  String::Utf8Value profile(v8::Isolate::GetCurrent(), ToString(Nan::Get(params, Nan::New("profile").ToLocalChecked()).ToLocalChecked()));
+  Local<Object> param = ToObject(Nan::Get(params, Nan::New("param").ToLocalChecked()).ToLocalChecked());
   x264_param_t x264Param;
   ttLibC_X264Encoder_getDefaultX264ParamTWithPresetTune(
     &x264Param,
@@ -24,8 +25,8 @@ X264Encoder::X264Encoder(Local<Object> params) : Encoder() {
   {
     Local<Array> keys = param->GetPropertyNames();
     for(int i = 0, max = keys->Length();i < max;++ i) {
-      String::Utf8Value key(v8::Isolate::GetCurrent(), keys->Get(i)->ToString());
-      String::Utf8Value value(v8::Isolate::GetCurrent(), Nan::Get(param, Nan::New(*key).ToLocalChecked()).ToLocalChecked()->ToString());
+      String::Utf8Value key(v8::Isolate::GetCurrent(), ToString(keys->Get(i)));
+      String::Utf8Value value(v8::Isolate::GetCurrent(), ToString(Nan::Get(param, Nan::New(*key).ToLocalChecked()).ToLocalChecked()));
       int result = x264_param_parse(&x264Param, *key, *value);
       if(result < 0) {
         printf("%s %s:パラメーター設定失敗しました。\n", *key, *value);
@@ -56,7 +57,7 @@ bool X264Encoder::encodeCallback(void *ptr, ttLibC_H264 *h264) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

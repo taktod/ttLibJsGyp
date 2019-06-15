@@ -1,22 +1,23 @@
 ﻿#include "swscaleResampler.h"
 #include "../frame.h"
+#include "../util.h"
 
 SwscaleResampler::SwscaleResampler(Local<Object> params) : Resampler() {
   type_ = grt_swscale;
 #ifdef __ENABLE_SWSCALE__
-  std::string inTypeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("inType").ToLocalChecked()).ToLocalChecked()->ToString()));
-  std::string inSubTypeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("inSubType").ToLocalChecked()).ToLocalChecked()->ToString()));
+  std::string inTypeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(Nan::Get(params, Nan::New("inType").ToLocalChecked()).ToLocalChecked())));
+  std::string inSubTypeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(Nan::Get(params, Nan::New("inSubType").ToLocalChecked()).ToLocalChecked())));
   ttLibC_Frame_Type inType = Frame::getFrameType(inTypeStr);
   uint32_t inSubType = getSubType(inType, inSubTypeStr);
-  uint32_t inWidth = Nan::Get(params, Nan::New("inWidth").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t inHeight = Nan::Get(params, Nan::New("inHeight").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  std::string outTypeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("outType").ToLocalChecked()).ToLocalChecked()->ToString()));
-  std::string outSubTypeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("outSubType").ToLocalChecked()).ToLocalChecked()->ToString()));
+  uint32_t inWidth  = Uint32Value(Nan::Get(params, Nan::New("inWidth").ToLocalChecked()).ToLocalChecked());
+  uint32_t inHeight = Uint32Value(Nan::Get(params, Nan::New("inHeight").ToLocalChecked()).ToLocalChecked());
+  std::string outTypeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(Nan::Get(params, Nan::New("outType").ToLocalChecked()).ToLocalChecked())));
+  std::string outSubTypeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(Nan::Get(params, Nan::New("outSubType").ToLocalChecked()).ToLocalChecked())));
   ttLibC_Frame_Type outType = Frame::getFrameType(outTypeStr);
   uint32_t outSubType = getSubType(outType, outSubTypeStr);
-  uint32_t outWidth = Nan::Get(params, Nan::New("outWidth").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t outHeight = Nan::Get(params, Nan::New("outHeight").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  std::string mode(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("mode").ToLocalChecked()).ToLocalChecked()->ToString()));
+  uint32_t outWidth  = Uint32Value(Nan::Get(params, Nan::New("outWidth").ToLocalChecked()).ToLocalChecked());
+  uint32_t outHeight = Uint32Value(Nan::Get(params, Nan::New("outHeight").ToLocalChecked()).ToLocalChecked());
+  std::string mode(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(Nan::Get(params, Nan::New("mode").ToLocalChecked()).ToLocalChecked())));
 	ttLibC_SwscaleResampler_Mode scaleMode = SwscaleResampler_FastBiLinear;
 	if(mode == "X") {
 		scaleMode = SwscaleResampler_X;
@@ -122,7 +123,7 @@ bool SwscaleResampler::resampleCallback(void *ptr, ttLibC_Frame *video) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

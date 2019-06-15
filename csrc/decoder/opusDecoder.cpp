@@ -1,12 +1,13 @@
 ﻿#include "opusDecoder.h"
 #include "../frame.h"
 #include <opus/opus.h>
+#include "../util.h"
 
 OpusDecoder_::OpusDecoder_(Local<Object> params) : Decoder() {
   type_ = gdt_opus;
 #ifdef __ENABLE_OPUS__
-  uint32_t sampleRate = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t channelNum = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t sampleRate = Uint32Value(Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked());
+  uint32_t channelNum = Uint32Value(Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked());
   decoder_ = ttLibC_OpusDecoder_make(sampleRate, channelNum);
 #endif
 }
@@ -25,7 +26,7 @@ bool OpusDecoder_::decodeCallback(void *ptr, ttLibC_PcmS16 *pcm) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

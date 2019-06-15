@@ -1,15 +1,16 @@
 #include "libyuvScaleResampler.h"
 #include "../frame.h"
+#include "../util.h"
 
 LibyuvScaleResampler::LibyuvScaleResampler(Local<Object> params) {
   type_ = grt_libyuvscale;
   prevFrame_ = nullptr;
 #ifdef __ENABLE_LIBYUV__
-  width_  = Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  height_ = Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  std::string yModeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("yMode").ToLocalChecked()).ToLocalChecked()->ToString()));
-  std::string uModeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("uMode").ToLocalChecked()).ToLocalChecked()->ToString()));
-  std::string vModeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("vMode").ToLocalChecked()).ToLocalChecked()->ToString()));
+  width_  = Uint32Value(Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked());
+  height_ = Uint32Value(Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked());
+  std::string yModeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(Nan::Get(params, Nan::New("yMode").ToLocalChecked()).ToLocalChecked())));
+  std::string uModeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(Nan::Get(params, Nan::New("uMode").ToLocalChecked()).ToLocalChecked())));
+  std::string vModeStr(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(Nan::Get(params, Nan::New("vMode").ToLocalChecked()).ToLocalChecked())));
   if(yModeStr == "Linear") {
     yMode_ = LibyuvFilter_Linear;
   }
@@ -85,7 +86,7 @@ bool LibyuvScaleResampler::resample(ttLibC_Frame *ttFrame) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

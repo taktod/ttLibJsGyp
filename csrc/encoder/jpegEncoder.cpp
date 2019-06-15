@@ -1,12 +1,13 @@
 ﻿#include "jpegEncoder.h"
 #include "../frame.h"
+#include "../util.h"
 
 JpegEncoder::JpegEncoder(Local<Object> params) : Encoder() {
   type_ = get_jpeg;
 #ifdef __ENABLE_JPEG__
-  uint32_t width            = Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t height           = Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t quality          = Nan::Get(params, Nan::New("quality").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t width   = Uint32Value(Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked());
+  uint32_t height  = Uint32Value(Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked());
+  uint32_t quality = Uint32Value(Nan::Get(params, Nan::New("quality").ToLocalChecked()).ToLocalChecked());
   encoder_ = ttLibC_JpegEncoder_make(width, height, quality);
 #endif
 }
@@ -25,7 +26,7 @@ bool JpegEncoder::encodeCallback(void *ptr, ttLibC_Jpeg *jpeg) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

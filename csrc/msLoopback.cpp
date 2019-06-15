@@ -1,6 +1,7 @@
 ﻿#include "predef.h"
 #include "msLoopback.h"
 #include "frame.h"
+#include "util.h"
 
 #include <string>
 
@@ -47,7 +48,7 @@ bool MSLoopback::getDeviceCallback(void *ptr, const char *name) {
   Local<Value> args[] = {
     Nan::New(name).ToLocalChecked()
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }
@@ -96,7 +97,7 @@ bool MSLoopback::captureCallback(void *ptr, ttLibC_PcmS16 *pcm) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }
@@ -111,11 +112,11 @@ MSLoopback::MSLoopback(Nan::NAN_METHOD_ARGS_TYPE info) {
   std::string locale("");
   std::string device("");
   if(info.Length() >= 1) {
-    locale = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
+    locale = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0])));
   }
   if(info.Length() == 2) {
     // 2の場合はdeviceの指定があるもんだとして動作する。
-    device = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[1]->ToString()));
+    device = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[1])));
   }
   char *c_locale = NULL;
   char *c_device = NULL;

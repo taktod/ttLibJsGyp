@@ -1,14 +1,15 @@
 ﻿#include "faacEncoder.h"
 #include "../frame.h"
+#include "../util.h"
 
 FaacEncoder::FaacEncoder(Local<Object> params) : Encoder() {
   type_ = get_faac;
 #ifdef __ENABLE_FAAC_ENCODE__
   // type sampleRate channelNum bitrate(bit/sec)
-  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked()->ToString()));
-  uint32_t sampleRate = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t channelNum = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t bitrate = Nan::Get(params, Nan::New("bitrate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked())));
+  uint32_t sampleRate = Uint32Value(Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked());
+  uint32_t channelNum = Uint32Value(Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked());
+  uint32_t bitrate = Uint32Value(Nan::Get(params, Nan::New("bitrate").ToLocalChecked()).ToLocalChecked());
   ttLibC_FaacEncoder_Type faacEncoderType = FaacEncoderType_Low;
   if(type == "Main") {
     faacEncoderType = FaacEncoderType_Main;
@@ -41,7 +42,7 @@ bool FaacEncoder::encodeCallback(void *ptr, ttLibC_Aac *aac) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

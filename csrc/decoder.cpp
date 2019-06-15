@@ -1,6 +1,7 @@
 ﻿#include "predef.h"
 #include "decoder.h"
 #include "frame.h"
+#include "util.h"
 
 #include "decoder/audioConverterDecoder.h"
 #include "decoder/avcodecDecoder.h"
@@ -105,13 +106,13 @@ static bool checkAvailable(std::string type) {
 NAN_METHOD(Decoder::CheckAvailable) {
   bool result = false;
   if(info.Length() > 0) {
-    std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
+    std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0])));
     result = checkAvailable(type);
   }
   info.GetReturnValue().Set(result);
 }
 NAN_METHOD(Decoder::New) {
-  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
+  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0])));
   if(!checkAvailable(type)) {
     Nan::ThrowError(Nan::New(type + " decoder is not available.").ToLocalChecked());
     return;
@@ -120,37 +121,37 @@ NAN_METHOD(Decoder::New) {
     // ここでどのcodecの動作であるか判定しなければいけないな。
     Decoder *decoder = NULL;
     if(type == "audioConverter") {
-      decoder = new AudioConverterDecoder(info[1]->ToObject());
+      decoder = new AudioConverterDecoder(ToObject(info[1]));
     }
     else if(type == "avcodec") {
-      decoder = new AvcodecDecoder(info[1]->ToObject());
+      decoder = new AvcodecDecoder(ToObject(info[1]));
     }
     else if(type == "jpeg") {
-      decoder = new JpegDecoder(info[1]->ToObject());
+      decoder = new JpegDecoder(ToObject(info[1]));
     }
     else if(type == "mp3lame") {
-      decoder = new Mp3lameDecoder(info[1]->ToObject());
+      decoder = new Mp3lameDecoder(ToObject(info[1]));
     }
     else if(type == "openh264") {
-      decoder = new Openh264Decoder(info[1]->ToObject());
+      decoder = new Openh264Decoder(ToObject(info[1]));
     }
     else if(type == "opus") {
-      decoder = new OpusDecoder_(info[1]->ToObject());
+      decoder = new OpusDecoder_(ToObject(info[1]));
     }
     else if(type == "png") {
-      decoder = new PngDecoder(info[1]->ToObject());
+      decoder = new PngDecoder(ToObject(info[1]));
     }
     else if(type == "speex") {
-      decoder = new SpeexDecoder(info[1]->ToObject());
+      decoder = new SpeexDecoder(ToObject(info[1]));
     }
     else if(type == "theora") {
-      decoder = new TheoraDecoder(info[1]->ToObject());
+      decoder = new TheoraDecoder(ToObject(info[1]));
     }
     else if(type == "vorbis") {
-      decoder = new VorbisDecoder(info[1]->ToObject());
+      decoder = new VorbisDecoder(ToObject(info[1]));
     }
     else if(type == "vtDecompressSession") {
-      decoder = new VtDecompressSessionDecoder(info[1]->ToObject());
+      decoder = new VtDecompressSessionDecoder(ToObject(info[1]));
     }
     else {
       printf("%sは未定義です。\n", type.c_str());
@@ -200,8 +201,8 @@ NAN_METHOD(Decoder::SetCodecControl) {
     if(decoder->type_ == gdt_opus) {
       OpusDecoder_ *opusDecoder = (OpusDecoder_ *)decoder;
       info.GetReturnValue().Set(opusDecoder->codecControl(
-        std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString())),
-        info[1]->Uint32Value()));
+        std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0]))),
+        Uint32Value(info[1])));
       return;
     }
   }
@@ -219,7 +220,7 @@ NAN_METHOD(Decoder::GetCodecControl) {
     if(decoder->type_ == gdt_opus) {
       OpusDecoder_ *opusDecoder = (OpusDecoder_ *)decoder;
       info.GetReturnValue().Set(opusDecoder->codecControl(
-        std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString())),
+        std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0]))),
         0));
       return;
     }

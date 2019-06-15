@@ -1,14 +1,15 @@
 ﻿#include "theoraEncoder.h"
 #include "../frame.h"
+#include "../util.h"
 
 TheoraEncoder::TheoraEncoder(Local<Object> params) : Encoder() {
   type_ = get_theora;
 #ifdef __ENABLE_THEORA__
-  uint32_t width            = Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t height           = Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t quality          = Nan::Get(params, Nan::New("quality").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t bitrate          = Nan::Get(params, Nan::New("bitrate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t keyFrameInterval = Nan::Get(params, Nan::New("keyFrameInterval").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t width            = Uint32Value(Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked());
+  uint32_t height           = Uint32Value(Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked());
+  uint32_t quality          = Uint32Value(Nan::Get(params, Nan::New("quality").ToLocalChecked()).ToLocalChecked());
+  uint32_t bitrate          = Uint32Value(Nan::Get(params, Nan::New("bitrate").ToLocalChecked()).ToLocalChecked());
+  uint32_t keyFrameInterval = Uint32Value(Nan::Get(params, Nan::New("keyFrameInterval").ToLocalChecked()).ToLocalChecked());
   encoder_ = ttLibC_TheoraEncoder_make_ex(width, height, quality, bitrate, keyFrameInterval);
 #endif
 }
@@ -27,7 +28,7 @@ bool TheoraEncoder::encodeCallback(void *ptr, ttLibC_Theora *theora) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

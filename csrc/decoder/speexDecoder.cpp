@@ -1,11 +1,12 @@
 ﻿#include "speexDecoder.h"
 #include "../frame.h"
+#include "../util.h"
 
 SpeexDecoder::SpeexDecoder(Local<Object> params) : Decoder() {
   type_ = gdt_speex;
 #ifdef __ENABLE_SPEEX__
-  uint32_t sampleRate = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t channelNum = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t sampleRate = Uint32Value(Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked());
+  uint32_t channelNum = Uint32Value(Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked());
   decoder_ = ttLibC_SpeexDecoder_make(sampleRate, channelNum);
 #endif
 }
@@ -24,7 +25,7 @@ bool SpeexDecoder::decodeCallback(void *ptr, ttLibC_PcmS16 *pcm) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

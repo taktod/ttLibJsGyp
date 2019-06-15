@@ -1,6 +1,7 @@
 ﻿#include "predef.h"
 #include "resampler.h"
 #include "frame.h"
+#include "util.h"
 
 #include "resampler/audioResampler.h"
 #include "resampler/imageResampler.h"
@@ -88,13 +89,13 @@ static bool checkAvailable(std::string type) {
 NAN_METHOD(Resampler::CheckAvailable) {
   bool result = false;
   if(info.Length() > 0) {
-    std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
+    std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0])));
     result = checkAvailable(type);
   }
   info.GetReturnValue().Set(result);
 }
 NAN_METHOD(Resampler::New) {
-  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
+  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0])));
   if(!checkAvailable(type)) {
     Nan::ThrowError(Nan::New(type + " resampler is not available.").ToLocalChecked());
     return;
@@ -103,28 +104,28 @@ NAN_METHOD(Resampler::New) {
     // ここでどのcodecの動作であるか判定しなければいけないな。
     Resampler *resampler = NULL;
     if(type == "audio") {
-      resampler = new AudioResampler(info[1]->ToObject());
+      resampler = new AudioResampler(ToObject(info[1]));
     }
     else if(type == "image") {
-      resampler = new ImageResampler(info[1]->ToObject());
+      resampler = new ImageResampler(ToObject(info[1]));
     }
     else if(type == "libyuvrotate") {
-      resampler = new LibyuvRotateResampler(info[1]->ToObject());
+      resampler = new LibyuvRotateResampler(ToObject(info[1]));
     }
     else if(type == "libyuvscale") {
-      resampler = new LibyuvScaleResampler(info[1]->ToObject());
+      resampler = new LibyuvScaleResampler(ToObject(info[1]));
     }
     else if(type == "soundtouch") {
-      resampler = new SoundtouchResampler(info[1]->ToObject());
+      resampler = new SoundtouchResampler(ToObject(info[1]));
     }
     else if(type == "speexdsp") {
-      resampler = new SpeexdspResampler(info[1]->ToObject());
+      resampler = new SpeexdspResampler(ToObject(info[1]));
     }
     else if(type == "swresample") {
-      resampler = new SwresampleResampler(info[1]->ToObject());
+      resampler = new SwresampleResampler(ToObject(info[1]));
     }
     else if(type == "swscale") {
-      resampler = new SwscaleResampler(info[1]->ToObject());
+      resampler = new SwscaleResampler(ToObject(info[1]));
     }
     else {
       printf("%sは未定義です。\n", type.c_str());
@@ -168,7 +169,7 @@ NAN_METHOD(Resampler::SetRate) {
     Resampler *resampler = Nan::ObjectWrap::Unwrap<Resampler>(info.Holder());
     if(resampler->type_ == grt_soundtouch) {
       SoundtouchResampler *soundtouch = (SoundtouchResampler *)resampler;
-      soundtouch->setRate(info[0]->NumberValue());
+      soundtouch->setRate(NumberValue(info[0]));
     }
   }
 }
@@ -178,7 +179,7 @@ NAN_METHOD(Resampler::SetTempo) {
     Resampler *resampler = Nan::ObjectWrap::Unwrap<Resampler>(info.Holder());
     if(resampler->type_ == grt_soundtouch) {
       SoundtouchResampler *soundtouch = (SoundtouchResampler *)resampler;
-      soundtouch->setTempo(info[0]->NumberValue());
+      soundtouch->setTempo(NumberValue(info[0]));
     }
   }
 }
@@ -188,7 +189,7 @@ NAN_METHOD(Resampler::SetRateChange) {
     Resampler *resampler = Nan::ObjectWrap::Unwrap<Resampler>(info.Holder());
     if(resampler->type_ == grt_soundtouch) {
       SoundtouchResampler *soundtouch = (SoundtouchResampler *)resampler;
-      soundtouch->setRateChange(info[0]->NumberValue());
+      soundtouch->setRateChange(NumberValue(info[0]));
     }
   }
 }
@@ -198,7 +199,7 @@ NAN_METHOD(Resampler::SetTempoChange) {
     Resampler *resampler = Nan::ObjectWrap::Unwrap<Resampler>(info.Holder());
     if(resampler->type_ == grt_soundtouch) {
       SoundtouchResampler *soundtouch = (SoundtouchResampler *)resampler;
-      soundtouch->setTempoChange(info[0]->NumberValue());
+      soundtouch->setTempoChange(NumberValue(info[0]));
     }
   }
 }
@@ -208,7 +209,7 @@ NAN_METHOD(Resampler::SetPitch) {
     Resampler *resampler = Nan::ObjectWrap::Unwrap<Resampler>(info.Holder());
     if(resampler->type_ == grt_soundtouch) {
       SoundtouchResampler *soundtouch = (SoundtouchResampler *)resampler;
-      soundtouch->setPitch(info[0]->NumberValue());
+      soundtouch->setPitch(NumberValue(info[0]));
     }
   }
 }
@@ -218,7 +219,7 @@ NAN_METHOD(Resampler::SetPitchOctaves) {
     Resampler *resampler = Nan::ObjectWrap::Unwrap<Resampler>(info.Holder());
     if(resampler->type_ == grt_soundtouch) {
       SoundtouchResampler *soundtouch = (SoundtouchResampler *)resampler;
-      soundtouch->setPitchOctaves(info[0]->NumberValue());
+      soundtouch->setPitchOctaves(NumberValue(info[0]));
     }
   }
 }
@@ -228,7 +229,7 @@ NAN_METHOD(Resampler::SetPitchSemiTones) {
     Resampler *resampler = Nan::ObjectWrap::Unwrap<Resampler>(info.Holder());
     if(resampler->type_ == grt_soundtouch) {
       SoundtouchResampler *soundtouch = (SoundtouchResampler *)resampler;
-      soundtouch->setPitchSemiTones(info[0]->NumberValue());
+      soundtouch->setPitchSemiTones(NumberValue(info[0]));
     }
   }
 }

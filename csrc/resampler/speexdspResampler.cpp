@@ -1,15 +1,16 @@
 ﻿#include "speexdspResampler.h"
 #include "../frame.h"
+#include "../util.h"
 
 #include <string>
 
 SpeexdspResampler::SpeexdspResampler(Local<Object> params) {
   type_ = grt_speexdsp;
 #ifdef __ENABLE_SPEEXDSP__
-  uint32_t channelNum    = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t inSampleRate  = Nan::Get(params, Nan::New("inSampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t outSampleRate = Nan::Get(params, Nan::New("outSampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t quality       = Nan::Get(params, Nan::New("quality").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t channelNum    = Uint32Value(Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked());
+  uint32_t inSampleRate  = Uint32Value(Nan::Get(params, Nan::New("inSampleRate").ToLocalChecked()).ToLocalChecked());
+  uint32_t outSampleRate = Uint32Value(Nan::Get(params, Nan::New("outSampleRate").ToLocalChecked()).ToLocalChecked());
+  uint32_t quality       = Uint32Value(Nan::Get(params, Nan::New("quality").ToLocalChecked()).ToLocalChecked());
   pcm_ = NULL;
   resampler_ = ttLibC_SpeexdspResampler_make(channelNum, inSampleRate, outSampleRate, quality);
 #endif
@@ -55,7 +56,7 @@ bool SpeexdspResampler::resample(ttLibC_Frame *frame) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

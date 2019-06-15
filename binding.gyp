@@ -160,6 +160,7 @@
         "csrc/frame.cpp",
         "csrc/reader.cpp",
         "csrc/writer.cpp",
+        "csrc/util.cpp",
         "csrc/decoder.cpp",
         "csrc/decoder/audioConverterDecoder.cpp",
         "csrc/decoder/avcodecDecoder.cpp",

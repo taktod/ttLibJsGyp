@@ -1,5 +1,6 @@
 ﻿#include "imageResampler.h"
 #include "../frame.h"
+#include "../util.h"
 
 #include <ttLibC/resampler/imageResampler.h>
 
@@ -7,9 +8,9 @@ ImageResampler::ImageResampler(Local<Object> params) {
   type_ = grt_image;
   frameType_ = Frame::getFrameType(
     std::string(*String::Utf8Value(v8::Isolate::GetCurrent(),
-      Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked()->ToString()))
+      ToString(Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked())))
   );
-  std::string subType(*String::Utf8Value(v8::Isolate::GetCurrent(), Nan::Get(params, Nan::New("subType").ToLocalChecked()).ToLocalChecked()->ToString()));
+  std::string subType(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(Nan::Get(params, Nan::New("subType").ToLocalChecked()).ToLocalChecked())));
   switch(frameType_) {
   case frameType_bgr:
     if(subType == "bgr") {
@@ -87,7 +88,7 @@ bool ImageResampler::resample(ttLibC_Frame *ttFrame) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

@@ -1,11 +1,12 @@
 #include "libyuvRotateResampler.h"
 #include "../frame.h"
+#include "../util.h"
 
 LibyuvRotateResampler::LibyuvRotateResampler(Local<Object> params) {
   type_ = grt_libyuvrotate;
   prevFrame_ = nullptr;
 #ifdef __ENABLE_LIBYUV__
-  uint32_t degree = Nan::Get(params, Nan::New("degree").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t degree = Uint32Value(Nan::Get(params, Nan::New("degree").ToLocalChecked()).ToLocalChecked());
   switch(degree) {
   default:
     puts("回転角度は0 90 180 270のみサポートしています。");
@@ -57,7 +58,7 @@ bool LibyuvRotateResampler::resample(ttLibC_Frame *ttFrame) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

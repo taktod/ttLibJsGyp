@@ -1,13 +1,14 @@
 ﻿#include "mp3lameEncoder.h"
 #include "../frame.h"
+#include "../util.h"
 
 Mp3lameEncoder::Mp3lameEncoder(Local<Object> params) : Encoder() {
   type_ = get_mp3lame;
 #ifdef __ENABLE_MP3LAME_ENCODE__
   // sampleRate channelNum, quality
-  uint32_t sampleRate = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t channelNum = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t quality = Nan::Get(params, Nan::New("quality").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t sampleRate = Uint32Value(Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked());
+  uint32_t channelNum = Uint32Value(Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked());
+  uint32_t quality = Uint32Value(Nan::Get(params, Nan::New("quality").ToLocalChecked()).ToLocalChecked());
   encoder_ = ttLibC_Mp3lameEncoder_make(
     sampleRate,
     channelNum,
@@ -29,7 +30,7 @@ bool Mp3lameEncoder::encodeCallback(void *ptr, ttLibC_Mp3 *mp3) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

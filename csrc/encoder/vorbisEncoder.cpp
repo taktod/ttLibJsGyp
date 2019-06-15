@@ -1,11 +1,12 @@
 ﻿#include "vorbisEncoder.h"
 #include "../frame.h"
+#include "../util.h"
 
 VorbisEncoder::VorbisEncoder(Local<Object> params) : Encoder() {
   type_ = get_opus;
 #ifdef __ENABLE_VORBIS_ENCODE__
-  uint32_t sampleRate    = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t channelNum    = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t sampleRate = Uint32Value(Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked());
+  uint32_t channelNum = Uint32Value(Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked());
   encoder_ = ttLibC_VorbisEncoder_make(sampleRate, channelNum);
 #endif
 }
@@ -24,7 +25,7 @@ bool VorbisEncoder::encodeCallback(void *ptr, ttLibC_Vorbis *vorbis) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

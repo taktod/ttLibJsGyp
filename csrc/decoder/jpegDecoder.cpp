@@ -1,5 +1,6 @@
 ﻿#include "jpegDecoder.h"
 #include "../frame.h"
+#include "../util.h"
 
 JpegDecoder::JpegDecoder(Local<Object> params) : Decoder() {
   type_ = gdt_jpeg;
@@ -22,7 +23,7 @@ bool JpegDecoder::decodeCallback(void *ptr, ttLibC_Yuv420 *yuv) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

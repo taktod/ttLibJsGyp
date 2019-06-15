@@ -1,6 +1,7 @@
 ﻿#include "predef.h"
 #include "encoder.h"
 #include "frame.h"
+#include "util.h"
 
 #include "encoder/audioConverterEncoder.h"
 #include "encoder/faacEncoder.h"
@@ -137,14 +138,14 @@ static bool checkAvailable(std::string type) {
 NAN_METHOD(Encoder::CheckAvailable) {
   bool result = false;
   if(info.Length() > 0) {
-    std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
+    std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0])));
     result = checkAvailable(type);
   }
   info.GetReturnValue().Set(result);
 }
 
 NAN_METHOD(Encoder::New) {
-  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
+  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0])));
   if(!checkAvailable(type)) {
     Nan::ThrowError(Nan::New(type + " encoder is not available.").ToLocalChecked());
     return;
@@ -153,49 +154,49 @@ NAN_METHOD(Encoder::New) {
     // ここでどのcodecの動作であるか判定しなければいけないな。
     Encoder *encoder = NULL;
     if(type == "audioConverter") {
-      encoder = new AudioConverterEncoder(info[1]->ToObject());
+      encoder = new AudioConverterEncoder(ToObject(info[1]));
     }
     else if(type == "faac") {
-      encoder = new FaacEncoder(info[1]->ToObject());
+      encoder = new FaacEncoder(ToObject(info[1]));
     }
     else if(type == "fdkaac") {
-      encoder = new FdkaacEncoder(info[1]->ToObject());
+      encoder = new FdkaacEncoder(ToObject(info[1]));
     }
     else if(type == "jpeg") {
-      encoder = new JpegEncoder(info[1]->ToObject());
+      encoder = new JpegEncoder(ToObject(info[1]));
     }
     else if(type == "mp3lame") {
-      encoder = new Mp3lameEncoder(info[1]->ToObject());
+      encoder = new Mp3lameEncoder(ToObject(info[1]));
     }
     else if(type == "msAac") {
-      encoder = new MSAacEncoder(info[1]->ToObject());
+      encoder = new MSAacEncoder(ToObject(info[1]));
     }
     else if(type == "msH264") {
-      encoder = new MSH264Encoder(info[1]->ToObject());
+      encoder = new MSH264Encoder(ToObject(info[1]));
     }
     else if(type == "openh264") {
-      encoder = new Openh264Encoder(info[1]->ToObject());
+      encoder = new Openh264Encoder(ToObject(info[1]));
     }
     else if(type == "opus") {
-      encoder = new OpusEncoder_(info[1]->ToObject());
+      encoder = new OpusEncoder_(ToObject(info[1]));
     }
     else if(type == "speex") {
-      encoder = new SpeexEncoder(info[1]->ToObject());
+      encoder = new SpeexEncoder(ToObject(info[1]));
     }
     else if(type == "theora") {
-      encoder = new TheoraEncoder(info[1]->ToObject());
+      encoder = new TheoraEncoder(ToObject(info[1]));
     }
     else if(type == "vorbis") {
-      encoder = new VorbisEncoder(info[1]->ToObject());
+      encoder = new VorbisEncoder(ToObject(info[1]));
     }
     else if(type == "vtCompressSession") {
-      encoder = new VtCompressSessionEncoder(info[1]->ToObject());
+      encoder = new VtCompressSessionEncoder(ToObject(info[1]));
     }
     else if(type == "x264") {
-      encoder = new X264Encoder(info[1]->ToObject());
+      encoder = new X264Encoder(ToObject(info[1]));
     }
     else if(type == "x265") {
-      encoder = new X265Encoder(info[1]->ToObject());
+      encoder = new X265Encoder(ToObject(info[1]));
     }
     else {
       printf("%sは未定義です。\n", type.c_str());
@@ -248,13 +249,13 @@ NAN_METHOD(Encoder::ForceNextFrameType) {
     case get_x264:
       {
         X264Encoder *x264Encoder = (X264Encoder *)encoder;
-        info.GetReturnValue().Set(x264Encoder->forceNextFrameType(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString())));
+        info.GetReturnValue().Set(x264Encoder->forceNextFrameType(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0]))));
       }
       return;
     case get_x265:
       {
         X265Encoder *x265Encoder = (X265Encoder *)encoder;
-        info.GetReturnValue().Set(x265Encoder->forceNextFrameType(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString())));
+        info.GetReturnValue().Set(x265Encoder->forceNextFrameType(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0]))));
       }
       return;
     default:
@@ -274,7 +275,7 @@ NAN_METHOD(Encoder::SetQuality) {
     }
     if(encoder->type_ == get_jpeg) {
       JpegEncoder *jpegEncoder = (JpegEncoder *)encoder;
-      info.GetReturnValue().Set(jpegEncoder->setQuality(info[0]->Uint32Value()));
+      info.GetReturnValue().Set(jpegEncoder->setQuality(Uint32Value(info[0])));
     }
   }
   info.GetReturnValue().Set(false);
@@ -290,7 +291,7 @@ NAN_METHOD(Encoder::SetRCMode) {
     }
     if(encoder->type_ == get_openh264) {
       Openh264Encoder *openh264Encoder = (Openh264Encoder *)encoder;
-      info.GetReturnValue().Set(openh264Encoder->setRCMode(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString())));
+      info.GetReturnValue().Set(openh264Encoder->setRCMode(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0]))));
     }
   }
   info.GetReturnValue().Set(false);
@@ -306,7 +307,7 @@ NAN_METHOD(Encoder::SetIDRInterval) {
     }
     if(encoder->type_ == get_openh264) {
       Openh264Encoder *openh264Encoder = (Openh264Encoder *)encoder;
-      info.GetReturnValue().Set(openh264Encoder->setIDRInterval(info[0]->Uint32Value()));
+      info.GetReturnValue().Set(openh264Encoder->setIDRInterval(Uint32Value(info[0])));
     }
   }
   info.GetReturnValue().Set(false);
@@ -340,13 +341,13 @@ NAN_METHOD(Encoder::SetBitrate) {
     case get_opus:
       {
         OpusEncoder_ *opusEncoder = (OpusEncoder_ *)encoder;
-        info.GetReturnValue().Set(opusEncoder->setBitrate(info[0]->Uint32Value()));
+        info.GetReturnValue().Set(opusEncoder->setBitrate(Uint32Value(info[0])));
       }
       return;
     case get_fdkaac:
       {
         FdkaacEncoder *fdkaacEncoder = (FdkaacEncoder *)encoder;
-        info.GetReturnValue().Set(fdkaacEncoder->setBitrate(info[0]->Uint32Value()));
+        info.GetReturnValue().Set(fdkaacEncoder->setBitrate(Uint32Value(info[0])));
       }
       return;
     default:
@@ -366,7 +367,7 @@ NAN_METHOD(Encoder::SetComplexity) {
     }
     if(encoder->type_ == get_opus) {
       OpusEncoder_ *opusEncoder = (OpusEncoder_ *)encoder;
-      info.GetReturnValue().Set(opusEncoder->setComplexity(info[0]->Uint32Value()));
+      info.GetReturnValue().Set(opusEncoder->setComplexity(Uint32Value(info[0])));
       return;
     }
   }
@@ -384,8 +385,8 @@ NAN_METHOD(Encoder::SetCodecControl) {
     if(encoder->type_ == get_opus) {
       OpusEncoder_ *opusEncoder = (OpusEncoder_ *)encoder;
       info.GetReturnValue().Set(opusEncoder->codecControl(
-        std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString())),
-        info[1]->Uint32Value()));
+        std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0]))),
+        Uint32Value(info[1])));
       return;
     }
   }
@@ -403,7 +404,7 @@ NAN_METHOD(Encoder::GetCodecControl) {
     if(encoder->type_ == get_opus) {
       OpusEncoder_ *opusEncoder = (OpusEncoder_ *)encoder;
       info.GetReturnValue().Set(opusEncoder->codecControl(
-        std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString())),
+        std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0]))),
         0));
       return;
     }

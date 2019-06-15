@@ -1,12 +1,13 @@
 ﻿#include "speexEncoder.h"
 #include "../frame.h"
+#include "../util.h"
 
 SpeexEncoder::SpeexEncoder(Local<Object> params) : Encoder() {
   type_ = get_opus;
 #ifdef __ENABLE_SPEEX__
-  uint32_t sampleRate    = Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t channelNum    = Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t quality = Nan::Get(params, Nan::New("quality").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t sampleRate = Uint32Value(Nan::Get(params, Nan::New("sampleRate").ToLocalChecked()).ToLocalChecked());
+  uint32_t channelNum = Uint32Value(Nan::Get(params, Nan::New("channelNum").ToLocalChecked()).ToLocalChecked());
+  uint32_t quality    = Uint32Value(Nan::Get(params, Nan::New("quality").ToLocalChecked()).ToLocalChecked());
   encoder_ = ttLibC_SpeexEncoder_make(sampleRate, channelNum, quality);
 #endif
 }
@@ -25,7 +26,7 @@ bool SpeexEncoder::encodeCallback(void *ptr, ttLibC_Speex *speex) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

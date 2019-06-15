@@ -9,7 +9,7 @@ static NAN_METHOD(CoInitialize) {
 #ifdef __ENABLE_WIN32__
   ttLibC_MsGlobal_CoInitializeType type = CoInitializeType_normal;
   if(info.Length() >= 1) {
-    std::string str_type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
+    std::string str_type(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0])));
     if(str_type == "multiThreaded") {
       type = CoInitializeType_multiThreaded;
     }
@@ -51,7 +51,7 @@ static NAN_METHOD(setlocale) {
     info.GetReturnValue().Set(false);
     return;
   }
-  info.GetReturnValue().Set(ttLibC_MsGlobal_setlocale(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString())));
+  info.GetReturnValue().Set(ttLibC_MsGlobal_setlocale(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0]))));
 #else
   Nan::ThrowError(Nan::New("setlocale is for Win32 only.").ToLocalChecked());
 #endif

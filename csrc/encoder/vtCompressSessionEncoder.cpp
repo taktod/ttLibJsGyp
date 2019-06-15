@@ -1,5 +1,6 @@
 ﻿#include "vtCompressSessionEncoder.h"
 #include "../frame.h"
+#include "../util.h"
 #include <ttLibC/frame/video/h264.h>
 
 VtCompressSessionEncoder::VtCompressSessionEncoder(Local<Object> params) : Encoder() {
@@ -7,12 +8,12 @@ VtCompressSessionEncoder::VtCompressSessionEncoder(Local<Object> params) : Encod
 #ifdef __ENABLE_APPLE__
   ttLibC_Frame_Type frameType = Frame::getFrameType(
     std::string(*String::Utf8Value(v8::Isolate::GetCurrent(),
-      Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked()->ToString()))
+      ToString(Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked())))
   );
-  uint32_t width   = Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t height  = Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t fps     = Nan::Get(params, Nan::New("fps").ToLocalChecked()).ToLocalChecked()->Uint32Value();
-  uint32_t bitrate = Nan::Get(params, Nan::New("bitrate").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+  uint32_t width   = Uint32Value(Nan::Get(params, Nan::New("width").ToLocalChecked()).ToLocalChecked());
+  uint32_t height  = Uint32Value(Nan::Get(params, Nan::New("height").ToLocalChecked()).ToLocalChecked());
+  uint32_t fps     = Uint32Value(Nan::Get(params, Nan::New("fps").ToLocalChecked()).ToLocalChecked());
+  uint32_t bitrate = Uint32Value(Nan::Get(params, Nan::New("bitrate").ToLocalChecked()).ToLocalChecked());
   bool isBaseline  = Nan::Get(params, Nan::New("isBaseline").ToLocalChecked()).ToLocalChecked()->IsTrue();
   encoder_ = ttLibC_VtEncoder_make_ex(width, height, fps, bitrate, isBaseline, frameType);
 
@@ -90,7 +91,7 @@ bool VtCompressSessionEncoder::encode(ttLibC_Frame *frame) {
       Local<Value> args[] = {
         jsFrame
       };
-      Local<Value> jsResult = callback.Call(1, args);
+      Local<Value> jsResult = callbackCall(callback, 1, args);
       if(!jsResult->IsTrue()) {
         if(jsResult->IsUndefined()) {
           puts("応答が設定されていません。");

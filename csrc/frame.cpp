@@ -1,5 +1,6 @@
 ﻿#include "predef.h"
 #include "frame.h"
+#include "util.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -614,20 +615,20 @@ ttLibC_Frame *Frame::refFrame(Local<Value> jsVFrame) {
 #define GetJsFrameInt(target) do { \
   Local<Value> Js##target = Nan::Get(jsFrame, Nan::New(#target).ToLocalChecked()).ToLocalChecked(); \
   if(Js##target->IsNumber() || Js##target->IsUint32() || Js##target->IsInt32()) { \
-    target = Js##target->Uint32Value(); \
+    target = Uint32Value(Js##target); \
   } \
 } while(0)
 #define GetJsFrameLong(target) do { \
   Local<Value> Js##target = Nan::Get(jsFrame, Nan::New(#target).ToLocalChecked()).ToLocalChecked(); \
   if(Js##target->IsNumber() || Js##target->IsUint32() || Js##target->IsInt32()) { \
-    target = (uint64_t)Js##target->NumberValue(); \
+    target = (uint64_t)NumberValue(Js##target); \
   } \
 } while(0)
 // stringは使いにくいな・・・std::stringにいれてから処理する以外方法がないのか・・・
 #define GetJsFrameString(target) do { \
   Local<Value> Js##target = Nan::Get(jsFrame, Nan::New(#target).ToLocalChecked()).ToLocalChecked(); \
   if(Js##target->IsString()) { \
-    target = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), Js##target->ToString())); \
+    target = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(Js##target))); \
   } \
 } while(0)
   if(!jsVFrame->IsObject()) {
@@ -636,7 +637,7 @@ ttLibC_Frame *Frame::refFrame(Local<Value> jsVFrame) {
   if(jsVFrame->IsArrayBuffer() || jsVFrame->IsTypedArray()) {
     return NULL;
   }
-  Local<Object> jsFrame = jsVFrame->ToObject();
+  Local<Object> jsFrame = ToObject(jsVFrame);
 
   Frame *frame = Nan::ObjectWrap::Unwrap<Frame>(jsFrame);
   if(frame->frame_ == NULL) {
@@ -816,19 +817,19 @@ ttLibC_Frame *Frame::restoreTtLibCFrame(
 #define GetParamInt(target) do { \
   Local<Value> Js##target = Nan::Get(params, Nan::New(#target).ToLocalChecked()).ToLocalChecked(); \
   if(Js##target->IsNumber() || Js##target->IsUint32() || Js##target->IsInt32()) { \
-    target = Js##target->Uint32Value(); \
+    target = Uint32Value(Js##target); \
   } \
 } while(0)
 #define GetParamLong(target) do { \
   Local<Value> Js##target = Nan::Get(params, Nan::New(#target).ToLocalChecked()).ToLocalChecked(); \
   if(Js##target->IsNumber() || Js##target->IsUint32() || Js##target->IsInt32()) { \
-    target = (uint64_t)Js##target->NumberValue(); \
+    target = (uint64_t)NumberValueJs##target); \
   } \
 } while(0)
 #define GetParamString(target) do { \
   Local<Value> Js##target = Nan::Get(params, Nan::New(#target).ToLocalChecked()).ToLocalChecked(); \
   if(Js##target->IsString()) { \
-    target = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), Js##target->ToString())); \
+    target = std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(Js##target))); \
   } \
 } while(0)
   std::string type("");
@@ -843,8 +844,8 @@ ttLibC_Frame *Frame::restoreTtLibCFrame(
     id        = prev_frame->id;
     timebase  = prev_frame->timebase;
   }
-  data = (uint8_t *)node::Buffer::Data(binary->ToObject());
-  data_size = node::Buffer::Length(binary->ToObject());
+  data = (uint8_t *)node::Buffer::Data(ToObject(binary));
+  data_size = node::Buffer::Length(ToObject(binary));
   GetParamString(type);
   if(type != "") {
     frameType = getFrameType(type);
@@ -1640,7 +1641,7 @@ NAN_METHOD(Frame::FromBinaryBuffer) {
   }
   if(info.Length() <= 3 && info[2]->IsObject()) {
     // 2つ目のパラメーターが連想配列であるとして処理しておく
-    params = info[2]->ToObject();
+    params = ToObject(info[2]);
   }
   else {
     params = Nan::New<Object>();
@@ -1651,7 +1652,7 @@ NAN_METHOD(Frame::FromBinaryBuffer) {
     jsFrame = Frame::newInstance();
   }
   else {
-    jsFrame = info[0]->ToObject();
+    jsFrame = ToObject(info[0]);
   }
   Frame::setFrame(jsFrame, ttFrame);
   Frame *newFrame = Nan::ObjectWrap::Unwrap<Frame>(jsFrame);

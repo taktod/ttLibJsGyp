@@ -1,6 +1,7 @@
 ﻿#include "predef.h"
 #include "writer.h"
 #include "frame.h"
+#include "util.h"
 
 #include <string>
 
@@ -45,7 +46,7 @@ NAN_METHOD(Writer::WriteFrame) {
       info.GetReturnValue().Set(false);
       return;
     }
-    writer->writer_->mode = Nan::Get(info.Holder(), Nan::New("mode").ToLocalChecked()).ToLocalChecked()->Uint32Value();
+    writer->writer_->mode = Uint32Value(Nan::Get(info.Holder(), Nan::New("mode").ToLocalChecked()).ToLocalChecked());
     writer->callback_ = info[1];
     switch(writer->writer_->type) {
     case containerType_flv:
@@ -130,7 +131,7 @@ NAN_METHOD(Writer::SetMode) {
       info.GetReturnValue().Set(false);
       return;
     }
-    writer->writer_->mode = info[0]->Uint32Value();
+    writer->writer_->mode = Uint32Value(info[0]);
     Nan::Set(info.Holder(), Nan::New("mode").ToLocalChecked(), Nan::New(writer->writer_->mode));
     info.GetReturnValue().Set(true);
   }
@@ -143,19 +144,19 @@ Writer::Writer(Nan::NAN_METHOD_ARGS_TYPE info) {
   writer_ = NULL;
   // 基本このデータはtype length codec...となっている。
   // flvだけ例外でtype videoCodec audioCodecとなっている。
-  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), info[0]->ToString()));
+  std::string type(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[0])));
   if(type == "flv") {
     writer_ = (ttLibC_ContainerWriter *)ttLibC_FlvWriter_make(
-        Frame::getFrameType(std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[1]->ToString()))),
-        Frame::getFrameType(std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), info[2]->ToString()))));
+        Frame::getFrameType(std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[1])))),
+        Frame::getFrameType(std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(info[2])))));
   }
   else {
-    int unitDuration = info[1]->Uint32Value();
+    int unitDuration = Uint32Value(info[1]);
     Local<Array> codecs = Local<Array>::Cast(info[2]);
     int num = codecs->Length();
     ttLibC_Frame_Type *types = new ttLibC_Frame_Type[num];
     for(int i = 0;i < num;++ i) {
-      types[i] = Frame::getFrameType(std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), codecs->Get(i)->ToString())));
+      types[i] = Frame::getFrameType(std::string(*String::Utf8Value(v8::Isolate::GetCurrent(), ToString(codecs->Get(i)))));
     }
     if(type == "mkv") {
       writer_ = ttLibC_MkvWriter_make_ex(types, num, unitDuration);
@@ -195,7 +196,7 @@ bool Writer::writeCallback(
   Local<Value>  args[]   = {
     binary
   };
-  Local<Value> result = callback.Call(1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }

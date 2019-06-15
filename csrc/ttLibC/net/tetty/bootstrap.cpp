@@ -2,6 +2,7 @@
 // ここにnodeからアクセスすることにしようと思う。
 
 #include "../../../predef.h"
+#include "../../../util.h"
 #include <ttLibC/net/tetty/bootstrap.h>
 #include <ttLibC/net/tetty/promise.h>
 
@@ -271,7 +272,7 @@ static bool TettyBootstrap_channelEach_flush_callback(void *ptr, void *item) {
           (char *)ttLibC_DynamicBuffer_refData(write_buffer),
           ttLibC_DynamicBuffer_refSize(write_buffer)).ToLocalChecked()
       };
-      writeCall.Call(1, args);
+      callbackCall(writeCall, 1, args);
       ttLibC_DynamicBuffer_empty(write_buffer);
     }
   }

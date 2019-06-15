@@ -1,12 +1,13 @@
 ﻿#include "vtDecompressSessionDecoder.h"
 #include "../frame.h"
+#include "../util.h"
 
 VtDecompressSessionDecoder::VtDecompressSessionDecoder(Local<Object> params) : Decoder() {
   type_ = gdt_vtDecompressSession;
 #ifdef __ENABLE_APPLE__
   ttLibC_Frame_Type frameType = Frame::getFrameType(
     std::string(*String::Utf8Value(v8::Isolate::GetCurrent(),
-      Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked()->ToString()))
+      ToString(Nan::Get(params, Nan::New("type").ToLocalChecked()).ToLocalChecked())))
   );
   decoder_ = ttLibC_VtDecoder_make(frameType);
   frameStack_ = ttLibC_StlList_make();
@@ -80,7 +81,7 @@ bool VtDecompressSessionDecoder::decode(ttLibC_Frame *frame) {
       Local<Value> args[] = {
         jsFrame
       };
-      Local<Value> jsResult = callback.Call(1, args);
+      Local<Value> jsResult = callbackCall(callback, 1, args);
       if(!jsResult->IsTrue()) {
         if(jsResult->IsUndefined()) {
           puts("応答が設定されていません。");
