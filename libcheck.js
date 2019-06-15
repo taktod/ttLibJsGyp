@@ -392,7 +392,7 @@ function setupSoundtouch() {
       // pkg-configで存在してる。
       switch(target) {
       case "defs":
-        console.log("__ENABLE_SOUNDTOUCH__");
+        console.log("__ENABLE_SOUNDTOUCH__ ST_NO_EXCEPTION_HANDLING");
         break;
       case "libs":
         console.log(exec("pkg-config --libs soundtouch").toString().trim());
