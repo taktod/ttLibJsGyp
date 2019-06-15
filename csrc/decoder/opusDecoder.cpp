@@ -30,7 +30,7 @@ bool OpusDecoder_::decodeCallback(void *ptr, ttLibC_PcmS16 *pcm) {
   };
   Local<ValSue> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
-    return true;s
+    return true;
   }
   if(result->IsUndefined()) {
     puts("応答が設定されていません。");
