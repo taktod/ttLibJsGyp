@@ -1,4 +1,5 @@
 ﻿#include "msSetup.h"
+#include "util.h"
 
 #include <nan.h>
 #ifdef __ENABLE_WIN32__
