@@ -28,7 +28,7 @@ bool OpusDecoder_::decodeCallback(void *ptr, ttLibC_PcmS16 *pcm) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<ValSue> result = callbackCall(callback, 1, args);
+  Local<Value> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
     return true;
   }
