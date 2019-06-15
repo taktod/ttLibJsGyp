@@ -20,7 +20,7 @@ Openh264Encoder::Openh264Encoder(Local<Object> params) : Encoder() {
   // width height params spatialParamsArrayが必要
   ttLibC_Openh264Encoder_getDefaultSEncParamExt(&paramExt, width, height);
   {
-    Local<Array> keys = param->GetPropertyNames();
+    Local<Array> keys = param->GetPropertyNames(Nan::GetCurrentContext()).ToLocalChecked();
     for(int i = 0, max = keys->Length();i < max;++ i) {
       String::Utf8Value key(v8::Isolate::GetCurrent(), ToString(keys->Get(i)));
       String::Utf8Value value(v8::Isolate::GetCurrent(), ToString(Nan::Get(param, Nan::New(*key).ToLocalChecked()).ToLocalChecked()));
@@ -37,7 +37,7 @@ Openh264Encoder::Openh264Encoder(Local<Object> params) : Encoder() {
   }
   for(int i = 0;i < num;++ i) {
     Local<Object> spatialParam = ToObject(spatialParamArray->Get(i));
-    Local<Array> keys = spatialParam->GetPropertyNames();
+    Local<Array> keys = spatialParam->GetPropertyNames(Nan::GetCurrentContext()).ToLocalChecked();
     for(int j = 0, max = keys->Length();j < max;++ j) {
       String::Utf8Value key(v8::Isolate::GetCurrent(), ToString(keys->Get(j)));
       String::Utf8Value value(v8::Isolate::GetCurrent(), ToString(Nan::Get(spatialParam, Nan::New(*key).ToLocalChecked()).ToLocalChecked()));

@@ -5,17 +5,17 @@ Local<Value> callbackCall(Nan::Callback &callback, int num, Local<Value> *args) 
 }
 
 Local<Object> ToObject(Local<Value> value) {
-  return value->ToObject();
+  return Nan::To<v8::Object>(value).ToLocalChecked();
 }
 
 uint32_t Uint32Value(Local<Value> value) {
-  return value->Uint32Value();
+  return Nan::To<uint32_t>(value).FromJust();
 }
 
 double NumberValue(Local<Value> value) {
-  return value->NumberValue();
+  return Nan::To<double>(value).FromJust();
 }
 
 Local<String> ToString(Local<Value> value) {
-  return value->ToString();
-}
+  return Nan::To<v8::String>(value).ToLocalChecked();
+ }

@@ -23,7 +23,7 @@ X264Encoder::X264Encoder(Local<Object> params) : Encoder() {
     *preset,
     *tune);
   {
-    Local<Array> keys = param->GetPropertyNames();
+    Local<Array> keys = param->GetPropertyNames(Nan::GetCurrentContext()).ToLocalChecked();
     for(int i = 0, max = keys->Length();i < max;++ i) {
       String::Utf8Value key(v8::Isolate::GetCurrent(), ToString(keys->Get(i)));
       String::Utf8Value value(v8::Isolate::GetCurrent(), ToString(Nan::Get(param, Nan::New(*key).ToLocalChecked()).ToLocalChecked()));
