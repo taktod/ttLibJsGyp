@@ -1,4 +1,4 @@
-#ifndef CSRC_DECODER_LIBPNG_H
+﻿#ifndef CSRC_DECODER_LIBPNG_H
 #define CSRC_DECODER_LIBPNG_H
 
 #include "../decoder.h"

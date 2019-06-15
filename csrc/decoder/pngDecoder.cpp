@@ -1,4 +1,4 @@
-#include "pngDecoder.h"
+﻿#include "pngDecoder.h"
 #include "../frame.h"
 #include "../util.h"
 

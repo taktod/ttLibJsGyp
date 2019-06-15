@@ -28,9 +28,9 @@ bool OpusDecoder_::decodeCallback(void *ptr, ttLibC_PcmS16 *pcm) {
   Local<Value> args[] = {
     jsFrame
   };
-  Local<Value> result = callbackCall(callback, 1, args);
+  Local<ValSue> result = callbackCall(callback, 1, args);
   if(result->IsTrue()) {
-    return true;
+    return true;s
   }
   if(result->IsUndefined()) {
     puts("応答が設定されていません。");
