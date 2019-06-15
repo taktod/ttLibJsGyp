@@ -1,7 +1,9 @@
 ﻿#include "opusDecoder.h"
 #include "../frame.h"
-#include <opus/opus.h>
 #include "../util.h"
+#ifdef __ENABLE_OPUS__
+# include <opus/opus.h>
+#endif
 
 OpusDecoder_::OpusDecoder_(Local<Object> params) : Decoder() {
   type_ = gdt_opus;
