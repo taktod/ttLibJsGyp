@@ -1,7 +1,9 @@
 ﻿#include "opusEncoder.h"
 #include "../frame.h"
 #include "../util.h"
-#include <opus/opus.h>
+#ifdef __ENABLE_OPUS__
+# include <opus/opus.h>
+#endif
 
 OpusEncoder_::OpusEncoder_(Local<Object> params) : Encoder() {
   type_ = get_opus;
