@@ -1500,18 +1500,18 @@ NAN_METHOD(Frame::GetBinaryBuffer) {
     size_t data_size;
   } memHolder_t;
 
-  Frame *frame = Nan::ObjectWrap::Unwrap<Frame>(info.Holder());
-  if(frame->frame_ == NULL) {
+  ttLibC_Frame *frame = refFrame(info.Holder());
+  if(frame == NULL) {
     info.GetReturnValue().Set(Nan::Null());
     return;
   }
-  switch(frame->frame_->type) {
+  switch(frame->type) {
   case frameType_bgr:
     {
       memHolder_t pt;
       pt.data = nullptr;
       ttLibC_Bgr_getMinimumBinaryBuffer(
-          (ttLibC_Bgr *)frame->frame_,
+          (ttLibC_Bgr *)frame,
           [](void *ptr, void *data, size_t data_size){
             memHolder_t *pt = (memHolder_t *)ptr;
             pt->data = ttLibC_malloc(data_size);
@@ -1537,7 +1537,7 @@ NAN_METHOD(Frame::GetBinaryBuffer) {
       memHolder_t pt;
       pt.data = nullptr;
       ttLibC_Yuv420_getMinimumBinaryBuffer(
-          (ttLibC_Yuv420 *)frame->frame_,
+          (ttLibC_Yuv420 *)frame,
           [](void *ptr, void *data, size_t data_size){
             memHolder_t *pt = (memHolder_t *)ptr;
             pt->data = ttLibC_malloc(data_size);
@@ -1562,7 +1562,7 @@ NAN_METHOD(Frame::GetBinaryBuffer) {
   case frameType_pcmS16:
     {
       // この２つはframeのcloneをつくって応答する
-      ttLibC_Frame *cloned = ttLibC_Frame_clone(nullptr, frame->frame_);
+      ttLibC_Frame *cloned = ttLibC_Frame_clone(nullptr, frame);
       if(cloned == NULL) {
         info.GetReturnValue().Set(Nan::Null());
         return;
@@ -1572,11 +1572,11 @@ NAN_METHOD(Frame::GetBinaryBuffer) {
     }
     break;
   default:
-    if(frame->frame_->data == NULL) {
+    if(frame->data == NULL) {
       info.GetReturnValue().Set(Nan::Null());
       return;
     }
-    info.GetReturnValue().Set(Nan::CopyBuffer((char *)frame->frame_->data, frame->frame_->buffer_size).ToLocalChecked());
+    info.GetReturnValue().Set(Nan::CopyBuffer((char *)frame->data, frame->buffer_size).ToLocalChecked());
     break;
   }
 }
